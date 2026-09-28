@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="12dp"
+    android:gravity="center_vertical"
+    android:background="#1E1E2D"
+    android:layout_marginBottom="8dp">
+
+    <TextView
+        android:id="@+id/tvStaffName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:text="Staff Name"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvStaffUsername"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.5"
+        android:text="Username"
+        android:textColor="#A0A0B0"
+        android:textSize="13sp" />
+
+    <TextView
+        android:id="@+id/tvStaffEmail"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:text="Email"
+        android:textColor="#A0A0B0"
+        android:textSize="13sp" />
+
+    <TextView
+        android:id="@+id/tvStaffStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Active"
+        android:textColor="#4CAF50"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+
+</LinearLayout>

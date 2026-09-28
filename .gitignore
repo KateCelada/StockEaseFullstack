@@ -1,0 +1,28 @@
+# Android / Gradle
+.gradle/
+build/
+app/build/
+local.properties
+*.iml
+
+# Android Studio
+.idea/
+
+# Codex working files
+.codex_backups/
+.codex_staging/
+
+# Archives
+*.zip
+
+# Database backups
+*.dump
+*.backup
+*.bak
+
+# Logs
+*.log
+
+# Windows
+Thumbs.db
+Desktop.ini

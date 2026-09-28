@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_card_white"
+    android:padding="24dp">
+
+    <!-- Feature Badge & Title -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="12dp">
+
+        <TextView
+            android:id="@+id/tvPremiumFeatureTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Feature (Premium)"
+            android:textColor="#0F172A"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_badge_blue"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="4dp"
+            android:text="Premium"
+            android:textColor="#2563EB"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Explanation -->
+    <TextView
+        android:id="@+id/tvPremiumFeatureExplanation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="This feature is available with StockEase Premium. Upgrade your plan to unlock multi-store inventory transfers, smart analytics, and advanced insights."
+        android:textColor="#64748B"
+        android:textSize="13sp"
+        android:lineSpacingExtra="3dp"
+        android:layout_marginBottom="24dp" />
+
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <Button
+            android:id="@+id/btnCancelUpgrade"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="Cancel"
+            style="?attr/borderlessButtonStyle"
+            android:textColor="#64748B"
+            android:textSize="13sp"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/btnViewPremium"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="View Premium"
+            android:textSize="13sp"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="@color/primary"
+            android:paddingHorizontal="16dp" />
+    </LinearLayout>
+
+</LinearLayout>

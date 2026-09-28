@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#FFFFFF"
+    android:padding="16dp"
+    android:layout_marginBottom="12dp">
+
+    <!-- Top Row: Name and Urgency Badge -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="4dp">
+
+        <TextView
+            android:id="@+id/tvRestockProductName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Product Name"
+            android:textColor="#1B1C30"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvRestockUrgencyBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CRITICAL"
+            android:textColor="#C62828"
+            android:background="#FFEBEE"
+            android:textStyle="bold"
+            android:textSize="11sp"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="4dp" />
+    </LinearLayout>
+
+    <!-- Category -->
+    <TextView
+        android:id="@+id/tvRestockCategory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Category: General"
+        android:textColor="#6E7191"
+        android:textSize="12sp"
+        android:layout_marginBottom="14dp" />
+
+    <!-- Metrics Grid / Row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#F8F9FC"
+        android:padding="12dp"
+        android:layout_marginBottom="14dp">
+
+        <!-- Current Stock -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Current Stock"
+                android:textColor="#6E7191"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/tvRestockCurrentStock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="3 units"
+                android:textColor="#C62828"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:layout_marginTop="2dp" />
+        </LinearLayout>
+
+        <!-- Target Par Level -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Target Par"
+                android:textColor="#6E7191"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/tvRestockTargetPar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="30 units"
+                android:textColor="#1B1C30"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:layout_marginTop="2dp" />
+        </LinearLayout>
+
+        <!-- Suggested Reorder -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.2"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Suggested Reorder"
+                android:textColor="#6E7191"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/tvRestockSuggestedQty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="+27 units"
+                android:textColor="#2E7D32"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:layout_marginTop="2dp" />
+        </LinearLayout>
+
+        <!-- Estimated Cost -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.2"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Est. Cost"
+                android:textColor="#6E7191"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/tvRestockEstCost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₱1,350.00"
+                android:textColor="#7C4DFF"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:layout_marginTop="2dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Bottom Action Row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/tvRestockUnitPrice"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Unit Price: ₱50.00"
+            android:textColor="#6E7191"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/btnRestockAction"
+            android:layout_width="wrap_content"
+            android:layout_height="38dp"
+            android:text="⚡ Restock Now"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#7C4DFF"
+            android:textSize="12sp"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="0dp" />
+    </LinearLayout>
+
+</LinearLayout>
