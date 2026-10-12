@@ -2,9 +2,13 @@ package com.example.stockease;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -12,12 +16,26 @@ import java.util.List;
 
 public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.ViewHolder> {
 
+    public interface OnTransactionVoidListener {
+        void onVoidRequested(Transaction transaction);
+    }
+
     private Context context;
     private List<Transaction> transactionList;
+    private OnTransactionVoidListener voidListener;
 
     public TransactionAdapter(Context context, List<Transaction> transactionList) {
+        this(context, transactionList, null);
+    }
+
+    public TransactionAdapter(Context context, List<Transaction> transactionList, OnTransactionVoidListener voidListener) {
         this.context = context;
         this.transactionList = transactionList;
+        this.voidListener = voidListener;
+    }
+
+    public void setOnTransactionVoidListener(OnTransactionVoidListener listener) {
+        this.voidListener = listener;
     }
 
     @NonNull
@@ -32,10 +50,39 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         Transaction transaction = transactionList.get(position);
 
         holder.tvTxId.setText("Transaction #" + transaction.getId());
-        holder.tvTxMeta.setText("User: " + transaction.getUserName() + " | " + transaction.getPaymentType());
+        String dutyInfo = "Cashier on duty: " + transaction.getUserName();
+        if (!transaction.getCashierUsername().isEmpty()) {
+            dutyInfo += " (@" + transaction.getCashierUsername() + ")";
+        }
+        dutyInfo += " • " + transaction.getPaymentType();
+        holder.tvTxMeta.setText(dutyInfo);
         holder.tvTxDate.setText(transaction.getTransactionDate());
-        holder.tvTxTotal.setText(String.format("₱%.2f", transaction.getTotalAmount()));
         holder.tvTxSummary.setText(transaction.getItemsSummary() != null ? transaction.getItemsSummary() : "No item details");
+
+        boolean isVoided = transaction.isVoided();
+        if (isVoided) {
+            holder.tvTxStatusBadge.setText("VOIDED");
+            holder.tvTxStatusBadge.setTextColor(Color.parseColor("#991B1B"));
+            holder.tvTxStatusBadge.setBackgroundColor(Color.parseColor("#FEE2E2"));
+            holder.tvTxTotal.setText(String.format("₱%.2f", transaction.getTotalAmount()));
+            holder.tvTxTotal.setPaintFlags(holder.tvTxTotal.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            holder.tvTxTotal.setTextColor(Color.parseColor("#94A3B8"));
+            holder.btnVoidTx.setVisibility(View.GONE);
+        } else {
+            holder.tvTxStatusBadge.setText("COMPLETED");
+            holder.tvTxStatusBadge.setTextColor(Color.parseColor("#166534"));
+            holder.tvTxStatusBadge.setBackgroundColor(Color.parseColor("#DCFCE7"));
+            holder.tvTxTotal.setText(String.format("₱%.2f", transaction.getTotalAmount()));
+            holder.tvTxTotal.setPaintFlags(holder.tvTxTotal.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+            holder.tvTxTotal.setTextColor(Color.parseColor("#16A34A"));
+            holder.btnVoidTx.setVisibility(View.VISIBLE);
+        }
+
+        holder.btnVoidTx.setOnClickListener(v -> {
+            if (voidListener != null) {
+                voidListener.onVoidRequested(transaction);
+            }
+        });
 
         // Tap card to view thermal paper receipt layout
         holder.itemView.setOnClickListener(v -> {
@@ -53,15 +100,20 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvTxId, tvTxTotal, tvTxMeta, tvTxDate, tvTxSummary;
+        TextView tvTxId, tvTxStatusBadge, tvTxTotal, tvTxMeta, tvTxDate, tvTxSummary;
+        LinearLayout layoutTxActions;
+        Button btnVoidTx;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvTxId = itemView.findViewById(R.id.tvTxId);
+            tvTxStatusBadge = itemView.findViewById(R.id.tvTxStatusBadge);
             tvTxTotal = itemView.findViewById(R.id.tvTxTotal);
             tvTxMeta = itemView.findViewById(R.id.tvTxMeta);
             tvTxDate = itemView.findViewById(R.id.tvTxDate);
             tvTxSummary = itemView.findViewById(R.id.tvTxSummary);
+            layoutTxActions = itemView.findViewById(R.id.layoutTxActions);
+            btnVoidTx = itemView.findViewById(R.id.btnVoidTx);
         }
     }
 }

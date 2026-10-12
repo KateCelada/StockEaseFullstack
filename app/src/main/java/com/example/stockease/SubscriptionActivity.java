@@ -80,7 +80,8 @@ public class SubscriptionActivity extends AppCompatActivity {
                         if (response.getBoolean("success")) {
                             JSONObject sub = response.getJSONObject("subscription");
                             JSONObject pending = response.optJSONObject("pending_request");
-                            displaySubscription(sub, pending);
+                            JSONObject lastReq = response.optJSONObject("last_request");
+                            displaySubscription(sub, pending, lastReq);
                         } else {
                             Toast.makeText(this, response.optString("message", "Failed to load subscription"), Toast.LENGTH_SHORT).show();
                         }
@@ -97,7 +98,7 @@ public class SubscriptionActivity extends AppCompatActivity {
         queue.add(request);
     }
 
-    private void displaySubscription(JSONObject sub, JSONObject pendingRequest) {
+    private void displaySubscription(JSONObject sub, JSONObject pendingRequest, JSONObject lastRequest) {
         String plan = sub.optString("plan", "free");
         String period = sub.optString("billing_period", "");
         String status = sub.optString("status", "active");
@@ -188,6 +189,39 @@ public class SubscriptionActivity extends AppCompatActivity {
                     btnApplyYearly.setText("Change to Yearly");
                     btnApplyYearly.setEnabled(true);
                 }
+            }
+        } else if (lastRequest != null && "rejected".equalsIgnoreCase(lastRequest.optString("status"))) {
+            String rejectReason = lastRequest.optString("rejection_reason", "Payment verification pending or invalid details.");
+            String reviewedAt = lastRequest.optString("reviewed_at", "");
+
+            if (tvCurrentPlanTitle != null) tvCurrentPlanTitle.setText("StockEase Free (Application Declined)");
+            if (tvSubHeaderBadge != null) {
+                tvSubHeaderBadge.setText("APPLICATION DECLINED");
+                tvSubHeaderBadge.setBackgroundResource(R.drawable.bg_badge_amber);
+                tvSubHeaderBadge.setTextColor(0xFFDC2626);
+            }
+            if (tvCurrentStatusBadge != null) {
+                tvCurrentStatusBadge.setText("DECLINED");
+                tvCurrentStatusBadge.setBackgroundResource(R.drawable.bg_badge_amber);
+                tvCurrentStatusBadge.setTextColor(0xFFDC2626);
+            }
+            if (tvBillingPeriod != null) {
+                tvBillingPeriod.setText("Free Tier");
+            }
+            if (tvExpirationDate != null) {
+                tvExpirationDate.setText(!reviewedAt.isEmpty() ? "Reviewed: " + reviewedAt : "Declined");
+            }
+            if (tvPlanAccessSummary != null) {
+                tvPlanAccessSummary.setText("Reason for decline: \"" + rejectReason + "\"\n\nYou may re-apply below after addressing the issue.");
+            }
+
+            if (btnApplyMonthly != null) {
+                btnApplyMonthly.setText("Re-apply (₱699/mo)");
+                btnApplyMonthly.setEnabled(true);
+            }
+            if (btnApplyYearly != null) {
+                btnApplyYearly.setText("Re-apply (₱6,990/yr)");
+                btnApplyYearly.setEnabled(true);
             }
         } else {
             if (tvCurrentPlanTitle != null) tvCurrentPlanTitle.setText("StockEase Free");

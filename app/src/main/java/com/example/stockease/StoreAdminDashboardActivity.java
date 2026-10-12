@@ -11,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -21,9 +22,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.widget.ScrollView;
+
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class StoreAdminDashboardActivity extends AppCompatActivity {
@@ -32,11 +37,18 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
     private TextView tvAdminAvatarInitials, tvAdminProfileName;
     private TextView tvTodaySales, tvTodaySalesTrend, tvTransactions, tvTxTrend, tvProducts, tvLowStockAlerts, tvLowStockSubtitle;
     private View cardLowStock;
-    private View cardActionProducts, cardActionInventory, cardActionStaff, cardActionReports;
+    private SimpleLineChartView chartStoreEarnings;
+    private TextView tvChartWeeklyTotal;
+    private TextView btnPeriodToday, btnPeriodThisWeek, btnPeriodThisMonth, btnPeriodCustom;
+    private String selectedPeriod = "this_week";
+    private JSONArray cachedTodaySoldProducts = new JSONArray();
+    private JSONArray cachedAllLowStockItems = new JSONArray();
+    private JSONArray cachedTodayHourlyTrend = new JSONArray();
+    private View cardActionProducts, cardActionStaff, cardActionReports;
     private View cardActionTransfers, cardActionInsights;
     private TextView tvViewAllTransactions, tvViewAllLowStock;
     private LinearLayout containerLowStockList, containerRecentSales;
-    private View navDashboard, navProducts, navInventory, navSales, navStaff, navReports, navTransfers, navInsights, navSubscription, navSettings, navLogout;
+    private View navDashboard, navProducts, navStores, navInventory, navSales, navStaff, navReports, navTransfers, navInsights, navSubscription, navSettings, navLogout;
 
     private int storeId = -1;
     private int userId = -1;
@@ -52,6 +64,9 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
     private View containerInboundTransferAlert;
     private TextView tvInboundBadge, tvInboundTitle, tvInboundDesc;
     private Button btnViewInboundTransfer;
+    private View containerManagerBranchSection;
+    private LinearLayout containerManagerBranchCards;
+    private Button btnManagerAddBranch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,8 +83,8 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
             email = getIntent().getStringExtra("email");
         }
 
-        if (storeId <= 0 || userId <= 0 || !"store_admin".equals(role)) {
-            returnToLogin("This dashboard is available only to Store Admin accounts with a valid store.");
+        if (storeId <= 0 || userId <= 0 || (!"store_admin".equals(role) && !"manager".equals(role))) {
+            returnToLogin("This dashboard is available only to Store Admin or Manager accounts with a valid store.");
             return;
         }
 
@@ -90,6 +105,21 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
         tvInboundDesc = findViewById(R.id.tvInboundDesc);
         btnViewInboundTransfer = findViewById(R.id.btnViewInboundTransfer);
 
+        // Manager Multi-Branch Section
+        containerManagerBranchSection = findViewById(R.id.containerManagerBranchSection);
+        containerManagerBranchCards = findViewById(R.id.containerManagerBranchCards);
+        btnManagerAddBranch = findViewById(R.id.btnManagerAddBranch);
+
+        if ("manager".equals(role)) {
+            if (containerManagerBranchSection != null) containerManagerBranchSection.setVisibility(View.VISIBLE);
+            if (btnManagerAddBranch != null) {
+                btnManagerAddBranch.setOnClickListener(v -> showManagerAddBranchDialog());
+            }
+            loadManagerBranches();
+        } else {
+            if (containerManagerBranchSection != null) containerManagerBranchSection.setVisibility(View.GONE);
+        }
+
         // Stat Card Views
         tvTodaySales = findViewById(R.id.tvTodaySales);
         tvTodaySalesTrend = findViewById(R.id.tvTodaySalesTrend);
@@ -99,14 +129,46 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
         tvLowStockAlerts = findViewById(R.id.tvLowStockAlerts);
         tvLowStockSubtitle = findViewById(R.id.tvLowStockSubtitle);
         cardLowStock = findViewById(R.id.cardLowStock);
+        View cardTodaySales = findViewById(R.id.cardTodaySales);
+        View cardTransactions = findViewById(R.id.cardTransactions);
+        View cardTotalProducts = findViewById(R.id.cardTotalProducts);
+
+        if (cardTodaySales != null) {
+            cardTodaySales.setOnClickListener(v -> showTodaySalesRankedDialog());
+        }
+
+        if (cardTransactions != null) {
+            cardTransactions.setOnClickListener(v -> {
+                Intent intent = new Intent(this, TransactionHistoryActivity.class);
+                addIdentityExtras(intent);
+                startActivity(intent);
+            });
+        }
+
+        if (cardTotalProducts != null) {
+            cardTotalProducts.setOnClickListener(v -> {
+                Intent intent = new Intent(this, ProductsActivity.class);
+                addIdentityExtras(intent);
+                startActivity(intent);
+            });
+        }
 
         if (cardLowStock != null) {
-            cardLowStock.setOnClickListener(v -> openLowStockSuggestions());
+            cardLowStock.setOnClickListener(v -> showAllLowStockDialog());
         }
+
+        // Earnings Line Chart & Period Filters
+        chartStoreEarnings = findViewById(R.id.chartStoreEarnings);
+        tvChartWeeklyTotal = findViewById(R.id.tvChartWeeklyTotal);
+        btnPeriodToday = findViewById(R.id.btnPeriodToday);
+        btnPeriodThisWeek = findViewById(R.id.btnPeriodThisWeek);
+        btnPeriodThisMonth = findViewById(R.id.btnPeriodThisMonth);
+        btnPeriodCustom = findViewById(R.id.btnPeriodCustom);
+
+        setupPeriodButtons();
 
         // Quick Action Cards
         cardActionProducts = findViewById(R.id.cardActionProducts);
-        cardActionInventory = findViewById(R.id.cardActionInventory);
         cardActionStaff = findViewById(R.id.cardActionStaff);
         cardActionReports = findViewById(R.id.cardActionReports);
         cardActionTransfers = findViewById(R.id.cardActionTransfers);
@@ -135,6 +197,7 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
         // Sidebar Navigation Items
         navDashboard = findViewById(R.id.navDashboard);
         navProducts = findViewById(R.id.navProducts);
+        navStores = findViewById(R.id.navStores);
         navInventory = findViewById(R.id.navInventory);
         navSales = findViewById(R.id.navSales);
         navStaff = findViewById(R.id.navStaff);
@@ -146,6 +209,14 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
         navLogout = findViewById(R.id.navLogout);
 
         setupNavigationListeners();
+
+        if (!"manager".equals(role) && !"super_admin".equals(role)) {
+            if (btnManagerAddBranch != null) btnManagerAddBranch.setVisibility(View.GONE);
+            if (containerManagerBranchSection != null) containerManagerBranchSection.setVisibility(View.GONE);
+            if (navStores != null) navStores.setVisibility(View.GONE);
+        }
+
+        ViewFeedbackUtil.attachAll(findViewById(android.R.id.content));
     }
 
     private void setupHeaderInfo() {
@@ -164,7 +235,8 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
 
         String displayStore = (storeName != null && !storeName.isEmpty()) ? storeName : "Branch " + storeId;
         if (tvHeaderStorePill != null) {
-            tvHeaderStorePill.setText(displayStore);
+            tvHeaderStorePill.setText(displayStore + " ▾");
+            tvHeaderStorePill.setOnClickListener(v -> showBranchSwitchDialog());
         }
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy", Locale.US);
@@ -196,13 +268,6 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
         if (cardActionProducts != null) {
             cardActionProducts.setOnClickListener(v -> {
                 Intent intent = new Intent(this, ProductsActivity.class);
-                addIdentityExtras(intent);
-                startActivity(intent);
-            });
-        }
-        if (cardActionInventory != null) {
-            cardActionInventory.setOnClickListener(v -> {
-                Intent intent = new Intent(this, InventoryActivity.class);
                 addIdentityExtras(intent);
                 startActivity(intent);
             });
@@ -240,33 +305,130 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (storeId > 0 && userId > 0 && "store_admin".equals(role)) {
+        if (storeId > 0 && userId > 0 && ("store_admin".equals(role) || "manager".equals(role))) {
             loadDashboardMetrics();
         }
+    }
+
+    private void showBranchSwitchDialog() {
+        RequestQueue queue = ApiSession.getRequestQueue(this);
+        String url = ApiConfig.getUrl("manage_stores.php?action=fetch");
+        JsonObjectRequest req = new JsonObjectRequest(
+                Request.Method.GET,
+                url,
+                null,
+                response -> {
+                    try {
+                        if (response.optBoolean("success", false)) {
+                            JSONArray stores = response.optJSONArray("stores");
+                            if (stores != null && stores.length() > 1) {
+                                String[] storeNames = new String[stores.length()];
+                                int[] storeIds = new int[stores.length()];
+                                int selectedIndex = 0;
+
+                                for (int i = 0; i < stores.length(); i++) {
+                                    JSONObject st = stores.getJSONObject(i);
+                                    int id = st.getInt("id");
+                                    String name = st.getString("store_name");
+                                    storeNames[i] = name;
+                                    storeIds[i] = id;
+                                    if (id == storeId) {
+                                        selectedIndex = i;
+                                    }
+                                }
+
+                                new androidx.appcompat.app.AlertDialog.Builder(this)
+                                        .setTitle("Select Store Branch")
+                                        .setSingleChoiceItems(storeNames, selectedIndex, (dialog, which) -> {
+                                            storeId = storeIds[which];
+                                            storeName = storeNames[which];
+                                            if (tvHeaderStorePill != null) {
+                                                tvHeaderStorePill.setText(storeName + " ▾");
+                                            }
+                                            dialog.dismiss();
+                                            Toast.makeText(this, "Switched to " + storeName, Toast.LENGTH_SHORT).show();
+                                            loadDashboardMetrics();
+                                        })
+                                        .setNegativeButton("Cancel", null)
+                                        .show();
+                            } else {
+                                Toast.makeText(this, "Only 1 branch registered for your account.", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                },
+                error -> Toast.makeText(this, "Failed to load branch list", Toast.LENGTH_SHORT).show()
+        );
+        queue.add(req);
     }
 
     private void loadDashboardMetrics() {
         setMetricPlaceholders();
 
         RequestQueue queue = ApiSession.getRequestQueue(this);
+        String dashUrl = ApiConfig.getUrl("get_store_admin_dashboard.php?store_id=" + storeId);
         JsonObjectRequest summaryRequest = new JsonObjectRequest(
                 Request.Method.GET,
-                DASHBOARD_URL,
+                dashUrl,
                 null,
                 response -> {
                     try {
                         if (response.getBoolean("success")) {
                             int totalProducts = response.optInt("total_products", 0);
                             int lowStock = response.optInt("low_stock", 0);
+                            double todaySalesAmt = response.optDouble("today_sales", 0.0);
+                            int todayTxCount = response.optInt("today_tx_count", 0);
 
+                            if (tvTodaySales != null) {
+                                tvTodaySales.setText(String.format(Locale.US, "₱%.2f", todaySalesAmt));
+                            }
+                            if (tvTransactions != null && todayTxCount > 0) {
+                                tvTransactions.setText(String.valueOf(todayTxCount));
+                            }
                             if (tvProducts != null) tvProducts.setText(String.valueOf(totalProducts));
                             if (tvLowStockAlerts != null) tvLowStockAlerts.setText(String.valueOf(lowStock));
+
+                            cachedTodaySoldProducts = response.optJSONArray("today_sold_products");
+                            if (cachedTodaySoldProducts == null) cachedTodaySoldProducts = new JSONArray();
+
+                            cachedAllLowStockItems = response.optJSONArray("all_low_stock_items");
+                            if (cachedAllLowStockItems == null) cachedAllLowStockItems = new JSONArray();
+
+                            cachedTodayHourlyTrend = response.optJSONArray("today_sales_trend");
+                            if (cachedTodayHourlyTrend == null) cachedTodayHourlyTrend = new JSONArray();
 
                             JSONArray lowStockItems = response.optJSONArray("low_stock_items");
                             renderLowStockPreview(lowStockItems);
 
                             JSONArray recentTx = response.optJSONArray("recent_transactions");
                             renderRecentSalesPreview(recentTx);
+
+                            // Load Period Chart
+                            loadPeriodEarningsData(selectedPeriod);
+
+                            // 7-Day Sales Trend Line Chart
+                            JSONArray trendArray = response.optJSONArray("daily_sales_trend");
+                            if (trendArray != null && chartStoreEarnings != null) {
+                                java.util.List<Float> points = new java.util.ArrayList<>();
+                                java.util.List<String> labels = new java.util.ArrayList<>();
+                                double weeklySum = 0;
+                                for (int i = 0; i < trendArray.length(); i++) {
+                                    JSONObject dayObj = trendArray.optJSONObject(i);
+                                    if (dayObj != null) {
+                                        float amount = (float) dayObj.optDouble("daily_sales", 0.0);
+                                        String label = dayObj.optString("label", "");
+                                        points.add(amount);
+                                        labels.add(label);
+                                        weeklySum += amount;
+                                    }
+                                }
+                                chartStoreEarnings.setData(points, labels);
+                                if (tvChartWeeklyTotal != null) {
+                                    tvChartWeeklyTotal.setText(String.format(Locale.US, "₱%.2f", weeklySum));
+                                }
+                            }
 
                             // Inbound Stock Transfer Alert
                             JSONObject inbound = response.optJSONObject("inbound_transfer");
@@ -315,9 +477,10 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
                 }
         );
 
+        String txUrl = ApiConfig.getUrl("get_transactions.php?store_id=" + storeId);
         JsonArrayRequest transactionsRequest = new JsonArrayRequest(
                 Request.Method.GET,
-                TRANSACTIONS_URL,
+                txUrl,
                 null,
                 response -> updateTransactionMetrics(response),
                 error -> {
@@ -480,6 +643,20 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
             });
         }
 
+        if (navStores != null) {
+            navStores.setOnClickListener(v -> {
+                if ("manager".equals(role)) {
+                    showBranchesMenuDialog();
+                } else if ("super_admin".equals(role)) {
+                    Intent intent = new Intent(this, StoresActivity.class);
+                    addIdentityExtras(intent);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(this, "Branch management is restricted to Store Managers.", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
         if (navInventory != null) {
             navInventory.setOnClickListener(v -> {
                 Intent intent = new Intent(this, InventoryActivity.class);
@@ -547,6 +724,727 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
         if (navLogout != null) {
             navLogout.setOnClickListener(v -> ApiSession.logout(this));
         }
+    }
+
+    private void setupPeriodButtons() {
+        if (btnPeriodToday != null) {
+            btnPeriodToday.setOnClickListener(v -> setPeriod("today"));
+        }
+        if (btnPeriodThisWeek != null) {
+            btnPeriodThisWeek.setOnClickListener(v -> setPeriod("this_week"));
+        }
+        if (btnPeriodThisMonth != null) {
+            btnPeriodThisMonth.setOnClickListener(v -> setPeriod("this_month"));
+        }
+        if (btnPeriodCustom != null) {
+            btnPeriodCustom.setOnClickListener(v -> showCustomDatePickerDialog());
+        }
+    }
+
+    private void setPeriod(String period) {
+        selectedPeriod = period;
+        updatePeriodButtonUI();
+        loadPeriodEarningsData(period);
+    }
+
+    private void updatePeriodButtonUI() {
+        int activeBg = R.drawable.bg_btn_primary;
+        int normalBg = R.drawable.bg_pill_header;
+        int activeText = 0xFFFFFFFF;
+        int normalText = 0xFF0F172A;
+
+        if (btnPeriodToday != null) {
+            boolean active = "today".equals(selectedPeriod);
+            btnPeriodToday.setBackground(ContextCompat.getDrawable(this, active ? activeBg : normalBg));
+            btnPeriodToday.setTextColor(active ? activeText : normalText);
+        }
+        if (btnPeriodThisWeek != null) {
+            boolean active = "this_week".equals(selectedPeriod);
+            btnPeriodThisWeek.setBackground(ContextCompat.getDrawable(this, active ? activeBg : normalBg));
+            btnPeriodThisWeek.setTextColor(active ? activeText : normalText);
+        }
+        if (btnPeriodThisMonth != null) {
+            boolean active = "this_month".equals(selectedPeriod);
+            btnPeriodThisMonth.setBackground(ContextCompat.getDrawable(this, active ? activeBg : normalBg));
+            btnPeriodThisMonth.setTextColor(active ? activeText : normalText);
+        }
+        if (btnPeriodCustom != null) {
+            boolean active = "custom".equals(selectedPeriod);
+            btnPeriodCustom.setBackground(ContextCompat.getDrawable(this, active ? activeBg : normalBg));
+            btnPeriodCustom.setTextColor(active ? activeText : normalText);
+        }
+    }
+
+    private void loadPeriodEarningsData(String period) {
+        String url = ApiConfig.getUrl("get_business_progress.php?store_id=" + storeId + "&period=" + period);
+        JsonObjectRequest req = new JsonObjectRequest(
+                Request.Method.GET, url, null,
+                response -> {
+                    try {
+                        if (response.getBoolean("success")) {
+                            JSONObject progress = response.optJSONObject("progress");
+                            if (progress != null) {
+                                JSONObject summary = progress.optJSONObject("summary");
+                                if (summary != null && tvChartWeeklyTotal != null) {
+                                    double totalSales = summary.optDouble("total_sales", 0.0);
+                                    tvChartWeeklyTotal.setText(String.format(Locale.US, "₱%.2f", totalSales));
+                                }
+
+                                JSONArray chartPoints = progress.optJSONArray("chart_points");
+                                if (chartPoints != null && chartStoreEarnings != null) {
+                                    List<Float> points = new ArrayList<>();
+                                    List<String> labels = new ArrayList<>();
+                                    for (int i = 0; i < chartPoints.length(); i++) {
+                                        JSONObject pt = chartPoints.optJSONObject(i);
+                                        if (pt != null) {
+                                            points.add((float) pt.optDouble("sales", 0.0));
+                                            labels.add(pt.optString("label", ""));
+                                        }
+                                    }
+                                    chartStoreEarnings.setData(points, labels);
+                                }
+                            }
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                },
+                error -> {
+                    // Keep existing chart data on failure
+                }
+        );
+        ApiSession.getRequestQueue(this).add(req);
+    }
+
+    private void showCustomDatePickerDialog() {
+        Calendar cal = Calendar.getInstance();
+        new android.app.DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
+            String startDate = String.format(Locale.US, "%04d-%02d-%02d", year, month + 1, dayOfMonth);
+            selectedPeriod = "custom";
+            updatePeriodButtonUI();
+            String url = ApiConfig.getUrl("get_business_progress.php?store_id=" + storeId + "&period=custom&start_date=" + startDate + "&end_date=" + startDate);
+            JsonObjectRequest req = new JsonObjectRequest(
+                    Request.Method.GET, url, null,
+                    response -> {
+                        try {
+                            if (response.getBoolean("success")) {
+                                JSONObject progress = response.optJSONObject("progress");
+                                if (progress != null) {
+                                    JSONObject summary = progress.optJSONObject("summary");
+                                    if (summary != null && tvChartWeeklyTotal != null) {
+                                        double totalSales = summary.optDouble("total_sales", 0.0);
+                                        tvChartWeeklyTotal.setText(String.format(Locale.US, "₱%.2f", totalSales));
+                                    }
+                                    JSONArray chartPoints = progress.optJSONArray("chart_points");
+                                    if (chartPoints != null && chartStoreEarnings != null) {
+                                        List<Float> points = new ArrayList<>();
+                                        List<String> labels = new ArrayList<>();
+                                        for (int i = 0; i < chartPoints.length(); i++) {
+                                            JSONObject pt = chartPoints.optJSONObject(i);
+                                            if (pt != null) {
+                                                points.add((float) pt.optDouble("sales", 0.0));
+                                                labels.add(pt.optString("label", ""));
+                                            }
+                                        }
+                                        chartStoreEarnings.setData(points, labels);
+                                    }
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    },
+                    null
+            );
+            ApiSession.getRequestQueue(this).add(req);
+        }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)).show();
+    }
+
+    private void showTodaySalesRankedDialog() {
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
+        builder.setTitle("Today's Sold Products (Most to Least Purchased)");
+
+        LinearLayout container = new LinearLayout(this);
+        container.setOrientation(LinearLayout.VERTICAL);
+        container.setPadding(32, 24, 32, 24);
+
+        // Hourly Mini Line Chart preview
+        if (cachedTodayHourlyTrend != null && cachedTodayHourlyTrend.length() > 0) {
+            TextView tvHourlyTitle = new TextView(this);
+            tvHourlyTitle.setText("Intraday Sales Trajectory (Hourly)");
+            tvHourlyTitle.setTextSize(12f);
+            tvHourlyTitle.setTextColor(0xFF64748B);
+            tvHourlyTitle.setTypeface(null, Typeface.BOLD);
+            container.addView(tvHourlyTitle);
+
+            SimpleLineChartView hourlyChart = new SimpleLineChartView(this);
+            hourlyChart.setLayoutParams(new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, 200));
+            hourlyChart.setBackgroundColor(0xFFF8FAFC);
+
+            List<Float> hPoints = new ArrayList<>();
+            List<String> hLabels = new ArrayList<>();
+            for (int i = 0; i < cachedTodayHourlyTrend.length(); i++) {
+                JSONObject hObj = cachedTodayHourlyTrend.optJSONObject(i);
+                if (hObj != null) {
+                    hPoints.add((float) hObj.optDouble("hourly_sales", 0.0));
+                    hLabels.add(hObj.optString("label", ""));
+                }
+            }
+            hourlyChart.setData(hPoints, hLabels);
+            container.addView(hourlyChart);
+
+            View div = new View(this);
+            div.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 2));
+            div.setBackgroundColor(0xFFE2E8F0);
+            div.setPadding(0, 16, 0, 16);
+            container.addView(div);
+        }
+
+        ScrollView scroll = new ScrollView(this);
+        LinearLayout itemsList = new LinearLayout(this);
+        itemsList.setOrientation(LinearLayout.VERTICAL);
+
+        if (cachedTodaySoldProducts == null || cachedTodaySoldProducts.length() == 0) {
+            TextView empty = new TextView(this);
+            empty.setText("No products sold today yet.");
+            empty.setTextColor(0xFF64748B);
+            empty.setPadding(0, 24, 0, 24);
+            itemsList.addView(empty);
+        } else {
+            for (int i = 0; i < cachedTodaySoldProducts.length(); i++) {
+                JSONObject prod = cachedTodaySoldProducts.optJSONObject(i);
+                if (prod == null) continue;
+
+                String name = prod.optString("product_name", "Product");
+                String category = prod.optString("category_name", "General");
+                int qty = prod.optInt("total_sold_qty", 0);
+                double earned = prod.optDouble("total_earned", 0.0);
+
+                LinearLayout row = new LinearLayout(this);
+                row.setOrientation(LinearLayout.HORIZONTAL);
+                row.setGravity(Gravity.CENTER_VERTICAL);
+                row.setPadding(0, 14, 0, 14);
+
+                TextView tvRank = new TextView(this);
+                tvRank.setText("#" + (i + 1) + " ");
+                tvRank.setTextColor(0xFF2563EB);
+                tvRank.setTextSize(14f);
+                tvRank.setTypeface(null, Typeface.BOLD);
+
+                LinearLayout info = new LinearLayout(this);
+                info.setOrientation(LinearLayout.VERTICAL);
+                info.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+
+                TextView tvName = new TextView(this);
+                tvName.setText(name);
+                tvName.setTextColor(0xFF0F172A);
+                tvName.setTextSize(13f);
+                tvName.setTypeface(null, Typeface.BOLD);
+
+                TextView tvCat = new TextView(this);
+                tvCat.setText(category + " • " + qty + " units sold");
+                tvCat.setTextColor(0xFF64748B);
+                tvCat.setTextSize(11f);
+
+                info.addView(tvName);
+                info.addView(tvCat);
+
+                TextView tvEarn = new TextView(this);
+                tvEarn.setText(String.format(Locale.US, "₱%.2f", earned));
+                tvEarn.setTextColor(0xFF10B981);
+                tvEarn.setTextSize(13f);
+                tvEarn.setTypeface(null, Typeface.BOLD);
+
+                row.addView(tvRank);
+                row.addView(info);
+                row.addView(tvEarn);
+                itemsList.addView(row);
+
+                View div = new View(this);
+                div.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1));
+                div.setBackgroundColor(0xFFE2E8F0);
+                itemsList.addView(div);
+            }
+        }
+
+        scroll.addView(itemsList);
+        container.addView(scroll);
+        builder.setView(container);
+        builder.setPositiveButton("Close", null);
+        builder.show();
+    }
+
+    private void showAllLowStockDialog() {
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
+        builder.setTitle("Low Stock Alert (Items with Stock < 10)");
+
+        ScrollView scroll = new ScrollView(this);
+        LinearLayout itemsList = new LinearLayout(this);
+        itemsList.setOrientation(LinearLayout.VERTICAL);
+        itemsList.setPadding(32, 24, 32, 24);
+
+        if (cachedAllLowStockItems == null || cachedAllLowStockItems.length() == 0) {
+            TextView empty = new TextView(this);
+            empty.setText("All items in store are currently well-stocked.");
+            empty.setTextColor(0xFF64748B);
+            empty.setPadding(0, 24, 0, 24);
+            itemsList.addView(empty);
+        } else {
+            for (int i = 0; i < cachedAllLowStockItems.length(); i++) {
+                JSONObject item = cachedAllLowStockItems.optJSONObject(i);
+                if (item == null) continue;
+
+                String name = item.optString("product_name", "Item");
+                int stock = item.optInt("stock", 0);
+                double price = item.optDouble("price", 0.0);
+
+                LinearLayout row = new LinearLayout(this);
+                row.setOrientation(LinearLayout.HORIZONTAL);
+                row.setGravity(Gravity.CENTER_VERTICAL);
+                row.setPadding(0, 14, 0, 14);
+
+                LinearLayout info = new LinearLayout(this);
+                info.setOrientation(LinearLayout.VERTICAL);
+                info.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+
+                TextView tvName = new TextView(this);
+                tvName.setText(name);
+                tvName.setTextColor(0xFF0F172A);
+                tvName.setTextSize(13f);
+                tvName.setTypeface(null, Typeface.BOLD);
+
+                TextView tvPrice = new TextView(this);
+                tvPrice.setText(String.format(Locale.US, "Unit Price: ₱%.2f", price));
+                tvPrice.setTextColor(0xFF64748B);
+                tvPrice.setTextSize(11f);
+
+                info.addView(tvName);
+                info.addView(tvPrice);
+
+                TextView tvStock = new TextView(this);
+                tvStock.setText(stock + " left");
+                tvStock.setTextColor(stock < 5 ? 0xFFEF4444 : 0xFFF59E0B);
+                tvStock.setTextSize(13f);
+                tvStock.setTypeface(null, Typeface.BOLD);
+
+                row.addView(info);
+                row.addView(tvStock);
+                itemsList.addView(row);
+
+                View div = new View(this);
+                div.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1));
+                div.setBackgroundColor(0xFFE2E8F0);
+                itemsList.addView(div);
+            }
+        }
+
+        scroll.addView(itemsList);
+        builder.setView(scroll);
+        builder.setPositiveButton("Manage Products", (dialog, which) -> {
+            Intent intent = new Intent(this, ProductsActivity.class);
+            addIdentityExtras(intent);
+            startActivity(intent);
+        });
+        builder.setNegativeButton("Close", null);
+        builder.show();
+    }
+
+    private void loadManagerBranches() {
+        if (containerManagerBranchCards == null) return;
+        String url = ApiConfig.getUrl("get_store_owners.php");
+        JsonObjectRequest req = new JsonObjectRequest(
+                Request.Method.GET, url, null,
+                response -> {
+                    try {
+                        if (response.optBoolean("success", false)) {
+                            JSONArray owners = response.optJSONArray("owners");
+                            renderManagerBranchPortfolios(owners);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                },
+                null
+        );
+        ApiSession.getRequestQueue(this).add(req);
+    }
+
+    private void renderManagerBranchPortfolios(JSONArray owners) {
+        if (containerManagerBranchCards == null) return;
+        containerManagerBranchCards.removeAllViews();
+
+        if (owners == null || owners.length() == 0) {
+            TextView empty = new TextView(this);
+            empty.setText("No branches found. Tap '+ Add Branch' to create your first store branch.");
+            empty.setTextColor(0xFF64748B);
+            empty.setTextSize(12f);
+            empty.setPadding(0, 12, 0, 12);
+            containerManagerBranchCards.addView(empty);
+            return;
+        }
+
+        for (int i = 0; i < owners.length(); i++) {
+            JSONObject owner = owners.optJSONObject(i);
+            if (owner == null) continue;
+
+            String storeNameStr = owner.optString("store_name", "Store Portfolio");
+            String ownerNameStr = owner.optString("owner_name", userName);
+            String desc = owner.optString("description", "");
+            double overallSales = owner.optDouble("overall_sales", 0.0);
+            double overallToday = owner.optDouble("overall_today_sales", 0.0);
+            JSONArray branches = owner.optJSONArray("branches");
+            JSONArray overallTrend = owner.optJSONArray("sales_progress");
+
+            if (branches == null || branches.length() == 0) continue;
+
+            for (int b = 0; b < branches.length(); b++) {
+                JSONObject branch = branches.optJSONObject(b);
+                if (branch == null) continue;
+
+                int bId = branch.optInt("id", 0);
+                String bName = branch.optString("store_name", "Branch");
+                String bLoc = branch.optString("location", "—");
+
+                // Compact Branch Card: Only displays the name of the branch
+                LinearLayout branchCard = new LinearLayout(this);
+                branchCard.setOrientation(LinearLayout.HORIZONTAL);
+                branchCard.setGravity(Gravity.CENTER_VERTICAL);
+                branchCard.setBackground(ContextCompat.getDrawable(this, R.drawable.bg_card_white));
+                branchCard.setPadding(28, 22, 28, 22);
+                LinearLayout.LayoutParams bLp = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                bLp.setMargins(0, 0, 0, 14);
+                branchCard.setLayoutParams(bLp);
+                branchCard.setClickable(true);
+                branchCard.setFocusable(true);
+
+                LinearLayout colName = new LinearLayout(this);
+                colName.setOrientation(LinearLayout.VERTICAL);
+                colName.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+
+                TextView tvBranchName = new TextView(this);
+                tvBranchName.setText("📍 " + bName);
+                tvBranchName.setTextColor(0xFF0F172A);
+                tvBranchName.setTextSize(16f);
+                tvBranchName.setTypeface(null, Typeface.BOLD);
+
+                TextView tvBranchLoc = new TextView(this);
+                tvBranchLoc.setText(bLoc);
+                tvBranchLoc.setTextColor(0xFF64748B);
+                tvBranchLoc.setTextSize(12f);
+                tvBranchLoc.setPadding(0, 2, 0, 0);
+
+                colName.addView(tvBranchName);
+                colName.addView(tvBranchLoc);
+
+                TextView tvArrow = new TextView(this);
+                tvArrow.setText("View Progress ▶");
+                tvArrow.setTextColor(0xFF2563EB);
+                tvArrow.setTextSize(12f);
+                tvArrow.setTypeface(null, Typeface.BOLD);
+                tvArrow.setBackground(ContextCompat.getDrawable(this, R.drawable.bg_badge_blue));
+                tvArrow.setPadding(16, 6, 16, 6);
+
+                branchCard.addView(colName);
+                branchCard.addView(tvArrow);
+
+                branchCard.setOnClickListener(v -> {
+                    Intent intent = new Intent(this, BusinessProgressActivity.class);
+                    intent.putExtra(BusinessProgressActivity.EXTRA_MODE, "branch");
+                    intent.putExtra(BusinessProgressActivity.EXTRA_STORE_ID, bId);
+                    intent.putExtra(BusinessProgressActivity.EXTRA_TITLE, bName);
+                    intent.putExtra(BusinessProgressActivity.EXTRA_SUBTITLE, "Location: " + bLoc);
+                    intent.putExtra("user_id", userId);
+                    intent.putExtra("role", role);
+                    startActivity(intent);
+                });
+
+                containerManagerBranchCards.addView(branchCard);
+            }
+        }
+    }
+
+    private void showBranchesMenuDialog() {
+        String[] options = {"➕ Add New Branch", "👥 Create & Assign Store Admins", "🏢 View Branches List"};
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Branches Management")
+                .setItems(options, (dialog, which) -> {
+                    if (which == 0) {
+                        showManagerAddBranchDialog();
+                    } else if (which == 1) {
+                        Intent intent = new Intent(this, StoreAdminsActivity.class);
+                        addIdentityExtras(intent);
+                        startActivity(intent);
+                    } else if (which == 2) {
+                        if (containerManagerBranchSection != null) {
+                            containerManagerBranchSection.setVisibility(View.VISIBLE);
+                            ScrollView sv = findViewById(R.id.scrollDashboardContent);
+                            if (sv != null) sv.smoothScrollTo(0, containerManagerBranchSection.getTop());
+                        }
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void showManagerContributionDialog(String storeName, JSONArray branches) {
+        if (branches == null || branches.length() == 0) return;
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < branches.length(); i++) {
+            JSONObject b = branches.optJSONObject(i);
+            if (b == null) continue;
+            String name = b.optString("store_name", "Branch");
+            double s = b.optDouble("total_sales", 0.0);
+            double p = b.optDouble("contribution_pct", 0.0);
+            sb.append("• ").append(name).append("\n")
+              .append("   Contribution: ").append(p).append("%")
+              .append(" (₱").append(String.format(Locale.US, "%.2f", s)).append(")\n\n");
+        }
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Branch Contribution Breakdown")
+                .setMessage(sb.toString().trim())
+                .setPositiveButton("Close", null)
+                .show();
+    }
+
+    private void showManagerBranchInspectDialog(JSONObject branch) {
+        if (branch == null) return;
+        int bId = branch.optInt("id", 0);
+        String bName = branch.optString("store_name", "Branch");
+        String bLoc = branch.optString("location", "—");
+        double bToday = branch.optDouble("today_sales", 0.0);
+        double bTotal = branch.optDouble("total_sales", 0.0);
+        JSONArray trend = branch.optJSONArray("sales_progress");
+        JSONArray topProducts = branch.optJSONArray("top_products");
+        JSONArray branchUsers = branch.optJSONArray("branch_users");
+
+        ScrollView sv = new ScrollView(this);
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(36, 24, 36, 24);
+
+        TextView tvH = new TextView(this);
+        tvH.setText(bName + " (📍 " + bLoc + ")");
+        tvH.setTextColor(0xFF0F172A);
+        tvH.setTextSize(15f);
+        tvH.setTypeface(null, Typeface.BOLD);
+        layout.addView(tvH);
+
+        TextView tvMetrics = new TextView(this);
+        tvMetrics.setText(String.format(Locale.US, "Today: ₱%.2f  |  Total Sales: ₱%.2f", bToday, bTotal));
+        tvMetrics.setTextColor(0xFF2563EB);
+        tvMetrics.setTextSize(12f);
+        tvMetrics.setPadding(0, 4, 0, 10);
+        layout.addView(tvMetrics);
+
+        // Branch Line Chart
+        TextView tvChartLbl = new TextView(this);
+        tvChartLbl.setText("📈 Branch Sales Progress Line Chart (tap for top products):");
+        tvChartLbl.setTextColor(0xFF334155);
+        tvChartLbl.setTextSize(12f);
+        tvChartLbl.setTypeface(null, Typeface.BOLD);
+        layout.addView(tvChartLbl);
+
+        SimpleLineChartView chart = new SimpleLineChartView(this);
+        chart.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 200));
+
+        List<Float> pts = new ArrayList<>();
+        List<String> lbls = new ArrayList<>();
+        if (trend != null && trend.length() > 0) {
+            for (int i = 0; i < trend.length(); i++) {
+                JSONObject pt = trend.optJSONObject(i);
+                if (pt != null) {
+                    pts.add((float) pt.optDouble("sales", 0.0));
+                    lbls.add(pt.optString("label", "Day"));
+                }
+            }
+        } else {
+            pts.add(0f); pts.add(0f); pts.add(0f);
+            lbls.add("Mon"); lbls.add("Wed"); lbls.add("Fri");
+        }
+        chart.setData(pts, lbls);
+        chart.setClickable(true);
+        chart.setFocusable(true);
+        chart.setOnClickListener(v -> showManagerTopProductsDialog(bName, topProducts));
+        layout.addView(chart);
+
+        Button btnTop = new Button(this);
+        btnTop.setText("🏆 View Top Purchased Products & Profit");
+        btnTop.setTextSize(11f);
+        btnTop.setTextColor(0xFF059669);
+        btnTop.setBackgroundColor(0xFFECFDF5);
+        btnTop.setOnClickListener(v -> showManagerTopProductsDialog(bName, topProducts));
+        LinearLayout.LayoutParams btnTLp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        btnTLp.setMargins(0, 6, 0, 14);
+        btnTop.setLayoutParams(btnTLp);
+        layout.addView(btnTop);
+
+        // Branch Users & Roles
+        TextView tvUsersH = new TextView(this);
+        tvUsersH.setText("👥 Branch Staff & Roles (tap user for details):");
+        tvUsersH.setTextColor(0xFF334155);
+        tvUsersH.setTextSize(12f);
+        tvUsersH.setTypeface(null, Typeface.BOLD);
+        layout.addView(tvUsersH);
+
+        if (branchUsers != null && branchUsers.length() > 0) {
+            for (int u = 0; u < branchUsers.length(); u++) {
+                JSONObject userObj = branchUsers.optJSONObject(u);
+                if (userObj == null) continue;
+
+                String fn = userObj.optString("full_name", "User");
+                String un = userObj.optString("username", "user");
+                String rl = userObj.optString("role_display", userObj.optString("role", "Staff"));
+
+                LinearLayout uCard = new LinearLayout(this);
+                uCard.setOrientation(LinearLayout.VERTICAL);
+                uCard.setBackgroundColor(0xFFF8FAFC);
+                uCard.setPadding(16, 10, 16, 10);
+                LinearLayout.LayoutParams uLp = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                uLp.setMargins(0, 6, 0, 0);
+                uCard.setLayoutParams(uLp);
+
+                TextView tvUN = new TextView(this);
+                tvUN.setText(fn + " (@" + un + ")");
+                tvUN.setTextColor(0xFF0F172A);
+                tvUN.setTextSize(12f);
+                tvUN.setTypeface(null, Typeface.BOLD);
+
+                TextView tvUR = new TextView(this);
+                tvUR.setText("Role: " + rl);
+                tvUR.setTextColor(0xFF2563EB);
+                tvUR.setTextSize(11f);
+
+                uCard.addView(tvUN);
+                uCard.addView(tvUR);
+                uCard.setClickable(true);
+                uCard.setFocusable(true);
+                uCard.setOnClickListener(v -> showManagerUserDetailsDialog(userObj));
+                layout.addView(uCard);
+            }
+        }
+
+        sv.addView(layout);
+
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Branch Real-time Details")
+                .setView(sv)
+                .setPositiveButton("Switch to this Branch", (dialog, which) -> {
+                    storeId = bId;
+                    storeName = bName;
+                    if (tvHeaderStorePill != null) tvHeaderStorePill.setText(storeName + " ▾");
+                    Toast.makeText(this, "Switched to " + storeName, Toast.LENGTH_SHORT).show();
+                    loadDashboardMetrics();
+                    loadManagerBranches();
+                })
+                .setNegativeButton("Close", null)
+                .show();
+    }
+
+    private void showManagerTopProductsDialog(String branchName, JSONArray topProducts) {
+        if (topProducts == null || topProducts.length() == 0) {
+            Toast.makeText(this, "No product sales recorded yet.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < topProducts.length(); i++) {
+            JSONObject p = topProducts.optJSONObject(i);
+            if (p == null) continue;
+            String pName = p.optString("product_name", "Product");
+            int sold = p.optInt("quantity_sold", 0);
+            double gross = p.optDouble("gross_earnings", 0.0);
+            double net = p.optDouble("net_profit", 0.0);
+            int stock = p.optInt("stock_on_hand", 0);
+
+            sb.append("• ").append(pName).append("\n")
+              .append("   Sold: ").append(sold).append(" units | On-Hand: ").append(stock).append("\n")
+              .append("   Gross: ₱").append(String.format(Locale.US, "%.2f", gross))
+              .append(" | Net Profit: ₱").append(String.format(Locale.US, "%.2f", net)).append("\n\n");
+        }
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Top Products (" + branchName + ")")
+                .setMessage(sb.toString().trim())
+                .setPositiveButton("Close", null)
+                .show();
+    }
+
+    private void showManagerUserDetailsDialog(JSONObject userObj) {
+        if (userObj == null) return;
+        String fn = userObj.optString("full_name", "User");
+        String un = userObj.optString("username", "username");
+        String em = userObj.optString("email", "No email provided");
+        String rl = userObj.optString("role_display", userObj.optString("role", "Staff"));
+        String lastTx = userObj.optString("last_transaction_at", "No transactions on duty yet");
+
+        String msg = "Full Name: " + fn + "\n"
+                   + "Username: @" + un + "\n"
+                   + "Role: " + rl + "\n"
+                   + "Email: " + em + "\n"
+                   + "Cashier Duty Status: " + (lastTx.equals("null") ? "None" : lastTx);
+
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("User Profile & Role")
+                .setMessage(msg)
+                .setPositiveButton("Close", null)
+                .show();
+    }
+
+    private void showManagerAddBranchDialog() {
+        android.widget.EditText etName = new android.widget.EditText(this);
+        etName.setHint("Branch Name (e.g., Downtown Store)");
+        android.widget.EditText etLoc = new android.widget.EditText(this);
+        etLoc.setHint("Branch Location (e.g., Main Street, City)");
+
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(32, 24, 32, 16);
+        layout.addView(etName);
+        layout.addView(etLoc);
+
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Add New Store Branch")
+                .setMessage("As a business manager, you can add new retail branches to your store portfolio.")
+                .setView(layout)
+                .setPositiveButton("Create Branch", (dialog, which) -> {
+                    String name = etName.getText().toString().trim();
+                    String loc = etLoc.getText().toString().trim();
+                    if (name.isEmpty()) {
+                        Toast.makeText(this, "Branch name is required", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    createBranchApi(name, loc);
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void createBranchApi(String name, String loc) {
+        String url = ApiConfig.getUrl("manage_stores.php?action=add");
+        JSONObject body = new JSONObject();
+        try {
+            body.put("store_name", name);
+            body.put("location", loc);
+            body.put("owner_id", userId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest req = new JsonObjectRequest(
+                Request.Method.POST, url, body,
+                response -> {
+                    boolean ok = response.optBoolean("success", false);
+                    String msg = response.optString("message", "Branch created successfully!");
+                    Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+                    if (ok) {
+                        loadManagerBranches();
+                    }
+                },
+                error -> Toast.makeText(this, "Failed to create branch", Toast.LENGTH_SHORT).show()
+        );
+        ApiSession.getRequestQueue(this).add(req);
     }
 
     private void openLowStockSuggestions() {

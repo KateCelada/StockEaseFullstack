@@ -8,11 +8,11 @@ local.properties
 # Android Studio
 .idea/
 
-# Codex working files
+# Codex working / backup files
 .codex_backups/
 .codex_staging/
 
-# Archives
+# Project archives
 *.zip
 
 # Database backups

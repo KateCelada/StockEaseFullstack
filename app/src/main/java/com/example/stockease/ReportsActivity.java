@@ -57,8 +57,8 @@ public class ReportsActivity extends AppCompatActivity {
             storeName = getIntent().getStringExtra("selected_store_name");
         }
 
-        if (userId <= 0 || (!"store_admin".equals(role) && !"super_admin".equals(role))) {
-            returnToLogin("Reports are available only to Store Admin and Super Admin accounts.");
+        if (userId <= 0 || (!"store_admin".equals(role) && !"super_admin".equals(role) && !"manager".equals(role) && !"store_owner".equals(role))) {
+            returnToLogin("Reports are available to Store Admin, Manager, and Super Admin accounts.");
             return;
         }
 
@@ -94,6 +94,8 @@ public class ReportsActivity extends AppCompatActivity {
 
         // Default to Today's report
         filterToday();
+
+        ViewFeedbackUtil.attachAll(findViewById(android.R.id.content));
     }
 
     private void setupFilterListeners() {

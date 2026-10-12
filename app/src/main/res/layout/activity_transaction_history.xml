@@ -3,29 +3,43 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F5F5F5">
+    android:background="#F8FAFC">
 
     <!-- Header Banner -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#000000"
+        android:background="#0F172A"
         android:orientation="vertical"
         android:padding="16dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <TextView
+            <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Transaction History"
-                android:textColor="#FFFFFF"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Transaction Audit Register"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Audit on-duty cashiers, search orders, and void errors"
+                    android:textColor="#94A3B8"
+                    android:textSize="11sp" />
+            </LinearLayout>
 
             <Button
                 android:id="@+id/btnExportCsv"
@@ -33,28 +47,60 @@
                 android:layout_height="36dp"
                 android:text="Export CSV"
                 android:textSize="11sp"
-                android:backgroundTint="#333333" />
+                android:backgroundTint="#334155" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/tvTotalRevenue"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="6dp"
             android:text="₱0.00"
-            android:textColor="#81C784"
-            android:textSize="18sp"
+            android:textColor="#4ADE80"
+            android:textSize="20sp"
             android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- Filter Button Bar -->
+    <!-- Search & Cashier/Status Filter Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:background="#FFFFFF"
+        android:gravity="center_vertical">
+
+        <!-- Search input for transaction ID, customer, item, or cashier name -->
+        <EditText
+            android:id="@+id/etSearchTransactions"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_input_field"
+            android:hint="🔍 Search ID, item, or cashier name..."
+            android:textColorHint="#94A3B8"
+            android:textColor="#0F172A"
+            android:textSize="12sp"
+            android:paddingHorizontal="10dp"
+            android:singleLine="true"
+            android:layout_marginEnd="8dp" />
+
+        <!-- Status Filter Dropdown -->
+        <Spinner
+            android:id="@+id/spinnerFilterStatus"
+            android:layout_width="130dp"
+            android:layout_height="40dp"
+            android:background="@drawable/bg_input_field" />
+    </LinearLayout>
+
+    <!-- Date Filter Button Bar -->
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingHorizontal="8dp"
-        android:paddingVertical="6dp"
+        android:paddingVertical="4dp"
         android:scrollbars="none"
-        android:background="#EEEEEE">
+        android:background="#F1F5F9">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -64,45 +110,74 @@
             <Button
                 android:id="@+id/btnFilterAll"
                 android:layout_width="wrap_content"
-                android:layout_height="36dp"
+                android:layout_height="34dp"
                 android:layout_marginEnd="4dp"
-                android:text="All"
-                android:textSize="12sp"
-                android:backgroundTint="#000000" />
+                android:text="All Dates"
+                android:textSize="11sp"
+                android:backgroundTint="#0F172A" />
 
             <Button
                 android:id="@+id/btnFilterToday"
                 android:layout_width="wrap_content"
-                android:layout_height="36dp"
+                android:layout_height="34dp"
                 android:layout_marginEnd="4dp"
                 android:text="Today"
-                android:textSize="12sp"
-                android:backgroundTint="#555555" />
+                android:textSize="11sp"
+                android:backgroundTint="#64748B" />
 
             <Button
                 android:id="@+id/btnFilterMonth"
                 android:layout_width="wrap_content"
-                android:layout_height="36dp"
+                android:layout_height="34dp"
                 android:layout_marginEnd="4dp"
                 android:text="This Month"
-                android:textSize="12sp"
-                android:backgroundTint="#555555" />
+                android:textSize="11sp"
+                android:backgroundTint="#64748B" />
 
             <Button
                 android:id="@+id/btnFilterCustom"
                 android:layout_width="wrap_content"
-                android:layout_height="36dp"
+                android:layout_height="34dp"
                 android:text="Custom Range"
-                android:textSize="12sp"
-                android:backgroundTint="#555555" />
+                android:textSize="11sp"
+                android:backgroundTint="#64748B" />
         </LinearLayout>
     </HorizontalScrollView>
 
-    <!-- Transaction List -->
+    <!-- Table Header Legend -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="6dp"
+        android:background="#E2E8F0">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.5"
+            android:text="TRANS # / ON-DUTY CASHIER"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:textColor="#475569" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="STATUS / AMOUNT"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:gravity="end"
+            android:textColor="#475569" />
+    </LinearLayout>
+
+    <!-- Transaction List Table -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvTransactions"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingVertical="4dp" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingVertical="2dp" />
 
 </LinearLayout>

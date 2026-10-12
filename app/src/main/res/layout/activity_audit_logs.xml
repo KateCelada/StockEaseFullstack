@@ -447,6 +447,83 @@
                     android:paddingHorizontal="8dp" />
             </LinearLayout>
 
+            <!-- Date Filter Buttons Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="14dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Date Filter:"
+                    android:textColor="#64748B"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:layout_marginEnd="10dp" />
+
+                <Button
+                    android:id="@+id/btnAuditFilterAll"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:text="All"
+                    android:textSize="11sp"
+                    android:textColor="#FFFFFF"
+                    android:backgroundTint="#2563EB"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="0dp"
+                    android:layout_marginEnd="6dp" />
+
+                <Button
+                    android:id="@+id/btnAuditFilterToday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:text="Today"
+                    android:textSize="11sp"
+                    android:textColor="#475569"
+                    android:backgroundTint="#E2E8F0"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="0dp"
+                    android:layout_marginEnd="6dp" />
+
+                <Button
+                    android:id="@+id/btnAuditFilterWeek"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:text="This Week"
+                    android:textSize="11sp"
+                    android:textColor="#475569"
+                    android:backgroundTint="#E2E8F0"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="0dp"
+                    android:layout_marginEnd="6dp" />
+
+                <Button
+                    android:id="@+id/btnAuditFilterMonth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:text="This Month"
+                    android:textSize="11sp"
+                    android:textColor="#475569"
+                    android:backgroundTint="#E2E8F0"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="0dp"
+                    android:layout_marginEnd="6dp" />
+
+                <Button
+                    android:id="@+id/btnAuditFilterCustom"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:text="Custom 📅"
+                    android:textSize="11sp"
+                    android:textColor="#475569"
+                    android:backgroundTint="#E2E8F0"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="0dp" />
+            </LinearLayout>
+
             <!-- Audit Logs Data Table Card -->
             <LinearLayout
                 android:layout_width="match_parent"

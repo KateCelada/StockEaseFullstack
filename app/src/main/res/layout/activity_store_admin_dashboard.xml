@@ -88,13 +88,13 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Products"
+                android:text="Inventory &amp; Products"
                 android:textColor="#94A3B8"
                 android:textSize="13sp" />
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/navInventory"
+            android:id="@+id/navStores"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -106,13 +106,13 @@
             <ImageView
                 android:layout_width="18dp"
                 android:layout_height="18dp"
-                android:src="@drawable/ic_nav_inventory"
+                android:src="@drawable/ic_nav_dashboard"
                 android:layout_marginEnd="12dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Inventory"
+                android:text="Branches"
                 android:textColor="#94A3B8"
                 android:textSize="13sp" />
         </LinearLayout>
@@ -363,6 +363,7 @@
 
     <!-- Main Content Area -->
     <ScrollView
+        android:id="@+id/scrollDashboardContent"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
@@ -476,6 +477,64 @@
                 </LinearLayout>
             </LinearLayout>
 
+            <!-- Manager Multi-Branch Management Section (Visible for role=manager) -->
+            <LinearLayout
+                android:id="@+id/containerManagerBranchSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_card_white"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:layout_marginBottom="20dp"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Your Store Branches (Manager Portfolio)"
+                            android:textColor="@color/text_primary"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Manage all owned branches, switch views, or add new stores."
+                            android:textColor="@color/text_secondary"
+                            android:textSize="11sp" />
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btnManagerAddBranch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:text="+ Add Branch"
+                        android:background="@drawable/bg_btn_primary"
+                        android:textColor="#FFFFFF"
+                        android:textSize="12sp"
+                        android:paddingHorizontal="14dp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/containerManagerBranchCards"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </LinearLayout>
+
             <!-- In-App Notification: Inbound Stock Transfer Banner -->
             <LinearLayout
                 android:id="@+id/containerInboundTransferAlert"
@@ -554,12 +613,15 @@
 
                 <!-- Card 1: Today's Sales -->
                 <LinearLayout
+                    android:id="@+id/cardTodaySales"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:background="@drawable/bg_card_white"
                     android:padding="16dp"
                     android:orientation="vertical"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:layout_marginEnd="12dp">
 
                     <TextView
@@ -591,12 +653,15 @@
 
                 <!-- Card 2: Transactions -->
                 <LinearLayout
+                    android:id="@+id/cardTransactions"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:background="@drawable/bg_card_white"
                     android:padding="16dp"
                     android:orientation="vertical"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:layout_marginEnd="12dp">
 
                     <TextView
@@ -628,12 +693,15 @@
 
                 <!-- Card 3: Total Products / Active Staff -->
                 <LinearLayout
+                    android:id="@+id/cardTotalProducts"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:background="@drawable/bg_card_white"
                     android:padding="16dp"
                     android:orientation="vertical"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:layout_marginEnd="12dp">
 
                     <TextView
@@ -702,6 +770,127 @@
                 </LinearLayout>
             </LinearLayout>
 
+            <!-- Store Earnings Progress Line Chart Card -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_card_white"
+                android:padding="16dp"
+                android:layout_marginBottom="24dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="8dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Store Earnings Progress"
+                            android:textColor="@color/text_primary"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvChartEarningsSubtitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="7-Day sales and revenue trajectory"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvChartWeeklyTotal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="₱0.00"
+                        android:textColor="@color/primary"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- Period Selector Buttons -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <TextView
+                        android:id="@+id/btnPeriodToday"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_btn_primary"
+                        android:text="Today"
+                        android:textColor="#FFFFFF"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="5dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:layout_marginEnd="6dp" />
+
+                    <TextView
+                        android:id="@+id/btnPeriodThisWeek"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_pill_header"
+                        android:text="This Week"
+                        android:textColor="@color/text_primary"
+                        android:textSize="11sp"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="5dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:layout_marginEnd="6dp" />
+
+                    <TextView
+                        android:id="@+id/btnPeriodThisMonth"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_pill_header"
+                        android:text="This Month"
+                        android:textColor="@color/text_primary"
+                        android:textSize="11sp"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="5dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:layout_marginEnd="6dp" />
+
+                    <TextView
+                        android:id="@+id/btnPeriodCustom"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_pill_header"
+                        android:text="Custom"
+                        android:textColor="@color/text_primary"
+                        android:textSize="11sp"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="5dp"
+                        android:clickable="true"
+                        android:focusable="true" />
+                </LinearLayout>
+
+                <com.example.stockease.SimpleLineChartView
+                    android:id="@+id/chartStoreEarnings"
+                    android:layout_width="match_parent"
+                    android:layout_height="140dp"
+                    android:background="#F8FAFC" />
+            </LinearLayout>
+
             <!-- Quick Actions Grid -->
             <TextView
                 android:layout_width="wrap_content"
@@ -718,7 +907,7 @@
                 android:orientation="horizontal"
                 android:layout_marginBottom="24dp">
 
-                <!-- Products -->
+                <!-- Inventory & Products -->
                 <LinearLayout
                     android:id="@+id/cardActionProducts"
                     android:layout_width="0dp"
@@ -740,7 +929,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Products"
+                        android:text="Products &amp; Inventory"
                         android:textColor="@color/text_primary"
                         android:textSize="13sp"
                         android:textStyle="bold" />
@@ -748,43 +937,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Manage products"
-                        android:textColor="@color/text_muted"
-                        android:textSize="11sp"
-                        android:layout_marginTop="2dp" />
-                </LinearLayout>
-
-                <!-- Inventory -->
-                <LinearLayout
-                    android:id="@+id/cardActionInventory"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_card_white"
-                    android:padding="16dp"
-                    android:orientation="vertical"
-                    android:layout_marginEnd="12dp"
-                    android:clickable="true"
-                    android:focusable="true">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_nav_inventory"
-                        android:layout_marginBottom="8dp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Inventory"
-                        android:textColor="@color/text_primary"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Check stock levels"
+                        android:text="Catalog &amp; Stock levels"
                         android:textColor="@color/text_muted"
                         android:textSize="11sp"
                         android:layout_marginTop="2dp" />
@@ -927,7 +1080,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="StockEase Insights"
+                        android:text="Store Insights"
                         android:textColor="@color/text_primary"
                         android:textSize="13sp"
                         android:textStyle="bold" />

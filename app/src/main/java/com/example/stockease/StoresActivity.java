@@ -47,6 +47,8 @@ public class StoresActivity extends AppCompatActivity {
 
     private static final String FETCH_STORES_URL = ApiConfig.getUrl("manage_stores.php?action=fetch");
     private static final String ADD_STORE_URL = ApiConfig.getUrl("manage_stores.php?action=add");
+    private static final String ARCHIVE_STORE_URL = ApiConfig.getUrl("manage_stores.php?action=archive");
+    private static final String DELETE_STORE_URL = ApiConfig.getUrl("manage_stores.php?action=delete");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +81,7 @@ public class StoresActivity extends AppCompatActivity {
         tvStoresSubtitle = findViewById(R.id.tvStoresSubtitle);
 
         storeList = new ArrayList<>();
-        adapter = new StoreAdapter(storeList, selectionMode ? this::handleStoreSelected : null);
+        adapter = new StoreAdapter(storeList, selectionMode ? this::handleStoreSelected : this::showStoreActionsDialog);
 
         if (rvStores != null) {
             rvStores.setLayoutManager(new LinearLayoutManager(this));
@@ -103,6 +105,8 @@ public class StoresActivity extends AppCompatActivity {
         }
 
         loadStores();
+
+        ViewFeedbackUtil.attachAll(findViewById(android.R.id.content));
     }
 
     private void showAddStoreDialog() {
@@ -228,6 +232,92 @@ public class StoresActivity extends AppCompatActivity {
         intent.putExtra("full_name", fullName);
         startActivity(intent);
         finish();
+    }
+
+    private void showStoreActionsDialog(StoreAdapter.StoreItem store) {
+        if (store == null || store.getId() <= 0) return;
+
+        boolean isArchived = "Archived".equalsIgnoreCase(store.getStatus());
+        String archiveOption = isArchived ? "Restore / Activate Store" : "Archive Store";
+        String[] options = {archiveOption, "Delete Store Permanently"};
+
+        new AlertDialog.Builder(this)
+                .setTitle(store.getStoreName())
+                .setItems(options, (dialog, which) -> {
+                    if (which == 0) {
+                        toggleArchiveStore(store, isArchived ? "Active" : "Archived");
+                    } else if (which == 1) {
+                        confirmDeleteStore(store);
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void toggleArchiveStore(StoreAdapter.StoreItem store, String targetStatus) {
+        JSONObject body = new JSONObject();
+        try {
+            body.put("store_id", store.getId());
+            body.put("status", targetStatus);
+        } catch (JSONException e) {
+            return;
+        }
+
+        RequestQueue queue = ApiSession.getRequestQueue(this);
+        JsonObjectRequest req = new JsonObjectRequest(
+                Request.Method.POST,
+                ARCHIVE_STORE_URL,
+                body,
+                response -> {
+                    if (response.optBoolean("success", false)) {
+                        Toast.makeText(this, response.optString("message", "Store updated"), Toast.LENGTH_SHORT).show();
+                        loadStores();
+                    } else {
+                        Toast.makeText(this, response.optString("message", "Failed to update store"), Toast.LENGTH_SHORT).show();
+                    }
+                },
+                error -> {
+                    if (ApiSession.handleAuthError(this, error)) return;
+                    Toast.makeText(this, "Failed to update store", Toast.LENGTH_SHORT).show();
+                }
+        );
+        queue.add(req);
+    }
+
+    private void confirmDeleteStore(StoreAdapter.StoreItem store) {
+        new AlertDialog.Builder(this)
+                .setTitle("Delete Store")
+                .setMessage("Are you sure you want to permanently delete \"" + store.getStoreName() + "\"? All associated inventory, transactions, and assignments will be deleted.")
+                .setPositiveButton("Delete Permanently", (dialog, which) -> {
+                    JSONObject body = new JSONObject();
+                    try {
+                        body.put("store_id", store.getId());
+                    } catch (JSONException e) {
+                        return;
+                    }
+
+                    RequestQueue queue = ApiSession.getRequestQueue(this);
+                    JsonObjectRequest req = new JsonObjectRequest(
+                            Request.Method.POST,
+                            DELETE_STORE_URL,
+                            body,
+                            response -> {
+                                if (response.optBoolean("success", false)) {
+                                    Toast.makeText(this, response.optString("message", "Store deleted"), Toast.LENGTH_SHORT).show();
+                                    loadStores();
+                                } else {
+                                    Toast.makeText(this, response.optString("message", "Failed to delete store"), Toast.LENGTH_SHORT).show();
+                                }
+                            },
+                            error -> {
+                                if (ApiSession.handleAuthError(this, error)) return;
+                                Toast.makeText(this, "Failed to delete store", Toast.LENGTH_SHORT).show();
+                            }
+                    );
+                    queue.add(req);
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private void returnToLogin(String message) {

@@ -50,8 +50,8 @@ public class SettingsActivity extends AppCompatActivity {
         role = getIntent().getStringExtra("role");
         fullName = getIntent().getStringExtra("full_name");
 
-        if (userId <= 0 || (!"super_admin".equals(role) && !"store_admin".equals(role))) {
-            returnToLogin("Settings is available only to Administrator accounts.");
+        if (userId <= 0 || (!"super_admin".equals(role) && !"store_admin".equals(role) && !"manager".equals(role) && !"store_owner".equals(role))) {
+            returnToLogin("Settings is available only to Administrator and Manager accounts.");
             return;
         }
 

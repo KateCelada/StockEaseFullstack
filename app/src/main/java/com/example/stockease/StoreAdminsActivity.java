@@ -63,6 +63,7 @@ public class StoreAdminsActivity extends AppCompatActivity {
 
         loadStoreAdmins();
         loadStoresForSpinner();
+        ViewFeedbackUtil.attachAll(findViewById(android.R.id.content));
     }
 
     private void showAddAdminDialog() {

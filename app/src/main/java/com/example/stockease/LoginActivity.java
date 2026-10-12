@@ -1,18 +1,21 @@
 package com.example.stockease;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,6 +26,7 @@ public class LoginActivity extends AppCompatActivity {
     private Button btnLogin;
 
     private static final String LOGIN_URL = ApiConfig.getUrl("login.php");
+    private static final String UPDATE_PASSWORD_URL = ApiConfig.getUrl("update_password.php");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,8 +83,6 @@ public class LoginActivity extends AppCompatActivity {
                         String message = response.optString("message", "Login response received");
 
                         if (success) {
-                            Toast.makeText(LoginActivity.this, message, Toast.LENGTH_SHORT).show();
-
                             JSONObject userObject = response.optJSONObject("user");
                             if (userObject == null) {
                                 Toast.makeText(LoginActivity.this, "Login response is missing user details", Toast.LENGTH_SHORT).show();
@@ -102,41 +104,15 @@ public class LoginActivity extends AppCompatActivity {
                                 return;
                             }
 
-                            Intent intent;
-                            switch (role) {
-                                case "super_admin":
-                                    intent = new Intent(LoginActivity.this, SuperAdminDashboardActivity.class);
-                                    break;
-                                case "store_admin":
-                                    if (storeId <= 0) {
-                                        Toast.makeText(LoginActivity.this, "Store administrator has no valid store assignment", Toast.LENGTH_SHORT).show();
-                                        return;
-                                    }
-                                    intent = new Intent(LoginActivity.this, StoreAdminDashboardActivity.class);
-                                    break;
-                                case "staff":
-                                    if (storeId <= 0) {
-                                        Toast.makeText(LoginActivity.this, "Staff account has no valid store assignment", Toast.LENGTH_SHORT).show();
-                                        return;
-                                    }
-                                    intent = new Intent(LoginActivity.this, CashierDashboardActivity.class);
-                                    break;
-                                default:
-                                    Toast.makeText(LoginActivity.this, "Unsupported account role", Toast.LENGTH_SHORT).show();
-                                    return;
+                            boolean mustChangePassword = response.optBoolean("must_change_password", false)
+                                    || userObject.optBoolean("must_change_password", false);
+
+                            if (mustChangePassword) {
+                                showMandatoryPasswordResetDialog(userId, role, fullName, storeId, authUsername, email, storeName, password);
+                                return;
                             }
 
-                            intent.putExtra("user_id", userId);
-                            intent.putExtra("role", role);
-                            intent.putExtra("full_name", fullName);
-                            if (storeId > 0) intent.putExtra("store_id", storeId);
-                            intent.putExtra("username", authUsername);
-                            intent.putExtra("email", email);
-                            intent.putExtra("store_name", storeName);
-
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            startActivity(intent);
-                            finish();
+                            proceedToDashboard(userId, role, fullName, storeId, authUsername, email, storeName);
 
                         } else {
                             Toast.makeText(LoginActivity.this, message, Toast.LENGTH_SHORT).show();
@@ -159,5 +135,156 @@ public class LoginActivity extends AppCompatActivity {
         );
 
         queue.add(jsonObjectRequest);
+    }
+
+    private void showMandatoryPasswordResetDialog(int userId, String role, String fullName, int storeId,
+                                                  String username, String email, String storeName, String currentPassword) {
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View dialogView = inflater.inflate(R.layout.dialog_change_password, null);
+
+        EditText etCurrent = dialogView.findViewById(R.id.etCurrentPassword);
+        EditText etNew = dialogView.findViewById(R.id.etNewPassword);
+        EditText etConfirm = dialogView.findViewById(R.id.etConfirmPassword);
+        Button btnCancel = dialogView.findViewById(R.id.btnCancelPassword);
+        Button btnSubmit = dialogView.findViewById(R.id.btnSubmitPassword);
+
+        // Pre-fill current password from login attempt for convenient mandatory reset
+        if (etCurrent != null && currentPassword != null) {
+            etCurrent.setText(currentPassword);
+        }
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("First-Time Login Security")
+                .setMessage("Your administrator requires you to set a new personal password before accessing the system.")
+                .setView(dialogView)
+                .setCancelable(false)
+                .create();
+
+        if (btnCancel != null) {
+            btnCancel.setText("Sign Out");
+            btnCancel.setOnClickListener(v -> dialog.dismiss());
+        }
+
+        if (btnSubmit != null) {
+            btnSubmit.setText("Save & Continue");
+            btnSubmit.setOnClickListener(v -> {
+                String curPass = etCurrent != null ? etCurrent.getText().toString().trim() : "";
+                String newPass = etNew != null ? etNew.getText().toString().trim() : "";
+                String confPass = etConfirm != null ? etConfirm.getText().toString().trim() : "";
+
+                if (curPass.isEmpty() || newPass.isEmpty()) {
+                    Toast.makeText(this, "Please provide current and new passwords.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (newPass.length() < 6) {
+                    Toast.makeText(this, "New password must be at least 6 characters.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (!newPass.equals(confPass)) {
+                    Toast.makeText(this, "New passwords do not match.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                btnSubmit.setEnabled(false);
+                btnSubmit.setText("Saving...");
+
+                JSONObject payload = new JSONObject();
+                try {
+                    payload.put("user_id", userId);
+                    payload.put("username", username);
+                    payload.put("current_password", curPass);
+                    payload.put("new_password", newPass);
+                    payload.put("confirm_password", confPass);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                JsonObjectRequest req = new JsonObjectRequest(
+                        Request.Method.POST, UPDATE_PASSWORD_URL, payload,
+                        res -> {
+                            btnSubmit.setEnabled(true);
+                            btnSubmit.setText("Save & Continue");
+                            boolean ok = res.optBoolean("success", false);
+                            String msg = res.optString("message", "Password updated successfully.");
+                            Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+                            if (ok) {
+                                dialog.dismiss();
+                                proceedToDashboard(userId, role, fullName, storeId, username, email, storeName);
+                            }
+                        },
+                        err -> {
+                            btnSubmit.setEnabled(true);
+                            btnSubmit.setText("Save & Continue");
+                            String errorMsg = "Failed to update password.";
+                            if (err.networkResponse != null && err.networkResponse.data != null) {
+                                try {
+                                    String resp = new String(err.networkResponse.data);
+                                    JSONObject errObj = new JSONObject(resp);
+                                    errorMsg = errObj.optString("message", errorMsg);
+                                } catch (Exception ignored) {}
+                            }
+                            Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show();
+                        }
+                );
+
+                ApiSession.getRequestQueue(this).add(req);
+            });
+        }
+
+        dialog.show();
+    }
+
+    private void proceedToDashboard(int userId, String role, String fullName, int storeId,
+                                    String username, String email, String storeName) {
+        Toast.makeText(LoginActivity.this, "Welcome, " + fullName + "!", Toast.LENGTH_SHORT).show();
+
+        Intent intent;
+        switch (role) {
+            case "super_admin":
+                intent = new Intent(LoginActivity.this, SuperAdminDashboardActivity.class);
+                break;
+            case "manager":
+            case "store_admin":
+                if (storeId <= 0) {
+                    Toast.makeText(LoginActivity.this, "Store administrator/manager has no valid store assignment", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                intent = new Intent(LoginActivity.this, StoreAdminDashboardActivity.class);
+                break;
+            case "store_owner":
+                intent = new Intent(LoginActivity.this, SuperAdminDashboardActivity.class);
+                break;
+            case "inventory_checker":
+                if (storeId <= 0) {
+                    Toast.makeText(LoginActivity.this, "Inventory Checker account has no valid store assignment", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                intent = new Intent(LoginActivity.this, ProductsActivity.class);
+                break;
+            case "staff":
+                if (storeId <= 0) {
+                    Toast.makeText(LoginActivity.this, "Staff account has no valid store assignment", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                intent = new Intent(LoginActivity.this, CashierDashboardActivity.class);
+                break;
+            default:
+                Toast.makeText(LoginActivity.this, "Unsupported account role", Toast.LENGTH_SHORT).show();
+                return;
+        }
+
+        intent.putExtra("user_id", userId);
+        intent.putExtra("role", role);
+        intent.putExtra("full_name", fullName);
+        if (storeId > 0) intent.putExtra("store_id", storeId);
+        intent.putExtra("username", username);
+        intent.putExtra("email", email);
+        intent.putExtra("store_name", storeName);
+
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 }

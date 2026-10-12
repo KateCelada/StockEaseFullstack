@@ -180,10 +180,26 @@ public class CashierDashboardActivity extends AppCompatActivity {
         }
     }
 
+    private final android.os.Handler syncHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+    private final Runnable syncRunnable = new Runnable() {
+        @Override
+        public void run() {
+            loadShiftTransactions();
+            syncHandler.postDelayed(this, 10000); // Poll every 10 seconds
+        }
+    };
+
     @Override
     protected void onResume() {
         super.onResume();
         loadShiftTransactions();
+        syncHandler.postDelayed(syncRunnable, 10000);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        syncHandler.removeCallbacks(syncRunnable);
     }
 
     private void openPOS() {

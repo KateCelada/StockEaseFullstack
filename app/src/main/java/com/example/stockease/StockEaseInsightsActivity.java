@@ -52,8 +52,8 @@ public class StockEaseInsightsActivity extends AppCompatActivity {
             fullName = getIntent().getStringExtra("full_name");
         }
 
-        if (userId <= 0 || (!"super_admin".equals(role) && !"store_admin".equals(role))) {
-            returnToLogin("Insights are available only to Super Admin and Store Admin accounts.");
+        if (userId <= 0 || (!"super_admin".equals(role) && !"store_admin".equals(role) && !"manager".equals(role) && !"store_owner".equals(role))) {
+            returnToLogin("Insights are available to Super Admin, Manager, and Store Admin accounts.");
             return;
         }
 
@@ -84,6 +84,8 @@ public class StockEaseInsightsActivity extends AppCompatActivity {
 
         setupRangeFilters();
         loadInsights();
+
+        ViewFeedbackUtil.attachAll(findViewById(android.R.id.content));
     }
 
     private void setupRangeFilters() {

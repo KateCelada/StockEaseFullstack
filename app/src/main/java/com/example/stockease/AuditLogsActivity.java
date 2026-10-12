@@ -1,5 +1,6 @@
 package com.example.stockease;
 
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -19,6 +20,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.util.Calendar;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -47,6 +50,10 @@ public class AuditLogsActivity extends AppCompatActivity {
     private EditText etAuditSearch;
     private Spinner spinnerAuditActionFilter;
     private Button btnAuditRefresh;
+    private Button btnAuditFilterAll, btnAuditFilterToday, btnAuditFilterWeek, btnAuditFilterMonth, btnAuditFilterCustom;
+    private String selectedPeriod = "";
+    private String customStartDate = "";
+    private String customEndDate = "";
     private LinearLayout llAuditLogRows;
     private TextView tvAuditLogsStatus;
     private TextView tvAuditAvatarInitials, tvAuditProfileName;
@@ -105,7 +112,14 @@ public class AuditLogsActivity extends AppCompatActivity {
         llAuditLogRows = findViewById(R.id.llAuditLogRows);
         tvAuditLogsStatus = findViewById(R.id.tvAuditLogsStatus);
 
+        btnAuditFilterAll = findViewById(R.id.btnAuditFilterAll);
+        btnAuditFilterToday = findViewById(R.id.btnAuditFilterToday);
+        btnAuditFilterWeek = findViewById(R.id.btnAuditFilterWeek);
+        btnAuditFilterMonth = findViewById(R.id.btnAuditFilterMonth);
+        btnAuditFilterCustom = findViewById(R.id.btnAuditFilterCustom);
+
         setupFilters();
+        setupDateFilters();
 
         // Sidebar Navigation
         navAuditDashboard = findViewById(R.id.navAuditDashboard);
@@ -117,7 +131,13 @@ public class AuditLogsActivity extends AppCompatActivity {
         navAuditLogout = findViewById(R.id.navAuditLogout);
 
         if (navAuditDashboard != null) {
-            navAuditDashboard.setOnClickListener(v -> openDestination(SuperAdminDashboardActivity.class));
+            navAuditDashboard.setOnClickListener(v -> {
+                if ("super_admin".equals(role)) {
+                    openDestination(SuperAdminDashboardActivity.class);
+                } else {
+                    openDestination(StoreAdminDashboardActivity.class);
+                }
+            });
         }
         if (navAuditStores != null) {
             navAuditStores.setOnClickListener(v -> openDestination(StoresActivity.class));
@@ -141,6 +161,8 @@ public class AuditLogsActivity extends AppCompatActivity {
         if (btnAuditRefresh != null) {
             btnAuditRefresh.setOnClickListener(v -> fetchLogs());
         }
+
+        ViewFeedbackUtil.attachAll(findViewById(android.R.id.content));
 
         fetchLogs();
     }
@@ -208,6 +230,86 @@ public class AuditLogsActivity extends AppCompatActivity {
         }
     }
 
+    private void setupDateFilters() {
+        if (btnAuditFilterAll != null) {
+            btnAuditFilterAll.setOnClickListener(v -> selectDateFilter("", "", ""));
+        }
+        if (btnAuditFilterToday != null) {
+            btnAuditFilterToday.setOnClickListener(v -> selectDateFilter("today", "", ""));
+        }
+        if (btnAuditFilterWeek != null) {
+            btnAuditFilterWeek.setOnClickListener(v -> selectDateFilter("this_week", "", ""));
+        }
+        if (btnAuditFilterMonth != null) {
+            btnAuditFilterMonth.setOnClickListener(v -> selectDateFilter("this_month", "", ""));
+        }
+        if (btnAuditFilterCustom != null) {
+            btnAuditFilterCustom.setOnClickListener(v -> showCustomDatePicker());
+        }
+        updateDateFilterButtonsUI();
+    }
+
+    private void selectDateFilter(String period, String start, String end) {
+        selectedPeriod = period;
+        customStartDate = start;
+        customEndDate = end;
+        updateDateFilterButtonsUI();
+        fetchLogs();
+    }
+
+    private void updateDateFilterButtonsUI() {
+        int activeBg = 0xFF2563EB;
+        int activeText = 0xFFFFFFFF;
+        int inactiveBg = 0xFFE2E8F0;
+        int inactiveText = 0xFF475569;
+
+        if (btnAuditFilterAll != null) {
+            boolean active = selectedPeriod.isEmpty();
+            btnAuditFilterAll.setBackgroundTintList(android.content.res.ColorStateList.valueOf(active ? activeBg : inactiveBg));
+            btnAuditFilterAll.setTextColor(active ? activeText : inactiveText);
+        }
+        if (btnAuditFilterToday != null) {
+            boolean active = "today".equals(selectedPeriod);
+            btnAuditFilterToday.setBackgroundTintList(android.content.res.ColorStateList.valueOf(active ? activeBg : inactiveBg));
+            btnAuditFilterToday.setTextColor(active ? activeText : inactiveText);
+        }
+        if (btnAuditFilterWeek != null) {
+            boolean active = "this_week".equals(selectedPeriod);
+            btnAuditFilterWeek.setBackgroundTintList(android.content.res.ColorStateList.valueOf(active ? activeBg : inactiveBg));
+            btnAuditFilterWeek.setTextColor(active ? activeText : inactiveText);
+        }
+        if (btnAuditFilterMonth != null) {
+            boolean active = "this_month".equals(selectedPeriod);
+            btnAuditFilterMonth.setBackgroundTintList(android.content.res.ColorStateList.valueOf(active ? activeBg : inactiveBg));
+            btnAuditFilterMonth.setTextColor(active ? activeText : inactiveText);
+        }
+        if (btnAuditFilterCustom != null) {
+            boolean active = "custom".equals(selectedPeriod);
+            btnAuditFilterCustom.setBackgroundTintList(android.content.res.ColorStateList.valueOf(active ? activeBg : inactiveBg));
+            btnAuditFilterCustom.setTextColor(active ? activeText : inactiveText);
+            if (active && !customStartDate.isEmpty()) {
+                btnAuditFilterCustom.setText(customStartDate + " - " + customEndDate);
+            } else {
+                btnAuditFilterCustom.setText("Custom 📅");
+            }
+        }
+    }
+
+    private void showCustomDatePicker() {
+        Calendar cal = Calendar.getInstance();
+        DatePickerDialog startDialog = new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
+            String startStr = String.format(Locale.US, "%04d-%02d-%02d", year, month + 1, dayOfMonth);
+            DatePickerDialog endDialog = new DatePickerDialog(this, (view2, year2, month2, dayOfMonth2) -> {
+                String endStr = String.format(Locale.US, "%04d-%02d-%02d", year2, month2 + 1, dayOfMonth2);
+                selectDateFilter("custom", startStr, endStr);
+            }, year, month, dayOfMonth);
+            endDialog.setTitle("Select End Date");
+            endDialog.show();
+        }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
+        startDialog.setTitle("Select Start Date");
+        startDialog.show();
+    }
+
     private void fetchLogs() {
         if (tvAuditLogsStatus != null) {
             tvAuditLogsStatus.setVisibility(View.VISIBLE);
@@ -229,6 +331,15 @@ public class AuditLogsActivity extends AppCompatActivity {
             }
             if (!actionFilter.isEmpty()) {
                 urlBuilder.append(firstParam ? "?" : "&").append("action_filter=").append(URLEncoder.encode(actionFilter, "UTF-8"));
+                firstParam = false;
+            }
+            if (!selectedPeriod.isEmpty()) {
+                urlBuilder.append(firstParam ? "?" : "&").append("period=").append(URLEncoder.encode(selectedPeriod, "UTF-8"));
+                firstParam = false;
+                if ("custom".equals(selectedPeriod) && !customStartDate.isEmpty() && !customEndDate.isEmpty()) {
+                    urlBuilder.append("&start_date=").append(URLEncoder.encode(customStartDate, "UTF-8"));
+                    urlBuilder.append("&end_date=").append(URLEncoder.encode(customEndDate, "UTF-8"));
+                }
             }
         } catch (UnsupportedEncodingException ignored) {}
 
@@ -419,7 +530,7 @@ public class AuditLogsActivity extends AppCompatActivity {
     }
 
     private boolean isAuthorized() {
-        return userId > 0 && "super_admin".equals(role);
+        return userId > 0 && ("super_admin".equals(role) || "manager".equals(role) || "store_owner".equals(role));
     }
 
     private void openDestination(Class<?> destination) {

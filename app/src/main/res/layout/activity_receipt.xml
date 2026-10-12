@@ -207,14 +207,32 @@
 
     </LinearLayout>
 
-    <!-- Navigation Button -->
-    <Button
-        android:id="@+id/btnNewSale"
+    <!-- Action Buttons -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:backgroundTint="#000000"
-        android:text="NEW SALE"
-        android:textColor="#FFFFFF" />
+        android:orientation="horizontal"
+        android:layout_marginTop="12dp">
+
+        <Button
+            android:id="@+id/btnVoidFromReceipt"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="6dp"
+            android:backgroundTint="#DC2626"
+            android:text="Void Transaction"
+            android:textColor="#FFFFFF" />
+
+        <Button
+            android:id="@+id/btnNewSale"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:layout_marginStart="6dp"
+            android:backgroundTint="#000000"
+            android:text="New Sale"
+            android:textColor="#FFFFFF" />
+    </LinearLayout>
 
 </LinearLayout>

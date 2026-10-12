@@ -99,8 +99,18 @@ public final class ApiSession {
         }
 
         if (btnCancel != null) {
-            btnCancel.setOnClickListener(v -> dialog.dismiss());
+            btnCancel.setOnClickListener(v -> {
+                dialog.dismiss();
+                if (activity != null && !activity.isFinishing()) {
+                    activity.finish();
+                }
+            });
         }
+        dialog.setOnCancelListener(d -> {
+            if (activity != null && !activity.isFinishing()) {
+                activity.finish();
+            }
+        });
 
         if (btnViewPremium != null) {
             btnViewPremium.setOnClickListener(v -> {

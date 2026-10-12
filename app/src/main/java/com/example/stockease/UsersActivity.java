@@ -27,8 +27,9 @@ public class UsersActivity extends AppCompatActivity {
 
     private static final String USERS_URL = ApiConfig.getUrl("get_users.php");
     private static final String UPDATE_ROLE_URL = ApiConfig.getUrl("update_role.php");
+    private static final String DELETE_USER_URL = ApiConfig.getUrl("delete_user.php");
     private static final String STORES_URL = ApiConfig.getUrl("manage_stores.php?action=fetch");
-    private static final String[] CANONICAL_ROLES = {"super_admin", "store_admin", "staff"};
+    private static final String[] CANONICAL_ROLES = {"super_admin", "store_owner", "manager", "store_admin", "staff", "inventory_checker"};
 
     private final List<User> users = new ArrayList<>();
     private final Map<Integer, String> storeNames = new HashMap<>();
@@ -55,6 +56,8 @@ public class UsersActivity extends AppCompatActivity {
         rvUsers.setAdapter(adapter);
 
         loadStoresThenUsers();
+
+        ViewFeedbackUtil.attachAll(findViewById(android.R.id.content));
     }
 
     private void loadStoresThenUsers() {
@@ -142,6 +145,66 @@ public class UsersActivity extends AppCompatActivity {
             return;
         }
 
+        String[] options = {"Change Role", "Delete Account"};
+        new AlertDialog.Builder(this)
+                .setTitle("Manage @" + targetUser.getUsername())
+                .setItems(options, (dialog, which) -> {
+                    if (which == 0) {
+                        showRoleSelectionDialog(targetUser);
+                    } else if (which == 1) {
+                        confirmDeleteUser(targetUser);
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void confirmDeleteUser(User targetUser) {
+        if (targetUser.getId() == authenticatedUserId || targetUser.getId() == 1) {
+            Toast.makeText(this, "You cannot delete the primary Super Admin account.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle("Delete Account")
+                .setMessage("Are you sure you want to permanently delete @" + targetUser.getUsername() + " (" + targetUser.getFullName() + ")? This will remove mistake entries and unbind this user from any assigned stores.")
+                .setPositiveButton("Delete Permanently", (dialog, which) -> deleteUserAccount(targetUser))
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void deleteUserAccount(User targetUser) {
+        JSONObject body = new JSONObject();
+        try {
+            body.put("user_id", targetUser.getId());
+        } catch (JSONException e) {
+            Toast.makeText(this, "Unable to prepare request", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        RequestQueue queue = ApiSession.getRequestQueue(this);
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.POST,
+                DELETE_USER_URL,
+                body,
+                response -> {
+                    if (response.optBoolean("success", false)) {
+                        Toast.makeText(this, response.optString("message", "User deleted"), Toast.LENGTH_LONG).show();
+                        users.remove(targetUser);
+                        adapter.notifyDataSetChanged();
+                    } else {
+                        Toast.makeText(this, response.optString("message", "Failed to delete user"), Toast.LENGTH_LONG).show();
+                    }
+                },
+                error -> {
+                    if (ApiSession.handleAuthError(this, error)) return;
+                    Toast.makeText(this, "Failed to connect to server", Toast.LENGTH_SHORT).show();
+                }
+        );
+        queue.add(request);
+    }
+
+    private void showRoleSelectionDialog(User targetUser) {
         if (targetUser.getId() == authenticatedUserId) {
             Toast.makeText(this, "You cannot change the role of your active account", Toast.LENGTH_LONG).show();
             return;
@@ -164,13 +227,6 @@ public class UsersActivity extends AppCompatActivity {
                 .setPositiveButton("Update", (dialog, which) -> {
                     String selectedRole = CANONICAL_ROLES[selectedIndex[0]];
                     if (selectedRole.equals(targetUser.getRole())) return;
-
-                    if (!"super_admin".equals(selectedRole) && targetUser.getStoreId() <= 0) {
-                        Toast.makeText(this,
-                                "This account has no store assignment. The current API cannot assign one during a role update.",
-                                Toast.LENGTH_LONG).show();
-                        return;
-                    }
 
                     updateRole(targetUser, selectedRole);
                 })

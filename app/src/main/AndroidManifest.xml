@@ -33,6 +33,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".BusinessProgressActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".UsersActivity"
             android:exported="false" />
 
@@ -107,7 +111,8 @@
 
         <activity
             android:name=".StockTransfersActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".StockEaseInsightsActivity"

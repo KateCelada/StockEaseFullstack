@@ -10,12 +10,15 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -41,8 +44,8 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
     private TextView tvSuperTotalStores, tvSuperActiveStoresBadge, tvSuperTotalUsers, tvSuperTotalSales, tvSuperTotalTransactions;
     private TextView tvOverviewTotalSales, tvOverviewTransactions, tvOverviewAvgOrder;
     private Button btnSuperCompareStores;
-    private LinearLayout llStorePerformanceRows;
-    private View navSuperDashboard, navSuperStores, navSuperAdmins, navSuperUsers, navSuperReports, navSuperAuditLogs, navSuperTransfers, navSuperInsights, navSuperSubscription, navSuperSettings, navSuperLogout;
+    private LinearLayout llStorePerformanceRows, llStoreOwnersCards;
+    private View navSuperDashboard, navSuperStores, navSuperAdmins, navSuperUsers, navSuperReports, navSuperAuditLogs, navSuperInsights, navSuperSubscription, navSuperSettings, navSuperLogout;
 
     private int userId = -1;
     private String role = "";
@@ -120,6 +123,9 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
         tvOverviewTransactions = findViewById(R.id.tvOverviewTransactions);
         tvOverviewAvgOrder = findViewById(R.id.tvOverviewAvgOrder);
 
+        // Store Owners Portfolios
+        llStoreOwnersCards = findViewById(R.id.llStoreOwnersCards);
+
         // Store Performance Overview Views
         btnSuperCompareStores = findViewById(R.id.btnSuperCompareStores);
         llStorePerformanceRows = findViewById(R.id.llStorePerformanceRows);
@@ -135,7 +141,6 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
         navSuperAdmins = findViewById(R.id.navSuperAdmins);
         navSuperReports = findViewById(R.id.navSuperReports);
         navSuperAuditLogs = findViewById(R.id.navSuperAuditLogs);
-        navSuperTransfers = findViewById(R.id.navSuperTransfers);
         navSuperInsights = findViewById(R.id.navSuperInsights);
         navSuperSubscription = findViewById(R.id.navSuperSubscription);
         navSuperSettings = findViewById(R.id.navSuperSettings);
@@ -150,7 +155,7 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
         }
 
         if (navSuperAdmins != null) {
-            navSuperAdmins.setOnClickListener(v -> openSuperAdminDestination(StoreAdminsActivity.class));
+            navSuperAdmins.setOnClickListener(v -> openSuperAdminDestination(StoresActivity.class));
         }
 
         if (navSuperReports != null) {
@@ -159,10 +164,6 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
 
         if (navSuperAuditLogs != null) {
             navSuperAuditLogs.setOnClickListener(v -> openSuperAdminDestination(AuditLogsActivity.class));
-        }
-
-        if (navSuperTransfers != null) {
-            navSuperTransfers.setOnClickListener(v -> openSuperAdminDestination(StockTransfersActivity.class));
         }
 
         if (navSuperInsights != null) {
@@ -180,6 +181,8 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
         if (navSuperLogout != null) {
             navSuperLogout.setOnClickListener(v -> ApiSession.logout(this));
         }
+
+        ViewFeedbackUtil.attachAll(findViewById(android.R.id.content));
     }
 
     private void setupHeaderInfo() {
@@ -228,6 +231,7 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
 
         loadStoresAndSalesMetrics(queue);
         loadUserMetrics(queue);
+        loadStoreOwnersCards(queue);
     }
 
     private void loadStoresAndSalesMetrics(RequestQueue queue) {
@@ -660,6 +664,418 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
         );
 
         queue.add(usersRequest);
+    }
+
+    private void loadStoreOwnersCards(RequestQueue queue) {
+        if (llStoreOwnersCards == null) return;
+        String url = ApiConfig.getUrl("get_store_owners.php");
+        JsonObjectRequest req = new JsonObjectRequest(
+                Request.Method.GET, url, null,
+                response -> {
+                    try {
+                        if (response.getBoolean("success")) {
+                            JSONArray owners = response.optJSONArray("owners");
+                            renderStoreOwnersCards(owners);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                },
+                error -> {
+                    // Fail silently or keep placeholder
+                }
+        );
+        queue.add(req);
+    }
+
+    private void renderStoreOwnersCards(JSONArray owners) {
+        if (llStoreOwnersCards == null) return;
+        llStoreOwnersCards.removeAllViews();
+
+        if (owners == null || owners.length() == 0) {
+            TextView empty = new TextView(this);
+            empty.setText("No multi-branch store owners configured.");
+            empty.setTextColor(0xFF64748B);
+            empty.setTextSize(13f);
+            empty.setPadding(0, 16, 0, 16);
+            llStoreOwnersCards.addView(empty);
+            return;
+        }
+
+        for (int i = 0; i < owners.length(); i++) {
+            JSONObject owner = owners.optJSONObject(i);
+            if (owner == null) continue;
+
+            String storeNameStr = owner.optString("store_name", "Retail Store Portfolio");
+            String ownerName = owner.optString("owner_name", "Store Owner");
+            String managerName = owner.optString("manager_name", "");
+            String usernameStr = owner.optString("owner_username", owner.optString("username", "owner"));
+            String description = owner.optString("description", "");
+            int primaryStoreId = owner.optInt("primary_store_id", 0);
+            double totalSales = owner.optDouble("overall_sales", owner.optDouble("total_sales", 0.0));
+            double todaySales = owner.optDouble("overall_today_sales", owner.optDouble("today_sales", 0.0));
+            int totalOrders = owner.optInt("overall_transactions", owner.optInt("total_orders", 0));
+            JSONArray branches = owner.optJSONArray("branches");
+            JSONArray salesProgress = owner.optJSONArray("sales_progress");
+
+            if (primaryStoreId <= 0 && branches != null && branches.length() > 0) {
+                primaryStoreId = branches.optJSONObject(0).optInt("id", 0);
+            }
+            final int editStoreId = primaryStoreId;
+            final String finalStoreName = storeNameStr;
+            final String finalCurrentDesc = description;
+
+            // Outer Business Flashcard (clean, compact card)
+            LinearLayout ownerCard = new LinearLayout(this);
+            ownerCard.setOrientation(LinearLayout.VERTICAL);
+            ownerCard.setBackground(ContextCompat.getDrawable(this, R.drawable.bg_card_white));
+            ownerCard.setPadding(28, 22, 28, 22);
+            LinearLayout.LayoutParams cardLp = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            cardLp.setMargins(0, 0, 0, 16);
+            ownerCard.setLayoutParams(cardLp);
+            ownerCard.setClickable(true);
+            ownerCard.setFocusable(true);
+
+            LinearLayout topRow = new LinearLayout(this);
+            topRow.setOrientation(LinearLayout.HORIZONTAL);
+            topRow.setGravity(Gravity.CENTER_VERTICAL);
+
+            LinearLayout nameCol = new LinearLayout(this);
+            nameCol.setOrientation(LinearLayout.VERTICAL);
+            nameCol.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+
+            TextView tvBigStoreName = new TextView(this);
+            tvBigStoreName.setText(storeNameStr);
+            tvBigStoreName.setTextColor(0xFF0F172A);
+            tvBigStoreName.setTextSize(18f);
+            tvBigStoreName.setTypeface(null, Typeface.BOLD);
+
+            TextView tvOwnerUnderneath = new TextView(this);
+            String ownerText = "👤 Business Owner: " + ownerName + (managerName.isEmpty() ? "" : " • Manager: " + managerName);
+            tvOwnerUnderneath.setText(ownerText);
+            tvOwnerUnderneath.setTextColor(0xFF64748B);
+            tvOwnerUnderneath.setTextSize(13f);
+            tvOwnerUnderneath.setPadding(0, 3, 0, 0);
+
+            nameCol.addView(tvBigStoreName);
+            nameCol.addView(tvOwnerUnderneath);
+
+            // Badge showing branch count
+            TextView tvBranchBadge = new TextView(this);
+            int branchCount = (branches != null) ? branches.length() : 1;
+            tvBranchBadge.setText(branchCount + (branchCount == 1 ? " Branch" : " Branches"));
+            tvBranchBadge.setTextColor(0xFF2563EB);
+            tvBranchBadge.setTextSize(11f);
+            tvBranchBadge.setTypeface(null, Typeface.BOLD);
+            tvBranchBadge.setBackground(ContextCompat.getDrawable(this, R.drawable.bg_badge_blue));
+            tvBranchBadge.setPadding(16, 6, 16, 6);
+
+            topRow.addView(nameCol);
+            topRow.addView(tvBranchBadge);
+            ownerCard.addView(topRow);
+
+            // Tap hint bar
+            TextView tvTapHint = new TextView(this);
+            tvTapHint.setText("Tap to view full business progress & line chart trend ▶");
+            tvTapHint.setTextColor(0xFF2563EB);
+            tvTapHint.setTextSize(11f);
+            tvTapHint.setPadding(0, 8, 0, 0);
+            ownerCard.addView(tvTapHint);
+
+            final int fOwnerId = owner.optInt("owner_id", 0);
+            ownerCard.setOnClickListener(v -> {
+                Intent progIntent = new Intent(this, BusinessProgressActivity.class);
+                progIntent.putExtra(BusinessProgressActivity.EXTRA_MODE, "business");
+                progIntent.putExtra(BusinessProgressActivity.EXTRA_OWNER_ID, fOwnerId > 0 ? fOwnerId : editStoreId);
+                progIntent.putExtra(BusinessProgressActivity.EXTRA_STORE_ID, editStoreId);
+                progIntent.putExtra(BusinessProgressActivity.EXTRA_TITLE, storeNameStr);
+                progIntent.putExtra(BusinessProgressActivity.EXTRA_SUBTITLE, "Owner: " + ownerName);
+                progIntent.putExtra("user_id", userId);
+                progIntent.putExtra("role", role);
+                startActivity(progIntent);
+            });
+
+            llStoreOwnersCards.addView(ownerCard);
+        }
+    }
+
+    private void showEditDescriptionDialog(int storeId, String storeName, String currentDesc) {
+        EditText etDesc = new EditText(this);
+        etDesc.setHint("Enter description, business model, operating hours, etc.");
+        etDesc.setText(currentDesc);
+        etDesc.setLines(4);
+        etDesc.setGravity(Gravity.TOP | Gravity.START);
+
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(40, 24, 40, 16);
+        layout.addView(etDesc);
+
+        new AlertDialog.Builder(this)
+                .setTitle("Store Description")
+                .setMessage("Update description for \"" + storeName + "\":")
+                .setView(layout)
+                .setPositiveButton("Save Description", (dialog, which) -> {
+                    String newDesc = etDesc.getText().toString().trim();
+                    saveStoreDescription(storeId, newDesc);
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void saveStoreDescription(int storeId, String description) {
+        if (storeId <= 0) return;
+        RequestQueue queue = ApiSession.getRequestQueue(this);
+        JSONObject payload = new JSONObject();
+        try {
+            payload.put("store_id", storeId);
+            payload.put("description", description);
+        } catch (JSONException ignored) {}
+
+        JsonObjectRequest req = new JsonObjectRequest(
+                Request.Method.POST,
+                ApiConfig.getUrl("manage_stores.php?action=update_description"),
+                payload,
+                res -> {
+                    Toast.makeText(this, res.optString("message", "Description saved!"), Toast.LENGTH_SHORT).show();
+                    loadStoreOwnersCards(ApiSession.getRequestQueue(this));
+                },
+                err -> Toast.makeText(this, "Failed to update description", Toast.LENGTH_SHORT).show()
+        );
+        queue.add(req);
+    }
+
+    private void showContributionBreakdownDialog(String storeName, JSONArray branches) {
+        if (branches == null || branches.length() == 0) {
+            Toast.makeText(this, "No branch sales data available to calculate contribution.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < branches.length(); i++) {
+            JSONObject b = branches.optJSONObject(i);
+            if (b == null) continue;
+            String bName = b.optString("store_name", "Branch");
+            double sales = b.optDouble("total_sales", 0.0);
+            double pct = b.optDouble("contribution_pct", 0.0);
+            sb.append("• ").append(bName).append("\n")
+              .append("   Contribution: ").append(pct).append("%")
+              .append(" (₱").append(String.format(Locale.US, "%.2f", sales)).append(")\n\n");
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle("Branch Contribution Breakdown")
+                .setMessage(sb.toString().trim())
+                .setPositiveButton("Close", null)
+                .show();
+    }
+
+    private void showBranchProgressDialog(JSONObject branch) {
+        if (branch == null) return;
+
+        int branchId = branch.optInt("id", 0);
+        String branchName = branch.optString("store_name", "Branch");
+        String location = branch.optString("location", "—");
+        double bToday = branch.optDouble("today_sales", 0.0);
+        double bTotal = branch.optDouble("total_sales", 0.0);
+        int totalProducts = branch.optInt("total_products", 0);
+        JSONArray trend = branch.optJSONArray("sales_progress");
+        JSONArray topProducts = branch.optJSONArray("top_products");
+        JSONArray branchUsers = branch.optJSONArray("branch_users");
+
+        ScrollView sv = new ScrollView(this);
+        LinearLayout content = new LinearLayout(this);
+        content.setOrientation(LinearLayout.VERTICAL);
+        content.setPadding(36, 24, 36, 24);
+
+        TextView tvTitle = new TextView(this);
+        tvTitle.setText(branchName + "\n📍 " + location);
+        tvTitle.setTextColor(0xFF0F172A);
+        tvTitle.setTextSize(15f);
+        tvTitle.setTypeface(null, Typeface.BOLD);
+        content.addView(tvTitle);
+
+        TextView tvStats = new TextView(this);
+        tvStats.setText(String.format(Locale.US, "Today: ₱%.2f  |  Total: ₱%.2f  |  Items: %d", bToday, bTotal, totalProducts));
+        tvStats.setTextColor(0xFF2563EB);
+        tvStats.setTextSize(12f);
+        tvStats.setPadding(0, 6, 0, 12);
+        content.addView(tvStats);
+
+        // Branch Line Chart
+        TextView tvChartLbl = new TextView(this);
+        tvChartLbl.setText("📈 Real-time Branch Sales Line Chart (tap for top products):");
+        tvChartLbl.setTextColor(0xFF334155);
+        tvChartLbl.setTextSize(12f);
+        tvChartLbl.setTypeface(null, Typeface.BOLD);
+        content.addView(tvChartLbl);
+
+        SimpleLineChartView chart = new SimpleLineChartView(this);
+        chart.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 200));
+
+        List<Float> pts = new ArrayList<>();
+        List<String> lbls = new ArrayList<>();
+        if (trend != null && trend.length() > 0) {
+            for (int i = 0; i < trend.length(); i++) {
+                JSONObject pt = trend.optJSONObject(i);
+                if (pt != null) {
+                    pts.add((float) pt.optDouble("sales", 0.0));
+                    lbls.add(pt.optString("label", "Day"));
+                }
+            }
+        } else {
+            pts.add(0f); pts.add(0f); pts.add(0f);
+            lbls.add("Day 1"); lbls.add("Day 2"); lbls.add("Day 3");
+        }
+        chart.setData(pts, lbls);
+
+        chart.setClickable(true);
+        chart.setFocusable(true);
+        chart.setOnClickListener(v -> showTopPurchasedProductsDialog(branchName, topProducts));
+        content.addView(chart);
+
+        // Top products quick button
+        Button btnTopProds = new Button(this);
+        btnTopProds.setText("🏆 View Top Purchased Products & Profit");
+        btnTopProds.setTextSize(11f);
+        btnTopProds.setTextColor(0xFF059669);
+        btnTopProds.setBackgroundColor(0xFFECFDF5);
+        btnTopProds.setOnClickListener(v -> showTopPurchasedProductsDialog(branchName, topProducts));
+        LinearLayout.LayoutParams btnPLp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        btnPLp.setMargins(0, 6, 0, 16);
+        btnTopProds.setLayoutParams(btnPLp);
+        content.addView(btnTopProds);
+
+        // Branch Users & Roles Section
+        TextView tvUsersLbl = new TextView(this);
+        tvUsersLbl.setText("👥 Branch Staff & Roles (tap user for details):");
+        tvUsersLbl.setTextColor(0xFF334155);
+        tvUsersLbl.setTextSize(12f);
+        tvUsersLbl.setTypeface(null, Typeface.BOLD);
+        content.addView(tvUsersLbl);
+
+        if (branchUsers != null && branchUsers.length() > 0) {
+            for (int u = 0; u < branchUsers.length(); u++) {
+                JSONObject userObj = branchUsers.optJSONObject(u);
+                if (userObj == null) continue;
+
+                String fn = userObj.optString("full_name", "User");
+                String un = userObj.optString("username", "user");
+                String rl = userObj.optString("role_display", userObj.optString("role", "Staff"));
+
+                LinearLayout uCard = new LinearLayout(this);
+                uCard.setOrientation(LinearLayout.HORIZONTAL);
+                uCard.setGravity(Gravity.CENTER_VERTICAL);
+                uCard.setBackgroundColor(0xFFF8FAFC);
+                uCard.setPadding(16, 12, 16, 12);
+                LinearLayout.LayoutParams uLp = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                uLp.setMargins(0, 6, 0, 0);
+                uCard.setLayoutParams(uLp);
+
+                LinearLayout uInfo = new LinearLayout(this);
+                uInfo.setOrientation(LinearLayout.VERTICAL);
+                uInfo.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+
+                TextView tvUName = new TextView(this);
+                tvUName.setText(fn + " (@" + un + ")");
+                tvUName.setTextColor(0xFF0F172A);
+                tvUName.setTextSize(12f);
+                tvUName.setTypeface(null, Typeface.BOLD);
+
+                TextView tvURole = new TextView(this);
+                tvURole.setText("Role: " + rl);
+                tvURole.setTextColor(0xFF2563EB);
+                tvURole.setTextSize(11f);
+
+                uInfo.addView(tvUName);
+                uInfo.addView(tvURole);
+
+                uCard.addView(uInfo);
+
+                uCard.setClickable(true);
+                uCard.setFocusable(true);
+                uCard.setOnClickListener(v -> showUserDetailsDialog(userObj));
+                content.addView(uCard);
+            }
+        } else {
+            TextView noUsers = new TextView(this);
+            noUsers.setText("No staff assigned to this branch.");
+            noUsers.setTextColor(0xFF94A3B8);
+            noUsers.setTextSize(11f);
+            noUsers.setPadding(0, 6, 0, 6);
+            content.addView(noUsers);
+        }
+
+        sv.addView(content);
+
+        new AlertDialog.Builder(this)
+                .setTitle("Branch Real-time Details")
+                .setView(sv)
+                .setPositiveButton("Full Reports", (dialog, which) -> {
+                    Intent repIntent = new Intent(this, ReportsActivity.class);
+                    repIntent.putExtra("store_id", branchId);
+                    repIntent.putExtra("store_name", branchName);
+                    repIntent.putExtra("user_id", userId);
+                    repIntent.putExtra("role", role);
+                    repIntent.putExtra("full_name", fullName);
+                    startActivity(repIntent);
+                })
+                .setNegativeButton("Close", null)
+                .show();
+    }
+
+    private void showTopPurchasedProductsDialog(String branchName, JSONArray topProducts) {
+        if (topProducts == null || topProducts.length() == 0) {
+            Toast.makeText(this, "No sales recorded for this branch yet.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < topProducts.length(); i++) {
+            JSONObject p = topProducts.optJSONObject(i);
+            if (p == null) continue;
+            String pName = p.optString("product_name", "Product");
+            String cat = p.optString("category_name", "General");
+            int sold = p.optInt("quantity_sold", 0);
+            double gross = p.optDouble("gross_earnings", 0.0);
+            double net = p.optDouble("net_profit", 0.0);
+            int stock = p.optInt("stock_on_hand", 0);
+
+            sb.append("• ").append(pName).append(" [").append(cat).append("]\n")
+              .append("   Sold: ").append(sold).append(" units | On-Hand: ").append(stock).append("\n")
+              .append("   Gross Earned: ₱").append(String.format(Locale.US, "%.2f", gross))
+              .append(" | Net Profit: ₱").append(String.format(Locale.US, "%.2f", net)).append("\n\n");
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle("Top Purchased Products (" + branchName + ")")
+                .setMessage(sb.toString().trim())
+                .setPositiveButton("Close", null)
+                .show();
+    }
+
+    private void showUserDetailsDialog(JSONObject userObj) {
+        if (userObj == null) return;
+        String fn = userObj.optString("full_name", "User");
+        String un = userObj.optString("username", "username");
+        String em = userObj.optString("email", "No email provided");
+        String rl = userObj.optString("role_display", userObj.optString("role", "Staff"));
+        String lastTx = userObj.optString("last_transaction_at", "No transactions on duty yet");
+
+        String msg = "Full Name: " + fn + "\n"
+                   + "Username: @" + un + "\n"
+                   + "Assigned Role: " + rl + "\n"
+                   + "Email: " + em + "\n"
+                   + "Cashier Duty Status: " + (lastTx.equals("null") ? "None" : lastTx);
+
+        new AlertDialog.Builder(this)
+                .setTitle("User Profile & Role")
+                .setMessage(msg)
+                .setPositiveButton("Close", null)
+                .show();
     }
 
     private void setMetricPlaceholders() {

@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="#FFFFFF">
+
+    <!-- Header -->
+    <TextView
+        android:id="@+id/tvAnalyticsProductName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Product Performance"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#0F172A" />
+
+    <TextView
+        android:id="@+id/tvAnalyticsCategory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Category: General"
+        android:textSize="12sp"
+        android:textColor="#64748B"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Progressive Total Earnings Cards -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="10dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="#EFF6FF"
+            android:padding="10dp"
+            android:orientation="vertical"
+            android:layout_marginEnd="6dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Progressive Gross (Earned)"
+                android:textSize="10sp"
+                android:textColor="#1E40AF" />
+
+            <TextView
+                android:id="@+id/tvAnalyticsProgressiveGross"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₱0.00"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#1D4ED8" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="#ECFDF5"
+            android:padding="10dp"
+            android:orientation="vertical"
+            android:layout_marginStart="6dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Progressive Net (Profit)"
+                android:textSize="10sp"
+                android:textColor="#065F46" />
+
+            <TextView
+                android:id="@+id/tvAnalyticsProgressiveNet"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₱0.00"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#059669" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Total Units Sold Badge -->
+    <TextView
+        android:id="@+id/tvAnalyticsTotalSold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Total Sold: 0 units"
+        android:textSize="11sp"
+        android:textColor="#475569"
+        android:layout_marginBottom="10dp" />
+
+    <!-- Unit Price & Cost Details -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="10dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="#F8FAFC"
+            android:padding="10dp"
+            android:orientation="vertical"
+            android:layout_marginEnd="6dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cost Price"
+                android:textSize="10sp"
+                android:textColor="#64748B" />
+
+            <TextView
+                android:id="@+id/tvAnalyticsCost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₱0.00"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#334155" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="#F8FAFC"
+            android:padding="10dp"
+            android:orientation="vertical"
+            android:layout_marginStart="6dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Selling Price"
+                android:textSize="10sp"
+                android:textColor="#64748B" />
+
+            <TextView
+                android:id="@+id/tvAnalyticsPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₱0.00"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#2563EB" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="#F0FDF4"
+            android:padding="10dp"
+            android:orientation="vertical"
+            android:layout_marginEnd="6dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Net Profit / Item"
+                android:textSize="10sp"
+                android:textColor="#166534" />
+
+            <TextView
+                android:id="@+id/tvAnalyticsProfit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="+₱0.00"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#16A34A" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="#EFF6FF"
+            android:padding="10dp"
+            android:orientation="vertical"
+            android:layout_marginStart="6dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Gross Margin"
+                android:textSize="10sp"
+                android:textColor="#1E40AF" />
+
+            <TextView
+                android:id="@+id/tvAnalyticsMargin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0.0%"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#2563EB" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Line Chart Title -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Estimated Earnings / Sales Trend"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:textColor="#0F172A"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Line Chart Component -->
+    <com.example.stockease.SimpleLineChartView
+        android:id="@+id/chartProductTrend"
+        android:layout_width="match_parent"
+        android:layout_height="140dp"
+        android:background="#F8FAFC"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Action Buttons: Edit Prices & Restock -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="12dp">
+
+        <Button
+            android:id="@+id/btnEditProductDetails"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:text="✏️ Edit Prices"
+            android:textSize="12sp"
+            android:textColor="#2563EB"
+            android:background="@drawable/bg_badge_blue"
+            android:layout_marginEnd="6dp" />
+
+        <Button
+            android:id="@+id/btnRestockProduct"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:text="➕ Add Stock"
+            android:textSize="12sp"
+            android:textColor="#059669"
+            android:background="@drawable/bg_badge_emerald"
+            android:layout_marginStart="6dp" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnCloseAnalytics"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:text="Close"
+        android:background="@drawable/bg_btn_primary"
+        android:textColor="#FFFFFF"
+        android:textSize="13sp" />
+
+</LinearLayout>

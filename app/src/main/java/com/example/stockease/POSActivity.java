@@ -282,6 +282,28 @@ public class POSActivity extends AppCompatActivity {
         }
     }
 
+    private final android.os.Handler syncHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+    private final Runnable syncRunnable = new Runnable() {
+        @Override
+        public void run() {
+            loadProducts();
+            syncHandler.postDelayed(this, 10000); // Poll every 10 seconds for real-time staff sync
+        }
+    };
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadProducts();
+        syncHandler.postDelayed(syncRunnable, 10000);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        syncHandler.removeCallbacks(syncRunnable);
+    }
+
     private void returnToLogin(String message) {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
         Intent intent = new Intent(this, LoginActivity.class);

@@ -33,7 +33,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="StockEase Insights"
+                android:text="Store Insights"
                 android:textColor="#FFFFFF"
                 android:textSize="17sp"
                 android:textStyle="bold" />
@@ -41,51 +41,61 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Deterministic inventory velocity &amp; transfer opportunities"
+                android:text="Velocity, stockout risks &amp; transfer opportunities"
                 android:textColor="#94A3B8"
                 android:textSize="11sp" />
         </LinearLayout>
+    </LinearLayout>
 
-        <!-- Date Range Filter Buttons -->
+    <!-- Prominent Date Range Filter Bar (Fully Visible) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#1E293B"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:paddingVertical="8dp"
+        android:paddingHorizontal="16dp">
+
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="32dp"
-            android:background="#1E293B"
+            android:layout_height="36dp"
+            android:background="#0F172A"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:padding="2dp">
+            android:padding="3dp">
 
             <Button
                 android:id="@+id/btnRange7d"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text="7D"
-                android:textSize="11sp"
+                android:text="7 Days"
+                android:textSize="12sp"
                 android:textColor="#94A3B8"
                 android:backgroundTint="@android:color/transparent"
-                android:paddingHorizontal="10dp"
+                android:paddingHorizontal="14dp"
                 android:minWidth="0dp" />
 
             <Button
                 android:id="@+id/btnRange30d"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text="30D"
-                android:textSize="11sp"
+                android:text="30 Days"
+                android:textSize="12sp"
                 android:textColor="#FFFFFF"
                 android:backgroundTint="@color/primary"
-                android:paddingHorizontal="10dp"
+                android:paddingHorizontal="14dp"
                 android:minWidth="0dp" />
 
             <Button
                 android:id="@+id/btnRangeMonth"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text="Month"
-                android:textSize="11sp"
+                android:text="This Month"
+                android:textSize="12sp"
                 android:textColor="#94A3B8"
                 android:backgroundTint="@android:color/transparent"
-                android:paddingHorizontal="10dp"
+                android:paddingHorizontal="14dp"
                 android:minWidth="0dp" />
         </LinearLayout>
     </LinearLayout>

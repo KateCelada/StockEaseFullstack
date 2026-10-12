@@ -3,8 +3,10 @@ package com.example.stockease;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,7 +16,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,6 +31,8 @@ public class StaffActivity extends AppCompatActivity {
     private StaffAdapter adapter;
     private List<Staff> staffList;
     private int storeId = -1;
+    private int userId = -1;
+    private String role = "";
 
     private static final String GET_STAFF_URL = ApiConfig.getUrl("get_staff.php?store_id=");
     private static final String ADD_STAFF_URL = ApiConfig.getUrl("add_staff.php");
@@ -40,6 +43,9 @@ public class StaffActivity extends AppCompatActivity {
         setContentView(R.layout.activity_staff);
 
         storeId = getIntent().getIntExtra("store_id", -1);
+        userId = getIntent().getIntExtra("user_id", -1);
+        role = getIntent().getStringExtra("role");
+
         if (storeId <= 0) {
             returnToLogin("Missing store identity. Please sign in again.");
             return;
@@ -54,6 +60,8 @@ public class StaffActivity extends AppCompatActivity {
         rvStaff.setAdapter(adapter);
 
         btnAddStaff.setOnClickListener(v -> showAddStaffDialog());
+
+        ViewFeedbackUtil.attachAll(findViewById(android.R.id.content));
 
         loadStaff();
     }
@@ -74,6 +82,7 @@ public class StaffActivity extends AppCompatActivity {
                                         obj.getString("full_name"),
                                         obj.getString("username"),
                                         obj.optString("email", ""),
+                                        obj.optString("role", "staff"),
                                         obj.optBoolean("is_active", false)
                                 ));
                             }
@@ -101,7 +110,14 @@ public class StaffActivity extends AppCompatActivity {
         EditText etUsername = dialogView.findViewById(R.id.etUsername);
         EditText etEmail = dialogView.findViewById(R.id.etEmail);
         EditText etPassword = dialogView.findViewById(R.id.etPassword);
+        Spinner spinnerRole = dialogView.findViewById(R.id.spinnerStaffRole);
         Button btnSaveStaff = dialogView.findViewById(R.id.btnSaveStaff);
+
+        if (spinnerRole != null) {
+            String[] roles = new String[]{"Cashier", "Inventory Checker"};
+            ArrayAdapter<String> roleAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, roles);
+            spinnerRole.setAdapter(roleAdapter);
+        }
 
         AlertDialog dialog = builder.create();
 
@@ -110,26 +126,33 @@ public class StaffActivity extends AppCompatActivity {
             String username = etUsername.getText().toString().trim();
             String email = etEmail.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
+            String selectedRole = "staff";
+            if (spinnerRole != null && spinnerRole.getSelectedItemPosition() == 1) {
+                selectedRole = "inventory_checker";
+            }
 
             if (fullName.isEmpty() || username.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Please fill in all required fields", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            saveStaffToDB(fullName, username, email, password, dialog);
+            saveStaffToDB(fullName, username, email, password, selectedRole, dialog);
         });
 
         dialog.show();
     }
 
-    private void saveStaffToDB(String fullName, String username, String email, String password, AlertDialog dialog) {
+    private void saveStaffToDB(String fullName, String username, String email, String password, String selectedRole, AlertDialog dialog) {
         JSONObject body = new JSONObject();
         try {
             body.put("store_id", storeId);
+            body.put("caller_user_id", userId);
+            body.put("caller_role", role);
             body.put("full_name", fullName);
             body.put("username", username);
             body.put("email", email);
             body.put("password", password);
+            body.put("role", selectedRole);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -140,11 +163,12 @@ public class StaffActivity extends AppCompatActivity {
                 response -> {
                     try {
                         if (response.getBoolean("success")) {
-                            Toast.makeText(this, "Staff added successfully!", Toast.LENGTH_SHORT).show();
+                            String msg = response.optString("message", "Staff added successfully!");
+                            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
                             loadStaff(); // Refresh list
                         } else {
-                            Toast.makeText(this, response.getString("message"), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, response.getString("message"), Toast.LENGTH_LONG).show();
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -152,7 +176,15 @@ public class StaffActivity extends AppCompatActivity {
                 },
                 error -> {
                     if (ApiSession.handleAuthError(this, error)) return;
-                    Toast.makeText(this, "Network error adding staff", Toast.LENGTH_SHORT).show();
+                    String errMsg = "Error adding staff";
+                    if (error.networkResponse != null && error.networkResponse.data != null) {
+                        try {
+                            String resp = new String(error.networkResponse.data);
+                            JSONObject obj = new JSONObject(resp);
+                            errMsg = obj.optString("message", errMsg);
+                        } catch (Exception ignored) {}
+                    }
+                    Toast.makeText(this, errMsg, Toast.LENGTH_LONG).show();
                 }
         );
 

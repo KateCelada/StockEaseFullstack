@@ -116,8 +116,8 @@ public class StockTransfersActivity extends AppCompatActivity {
             prefillQty = getIntent().getIntExtra(EXTRA_PREFILL_QTY, 0);
         }
 
-        if (userId <= 0 || (!"super_admin".equals(role) && !"store_admin".equals(role))) {
-            returnToLogin("Stock Transfers are restricted to Super Admin and Store Admin accounts.");
+        if (userId <= 0 || (!"super_admin".equals(role) && !"store_admin".equals(role) && !"manager".equals(role))) {
+            returnToLogin("Stock Transfers are restricted to Manager and Store Admin accounts.");
             return;
         }
 
@@ -161,6 +161,7 @@ public class StockTransfersActivity extends AppCompatActivity {
 
         setupStoreSpinners();
         loadTransferHistory();
+        ViewFeedbackUtil.attachAll(findViewById(android.R.id.content));
     }
 
     private void setupStoreSpinners() {
@@ -248,20 +249,23 @@ public class StockTransfersActivity extends AppCompatActivity {
     private void loadProductsForSourceStore(int sourceStoreId) {
         RequestQueue queue = ApiSession.getRequestQueue(this);
 
-        JsonArrayRequest request = new JsonArrayRequest(
+        JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.GET,
                 PRODUCTS_URL + "?store_id=" + sourceStoreId,
                 null,
                 response -> {
                     productList.clear();
-                    for (int i = 0; i < response.length(); i++) {
-                        JSONObject p = response.optJSONObject(i);
-                        if (p != null) {
-                            productList.add(new ProductOption(
-                                    p.optInt("id", 0),
-                                    p.optString("product_name", "Product"),
-                                    p.optInt("stock", 0)
-                            ));
+                    JSONArray arr = response.optJSONArray("products");
+                    if (arr != null) {
+                        for (int i = 0; i < arr.length(); i++) {
+                            JSONObject p = arr.optJSONObject(i);
+                            if (p != null) {
+                                productList.add(new ProductOption(
+                                        p.optInt("id", 0),
+                                        p.optString("product_name", "Product"),
+                                        p.optInt("stock", 0)
+                                ));
+                            }
                         }
                     }
 
