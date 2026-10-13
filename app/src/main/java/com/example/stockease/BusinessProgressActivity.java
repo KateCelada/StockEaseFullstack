@@ -517,7 +517,20 @@ public class BusinessProgressActivity extends AppCompatActivity {
         if (llSectionTwoRows == null) return;
         llSectionTwoRows.removeAllViews();
 
-        if (staff == null || staff.length() == 0) {
+        java.util.List<JSONObject> visibleStaff = new java.util.ArrayList<>();
+        if (staff != null) {
+            for (int i = 0; i < staff.length(); i++) {
+                JSONObject u = staff.optJSONObject(i);
+                if (u == null) continue;
+                String userRole = u.optString("role", "staff");
+                if ("super_admin".equalsIgnoreCase(userRole) && !"super_admin".equalsIgnoreCase(role)) {
+                    continue; // System Admin visible ONLY to System Admin
+                }
+                visibleStaff.add(u);
+            }
+        }
+
+        if (visibleStaff.isEmpty()) {
             tvAccountsCountBadge.setText("0 Accounts");
             TextView empty = new TextView(this);
             empty.setText("No staff or admin accounts registered for this store branch.");
@@ -527,10 +540,10 @@ public class BusinessProgressActivity extends AppCompatActivity {
             return;
         }
 
-        tvAccountsCountBadge.setText(staff.length() + " Accounts");
+        tvAccountsCountBadge.setText(visibleStaff.size() + " Accounts");
 
-        for (int i = 0; i < staff.length(); i++) {
-            JSONObject u = staff.optJSONObject(i);
+        for (int i = 0; i < visibleStaff.size(); i++) {
+            JSONObject u = visibleStaff.get(i);
             if (u == null) continue;
 
             String name = u.optString("full_name", "Staff Member");

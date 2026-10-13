@@ -77,12 +77,16 @@ public class StaffActivity extends AppCompatActivity {
                             JSONArray array = response.getJSONArray("staff");
                             for (int i = 0; i < array.length(); i++) {
                                 JSONObject obj = array.getJSONObject(i);
+                                String itemRole = obj.optString("role", "staff");
+                                if ("super_admin".equalsIgnoreCase(itemRole) && !"super_admin".equalsIgnoreCase(role)) {
+                                    continue;
+                                }
                                 staffList.add(new Staff(
                                         obj.getInt("id"),
                                         obj.getString("full_name"),
                                         obj.getString("username"),
                                         obj.optString("email", ""),
-                                        obj.optString("role", "staff"),
+                                        itemRole,
                                         obj.optBoolean("is_active", false)
                                 ));
                             }
