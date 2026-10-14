@@ -1,0 +1,316 @@
+{
+	"info": {
+		"_postman_id": "stockease-api-collection-2026",
+		"name": "StockEase REST API Collection",
+		"description": "Postman API Collection for StockEase Multi-Branch Inventory and POS Management System. Includes authentication, product management, checkout, transaction voiding, multi-branch analytics, and stock transfers.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login (Super Admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"superadmin\",\n  \"password\": \"admin123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth.php?action=login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "login"
+								}
+							]
+						},
+						"description": "Authenticates user and returns user info, role, and branch assignment."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "UC-01 Product & Inventory Management",
+			"item": [
+				{
+					"name": "Get Products by Store",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/get_products.php?store_id=1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"get_products.php"
+							],
+							"query": [
+								{
+									"key": "store_id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Fetches active product inventory for the specified store branch."
+					},
+					"response": []
+				},
+				{
+					"name": "Add Product (with Auto Category)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"store_id\": 1,\n  \"name\": \"Bottled Water 500ml\",\n  \"category\": \"Beverages\",\n  \"cost_price\": 12.00,\n  \"price\": 20.00,\n  \"stock\": 50,\n  \"min_stock\": 10\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/add_product.php",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"add_product.php"
+							]
+						},
+						"description": "Adds a new product into store inventory. Enforces the 15-product free tier limit and dynamically creates category if new."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "UC-02 POS & Transactions",
+			"item": [
+				{
+					"name": "Process POS Checkout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"store_id\": 1,\n  \"user_id\": 1,\n  \"cashier_username\": \"cashier_juan\",\n  \"payment_method\": \"Cash\",\n  \"total_amount\": 40.00,\n  \"items\": [\n    {\n      \"product_id\": 1,\n      \"quantity\": 2,\n      \"unit_price\": 20.00,\n      \"subtotal\": 40.00\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/checkout.php",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"checkout.php"
+							]
+						},
+						"description": "Records customer sale, logs cashier on duty, inserts item lines, and deducts inventory."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Transactions (with Cashier Shifts)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/get_transactions.php?store_id=1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"get_transactions.php"
+							],
+							"query": [
+								{
+									"key": "store_id",
+									"value": "1"
+								}
+							]
+						},
+						"description": "Lists transactions for a store branch including status, items, and cashier duty shift identity."
+					},
+					"response": []
+				},
+				{
+					"name": "Void Transaction (Restores Stock)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"transaction_id\": 1,\n  \"reason\": \"Wrong item punched / Customer returned\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/void_transaction.php",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"void_transaction.php"
+							]
+						},
+						"description": "Voids completed transaction, marks status as voided, and restores inventory quantities back into stock."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "UC-03 Inter-Branch Stock Transfers & Multi-Branch",
+			"item": [
+				{
+					"name": "Get Store Owners & Multi-Branch Analytics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/get_store_owners.php",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"get_store_owners.php"
+							]
+						},
+						"description": "Returns multi-branch portfolio analytics for managers and superadmins, including combined 7-day line charts, branch percentage contributions, top products, and personnel lists."
+					},
+					"response": []
+				},
+				{
+					"name": "Request Stock Transfer",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"to_store_id\": 1,\n  \"product_id\": 1,\n  \"quantity\": 10,\n  \"requested_by\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/manage_transfers.php?action=request",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"manage_transfers.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "request"
+								}
+							]
+						},
+						"description": "Creates a transfer request initiated by a receiving store."
+					},
+					"response": []
+				},
+				{
+					"name": "Manager Approve Transfer (Designate Donor)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"transfer_id\": 1,\n  \"from_store_id\": 2,\n  \"approved_by\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/manage_transfers.php?action=manager_approve",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"manage_transfers.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "manager_approve"
+								}
+							]
+						},
+						"description": "Manager approves request, specifies donor store branch, deducts donor inventory, and marks status as in_transit."
+					},
+					"response": []
+				},
+				{
+					"name": "Confirm Transfer Receipt",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"transfer_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/manage_transfers.php?action=confirm_receipt",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"manage_transfers.php"
+							],
+							"query": [
+								{
+									"key": "action",
+									"value": "confirm_receipt"
+								}
+							]
+						},
+						"description": "Receiving store confirms delivery, increments local stock, and marks transfer as completed."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost/stockease_api",
+			"type": "string"
+		}
+	]
+}

@@ -1,0 +1,30 @@
+# ---- Android app (StockEase) ----
+# Its own independent git repo with its own GitHub remote
+# (github.com/KateCelada/StockEase). It lives in this folder for convenience
+# but is tracked separately -- not a submodule, not part of this repo.
+StockEase/
+*.apk
+*.aab
+
+# ---- IDE ----
+.idea/
+*.ipr
+*.iws
+*.swp
+*~
+
+# ---- OS ----
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# ---- PHP (stockease_api) ----
+stockease_api/vendor/
+composer.phar
+
+# ---- Node (stockease_admin) ----
+node_modules/
+npm-debug.log*
+
+# ---- OpenCode scratch ----
+.opencode/
