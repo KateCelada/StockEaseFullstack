@@ -119,7 +119,7 @@ public final class ApiSession {
                 if (activity.getIntent() != null && activity.getIntent().getExtras() != null) {
                     intent.putExtras(activity.getIntent().getExtras());
                 }
-                activity.startActivity(intent);
+                ScreenTransitions.open(activity, intent);
             });
         }
 
@@ -147,7 +147,7 @@ public final class ApiSession {
 
         Intent intent = new Intent(activity, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        activity.startActivity(intent);
+        ScreenTransitions.open(activity, intent);
         activity.finish();
     }
 }

@@ -1,12 +1,12 @@
 package com.example.stockease;
 
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
@@ -52,14 +52,14 @@ public class RestockSuggestionAdapter extends RecyclerView.Adapter<RestockSugges
 
         if (currentStock < 5) {
             holder.tvUrgencyBadge.setText("CRITICAL");
-            holder.tvUrgencyBadge.setTextColor(Color.parseColor("#C62828"));
-            holder.tvUrgencyBadge.setBackgroundColor(Color.parseColor("#FFEBEE"));
-            holder.tvCurrentStock.setTextColor(Color.parseColor("#C62828"));
+            holder.tvUrgencyBadge.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.danger_strong));
+            holder.tvUrgencyBadge.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.danger_bg));
+            holder.tvCurrentStock.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.danger_strong));
         } else {
             holder.tvUrgencyBadge.setText("LOW STOCK");
-            holder.tvUrgencyBadge.setTextColor(Color.parseColor("#E65100"));
-            holder.tvUrgencyBadge.setBackgroundColor(Color.parseColor("#FFF3E0"));
-            holder.tvCurrentStock.setTextColor(Color.parseColor("#E65100"));
+            holder.tvUrgencyBadge.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.warning_text));
+            holder.tvUrgencyBadge.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.badge_amber_bg));
+            holder.tvCurrentStock.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.warning_text));
         }
 
         holder.btnRestock.setOnClickListener(v -> {

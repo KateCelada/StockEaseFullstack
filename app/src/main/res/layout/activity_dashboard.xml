@@ -1,88 +1,315 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal"
-    android:background="#EAEFF2">
+    android:background="@color/app_background"
+    android:orientation="horizontal">
 
-    <!-- Left Navigation Sidebar -->
+    <!-- Left navigation -->
     <LinearLayout
-        android:layout_width="200dp"
+        android:layout_width="232dp"
         android:layout_height="match_parent"
-        android:background="#1E1E36"
+        android:background="@color/sidebar_bg"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="@dimen/space_16">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="● StockEase"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="24dp" />
+            android:layout_marginBottom="@dimen/space_24"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-        <Button
+            <TextView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:background="@drawable/bg_btn_primary"
+                android:gravity="center"
+                android:text="@string/brand_initial"
+                android:textAppearance="@style/TextAppearance.StockEase.Section"
+                android:textColor="@color/white" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_8"
+                android:text="@string/login_brand"
+                android:textAppearance="@style/TextAppearance.StockEase.Section"
+                android:textColor="@color/white" />
+        </LinearLayout>
+
+        <!-- SECTION HEADER: OVERVIEW -->
+        <LinearLayout
+            android:id="@+id/navHeaderOverview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="OVERVIEW"
+                android:letterSpacing="0.08"
+                android:textColor="@color/sidebar_text"
+
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+            <TextView
+                android:id="@+id/navArrowOverview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/sidebar_text"
+
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navSectionOverviewItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="4dp">
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnNavDashboard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Dashboard"
-            android:textColor="#FFFFFF"
-            android:backgroundTint="#3B82F6"
-            android:alignmentMode="alignBounds"
-            android:gravity="start|center_vertical"
-            android:paddingStart="12dp"/>
+            android:text="@string/nav_dashboard"
+            app:icon="@drawable/ic_nav_dashboard_white"
+            app:iconGravity="textStart"
+            app:iconTint="@color/white"
+            style="@style/Widget.StockEase.Button.Primary" />
+        </LinearLayout>
+
+        <!-- SECTION HEADER: MANAGEMENT -->
+        <LinearLayout
+            android:id="@+id/navHeaderManagement"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="MANAGEMENT"
+                android:letterSpacing="0.08"
+                android:textColor="@color/sidebar_text"
+
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+            <TextView
+                android:id="@+id/navArrowManagement"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/sidebar_text"
+
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navSectionManagementItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="4dp">
 
         <TextView
             android:id="@+id/btnNavPos"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="🛒 POS/Sales"
-            android:textColor="#9CA3AF"
-            android:padding="12dp"
-            android:textSize="14sp" />
+            android:layout_marginTop="@dimen/space_8"
+            android:drawableStart="@drawable/ic_nav_sales"
+            android:drawablePadding="@dimen/space_8"
+            android:drawableTint="@color/text_muted"
+            android:padding="@dimen/space_12"
+            android:text="@string/nav_pos"
+            android:textAppearance="@style/TextAppearance.StockEase.Body"
+            android:textColor="@color/sidebar_text" />
 
         <TextView
             android:id="@+id/btnNavInventory"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="📦 Inventory"
-            android:textColor="#9CA3AF"
-            android:padding="12dp"
-            android:textSize="14sp" />
+            android:drawableStart="@drawable/ic_nav_inventory"
+            android:drawablePadding="@dimen/space_8"
+            android:drawableTint="@color/text_muted"
+            android:padding="@dimen/space_12"
+            android:text="@string/nav_inventory"
+            android:textAppearance="@style/TextAppearance.StockEase.Body"
+            android:textColor="@color/sidebar_text" />
+        </LinearLayout>
+
+        <!-- SECTION HEADER: ANALYTICS -->
+        <LinearLayout
+            android:id="@+id/navHeaderAnalytics"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="ANALYTICS"
+                android:letterSpacing="0.08"
+                android:textColor="@color/sidebar_text"
+
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+            <TextView
+                android:id="@+id/navArrowAnalytics"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/sidebar_text"
+
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navSectionAnalyticsItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:id="@+id/btnNavTransactions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/ic_nav_sales"
+                android:drawablePadding="@dimen/space_8"
+                android:drawableTint="@color/text_muted"
+                android:padding="@dimen/space_12"
+                android:text="Transactions"
+                android:textAppearance="@style/TextAppearance.StockEase.Body"
+                android:textColor="@color/sidebar_text" />
+        </LinearLayout>
+
+        <!-- SECTION HEADER: SYSTEM -->
+        <LinearLayout
+            android:id="@+id/navHeaderSystem"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="SYSTEM"
+                android:letterSpacing="0.08"
+                android:textColor="@color/sidebar_text"
+
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+            <TextView
+                android:id="@+id/navArrowSystem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/sidebar_text"
+
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navSectionSystemItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:id="@+id/btnNavSettings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/ic_nav_settings"
+                android:drawablePadding="@dimen/space_8"
+                android:drawableTint="@color/text_muted"
+                android:padding="@dimen/space_12"
+                android:text="Settings"
+                android:textAppearance="@style/TextAppearance.StockEase.Body"
+                android:textColor="@color/sidebar_text" />
+        </LinearLayout>
 
         <View
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1" />
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="@color/sidebar_divider" />
+
         <TextView
             android:id="@+id/btnNavLogout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="↪ Log out"
-            android:textColor="#9CA3AF"
-            android:padding="12dp"
-            android:textSize="14sp" />
+            android:drawableStart="@drawable/ic_nav_logout"
+            android:drawablePadding="@dimen/space_8"
+            android:drawableTint="@color/text_muted"
+            android:padding="@dimen/space_12"
+            android:text="@string/nav_logout"
+            android:textAppearance="@style/TextAppearance.StockEase.Body"
+            android:textColor="@color/sidebar_text"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true" />
     </LinearLayout>
 
-    <!-- Main Content Container -->
+    <!-- Main content -->
     <ScrollView
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:padding="16dp">
+        android:padding="@dimen/space_16">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Header -->
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="@dimen/space_16">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -92,17 +319,15 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Dashboard"
-                        android:textColor="#000000"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
+                        android:text="@string/dashboard_title"
+                        android:textAppearance="@style/TextAppearance.StockEase.Title" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Southern Branch - Todays Shift"
-                        android:textColor="#6B7280"
-                        android:textSize="12sp" />
+                        android:layout_marginTop="@dimen/space_4"
+                        android:text="@string/dashboard_shift"
+                        android:textAppearance="@style/TextAppearance.StockEase.Label" />
                 </LinearLayout>
 
                 <TextView
@@ -110,199 +335,409 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentEnd="true"
-                    android:text="🔔 (H) Hilbert\nStaff"
                     android:gravity="end"
-                    android:textColor="#000000"
-                    android:textSize="12sp" />
+                    android:text="@string/dashboard_profile"
+                    android:textAppearance="@style/TextAppearance.StockEase.Label" />
             </RelativeLayout>
 
-            <!-- Top Metric Cards Row -->
+            <!-- Metric cards -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/space_16"
                 android:orientation="horizontal"
-                android:weightSum="4"
-                android:layout_marginBottom="16dp">
+                android:weightSum="4">
 
-                <!-- Total Sales -->
-                <LinearLayout
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardMetricSales"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/space_8"
+                    android:layout_weight="1"
+                    style="@style/Widget.StockEase.Card">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/space_12">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/metric_sales"
+                            android:textAppearance="@style/TextAppearance.StockEase.Caption" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/space_4"
+                            android:text="@string/demo_sales"
+                            android:textAppearance="@style/TextAppearance.StockEase.Metric" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardMetricTxns"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/space_8"
+                    android:layout_weight="1"
+                    style="@style/Widget.StockEase.Card">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/space_12">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/metric_txns"
+                            android:textAppearance="@style/TextAppearance.StockEase.Caption" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/space_4"
+                            android:text="@string/demo_txns"
+                            android:textAppearance="@style/TextAppearance.StockEase.Metric" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardMetricItems"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/space_8"
+                    android:layout_weight="1"
+                    style="@style/Widget.StockEase.Card">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/space_12">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/metric_items"
+                            android:textAppearance="@style/TextAppearance.StockEase.Caption" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/space_4"
+                            android:text="@string/demo_items"
+                            android:textAppearance="@style/TextAppearance.StockEase.Metric" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardMetricTime"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="#FFFFFF"
-                    android:orientation="vertical"
-                    android:padding="12dp"
-                    android:layout_marginEnd="8dp">
+                    style="@style/Widget.StockEase.Card">
 
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total Sales" android:textColor="#6B7280" android:textSize="10sp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="₱5,900" android:textColor="#000000" android:textSize="18sp" android:textStyle="bold"/>
-                </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/space_12">
 
-                <!-- Transactions -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="#FFFFFF"
-                    android:orientation="vertical"
-                    android:padding="12dp"
-                    android:layout_marginEnd="8dp">
-
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Transactions" android:textColor="#6B7280" android:textSize="10sp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="18" android:textColor="#000000" android:textSize="18sp" android:textStyle="bold"/>
-                </LinearLayout>
-
-                <!-- Items Sold -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="#FFFFFF"
-                    android:orientation="vertical"
-                    android:padding="12dp"
-                    android:layout_marginEnd="8dp">
-
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Items Sold" android:textColor="#6B7280" android:textSize="10sp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="35" android:textColor="#000000" android:textSize="18sp" android:textStyle="bold"/>
-                </LinearLayout>
-
-                <!-- Time -->
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="#FFFFFF"
-                    android:orientation="vertical"
-                    android:padding="12dp">
-
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Time" android:textColor="#6B7280" android:textSize="10sp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="10:30 AM" android:textColor="#000000" android:textSize="16sp" android:textStyle="bold"/>
-                </LinearLayout>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/metric_time"
+                            android:textAppearance="@style/TextAppearance.StockEase.Caption" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/space_4"
+                            android:text="@string/demo_time"
+                            android:textAppearance="@style/TextAppearance.StockEase.Metric" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
-            <!-- Sales Summary & Top Selling Row -->
+            <!-- Sales summary + top sellers -->
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="150dp"
-                android:orientation="horizontal"
-                android:layout_marginBottom="16dp">
+                android:layout_height="160dp"
+                android:layout_marginBottom="@dimen/space_16"
+                android:orientation="horizontal">
 
-                <RelativeLayout
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardSalesSummary"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
+                    android:layout_marginEnd="@dimen/space_8"
                     android:layout_weight="2"
-                    android:background="#FFFFFF"
-                    android:padding="12dp"
-                    android:layout_marginEnd="8dp">
+                    style="@style/Widget.StockEase.Card">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Sales Summary"
-                        android:textStyle="bold"
-                        android:textColor="#000000" />
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="@dimen/space_12">
 
-                    <Button
-                        android:layout_width="wrap_content"
-                        android:layout_height="48dp"
-                        android:layout_alignParentEnd="true"
-                        android:text="Today"
-                        android:textSize="10sp"
-                        android:backgroundTint="#F3F4F6"
-                        android:textColor="#000000"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/sales_summary"
+                            android:textAppearance="@style/TextAppearance.StockEase.Section" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerInParent="true"
-                        android:text="📈 [ Line Chart Area ]"
-                        android:textColor="#3B82F6"/>
-                </RelativeLayout>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:background="@drawable/bg_pill_header"
+                            android:paddingHorizontal="@dimen/space_12"
+                            android:paddingVertical="@dimen/space_4"
+                            android:text="@string/sales_today"
+                            android:textAppearance="@style/TextAppearance.StockEase.Caption" />
 
-                <LinearLayout
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:text="@string/demo_chart"
+                            android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                    </RelativeLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardTopSellers"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="#FFFFFF"
+                    style="@style/Widget.StockEase.Card">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:padding="@dimen/space_12">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="@dimen/space_8"
+                            android:text="@string/top_sellers"
+                            android:textAppearance="@style/TextAppearance.StockEase.Section" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/demo_item_a"
+                                android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/demo_qty_a"
+                                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/space_4"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/demo_item_b"
+                                android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/demo_qty_b"
+                                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/space_4"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/demo_item_c"
+                                android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/demo_qty_c"
+                                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <!-- Recent transactions -->
+            <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardRecentTxns"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/Widget.StockEase.Card">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="12dp">
+                    android:padding="@dimen/space_12">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Top Selling Items:"
-                        android:textStyle="bold"
-                        android:textColor="#000000"
-                        android:layout_marginBottom="8dp"/>
+                        android:layout_marginBottom="@dimen/space_12"
+                        android:text="@string/recent_txns"
+                        android:textAppearance="@style/TextAppearance.StockEase.Section" />
 
-                    <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Ballpen (Black)" android:textSize="11sp"/>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:text="17 pcs" android:textSize="11sp"/>
-                    </RelativeLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:weightSum="4">
 
-                    <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Bond Paper" android:textSize="11sp"/>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:text="13 pcs" android:textSize="11sp"/>
-                    </RelativeLayout>
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/col_invoice"
+                            android:textAppearance="@style/TextAppearance.StockEase.Caption" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/col_customer"
+                            android:textAppearance="@style/TextAppearance.StockEase.Caption" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/col_total"
+                            android:textAppearance="@style/TextAppearance.StockEase.Caption" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/col_time"
+                            android:textAppearance="@style/TextAppearance.StockEase.Caption" />
+                    </LinearLayout>
 
-                    <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content">
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Stapler" android:textSize="11sp"/>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentEnd="true" android:text="8 pcs" android:textSize="11sp"/>
-                    </RelativeLayout>
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginVertical="@dimen/space_8"
+                        android:background="@color/card_border" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingVertical="@dimen/space_4"
+                        android:weightSum="4">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/demo_inv_a"
+                            android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/demo_cust_a"
+                            android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/demo_total_a"
+                            android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/demo_time_a"
+                            android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingVertical="@dimen/space_4"
+                        android:weightSum="4">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/demo_inv_b"
+                            android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/demo_cust_b"
+                            android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/demo_total_b"
+                            android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/demo_time_b"
+                            android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingVertical="@dimen/space_4"
+                        android:weightSum="4">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/demo_inv_c"
+                            android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/demo_cust_c"
+                            android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/demo_total_c"
+                            android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/demo_time_c"
+                            android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                    </LinearLayout>
                 </LinearLayout>
-            </LinearLayout>
-
-            <!-- Recent Transactions Table -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="#FFFFFF"
-                android:orientation="vertical"
-                android:padding="12dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Recent Transactions"
-                    android:textStyle="bold"
-                    android:textColor="#000000"
-                    android:layout_marginBottom="12dp"/>
-
-                <!-- Table Header -->
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:weightSum="4">
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="INVOICE #" android:textSize="10sp" android:textStyle="bold" android:textColor="#9CA3AF"/>
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="CUSTOMER" android:textSize="10sp" android:textStyle="bold" android:textColor="#9CA3AF"/>
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="TOTAL" android:textSize="10sp" android:textStyle="bold" android:textColor="#9CA3AF"/>
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="TIME" android:textSize="10sp" android:textStyle="bold" android:textColor="#9CA3AF"/>
-                </LinearLayout>
-
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E5E7EB" android:layout_marginVertical="6dp"/>
-
-                <!-- Row 1 -->
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:weightSum="4" android:paddingVertical="4dp">
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="INV-008" android:textSize="11sp"/>
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Walk-in Customer" android:textSize="11sp"/>
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="₱1,450" android:textSize="11sp"/>
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="5:00 PM" android:textSize="11sp"/>
-                </LinearLayout>
-
-                <!-- Row 2 -->
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:weightSum="4" android:paddingVertical="4dp">
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="INV-007" android:textSize="11sp"/>
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Walter White" android:textSize="11sp"/>
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="₱800" android:textSize="11sp"/>
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="12:00 PM" android:textSize="11sp"/>
-                </LinearLayout>
-
-                <!-- Row 3 -->
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:weightSum="4" android:paddingVertical="4dp">
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="INV-006" android:textSize="11sp"/>
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Armstrong" android:textSize="11sp"/>
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="₱2,050" android:textSize="11sp"/>
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="8:00 AM" android:textSize="11sp"/>
-                </LinearLayout>
-
-            </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

@@ -3,13 +3,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F8FAFC">
+    android:background="@color/app_background">
 
     <!-- Top App Bar -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:background="#0F172A"
+        android:background="@color/sidebar_bg"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:paddingHorizontal="16dp">
@@ -34,16 +34,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Store Insights"
-                android:textColor="#FFFFFF"
-                android:textSize="17sp"
-                android:textStyle="bold" />
+                android:textColor="@color/white"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Section" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Velocity, stockout risks &amp; transfer opportunities"
-                android:textColor="#94A3B8"
-                android:textSize="11sp" />
+                android:textColor="@color/text_muted"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
         </LinearLayout>
     </LinearLayout>
 
@@ -51,7 +51,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#1E293B"
+        android:background="@color/sidebar_item_active"
         android:orientation="horizontal"
         android:gravity="center"
         android:paddingVertical="8dp"
@@ -60,43 +60,40 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="36dp"
-            android:background="#0F172A"
+            android:background="@color/sidebar_bg"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:padding="3dp">
+            android:padding="4dp">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnRange7d"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="7 Days"
-                android:textSize="12sp"
-                android:textColor="#94A3B8"
-                android:backgroundTint="@android:color/transparent"
-                android:paddingHorizontal="14dp"
-                android:minWidth="0dp" />
 
-            <Button
+                android:textColor="@color/text_muted"
+                android:paddingHorizontal="16dp"
+                android:minWidth="0dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" style="@style/Widget.StockEase.Button.Secondary" />
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnRange30d"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="30 Days"
-                android:textSize="12sp"
-                android:textColor="#FFFFFF"
-                android:backgroundTint="@color/primary"
-                android:paddingHorizontal="14dp"
-                android:minWidth="0dp" />
 
-            <Button
+                android:textColor="@color/white"
+                android:paddingHorizontal="16dp"
+                android:minWidth="0dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" style="@style/Widget.StockEase.Button.Primary" />
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnRangeMonth"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="This Month"
-                android:textSize="12sp"
-                android:textColor="#94A3B8"
-                android:backgroundTint="@android:color/transparent"
-                android:paddingHorizontal="14dp"
-                android:minWidth="0dp" />
+
+                android:textColor="@color/text_muted"
+                android:paddingHorizontal="16dp"
+                android:minWidth="0dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" style="@style/Widget.StockEase.Button.Secondary" />
         </LinearLayout>
     </LinearLayout>
 
@@ -118,11 +115,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Calculating inventory velocity and store trends..."
-                android:textColor="#64748B"
-                android:textSize="13sp"
+                android:textColor="@color/text_secondary"
+
                 android:gravity="center"
                 android:padding="24dp"
-                android:visibility="gone" />
+                android:visibility="gone"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
             <!-- Section 1: Overview KPIs -->
             <LinearLayout
@@ -131,7 +128,7 @@
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_card_white"
                 android:orientation="horizontal"
-                android:paddingVertical="14dp"
+                android:paddingVertical="16dp"
                 android:layout_marginBottom="20dp">
 
                 <LinearLayout
@@ -139,105 +136,105 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:orientation="vertical"
-                    android:paddingHorizontal="14dp">
+                    android:paddingHorizontal="16dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Period Sales"
-                        android:textColor="#64748B"
-                        android:textSize="11sp" />
+                        android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                     <TextView
                         android:id="@+id/tvInsightsTotalSales"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="₱0.00"
-                        android:textColor="#0F172A"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:layout_marginTop="2dp" />
+                        android:textColor="@color/text_primary"
+
+
+                        android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Title" />
                 </LinearLayout>
 
-                <View android:layout_width="1dp" android:layout_height="match_parent" android:background="#E2E8F0" />
+                <View android:layout_width="1dp" android:layout_height="match_parent" android:background="@color/card_border" />
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:orientation="vertical"
-                    android:paddingHorizontal="14dp">
+                    android:paddingHorizontal="16dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Transactions"
-                        android:textColor="#64748B"
-                        android:textSize="11sp" />
+                        android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                     <TextView
                         android:id="@+id/tvInsightsTransactions"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
-                        android:textColor="#0F172A"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:layout_marginTop="2dp" />
+                        android:textColor="@color/text_primary"
+
+
+                        android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Title" />
                 </LinearLayout>
 
-                <View android:layout_width="1dp" android:layout_height="match_parent" android:background="#E2E8F0" />
+                <View android:layout_width="1dp" android:layout_height="match_parent" android:background="@color/card_border" />
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:orientation="vertical"
-                    android:paddingHorizontal="14dp">
+                    android:paddingHorizontal="16dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Avg. Order"
-                        android:textColor="#64748B"
-                        android:textSize="11sp" />
+                        android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                     <TextView
                         android:id="@+id/tvInsightsAvgOrder"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="₱0.00"
-                        android:textColor="#0F172A"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:layout_marginTop="2dp" />
+                        android:textColor="@color/text_primary"
+
+
+                        android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Title" />
                 </LinearLayout>
 
-                <View android:layout_width="1dp" android:layout_height="match_parent" android:background="#E2E8F0" />
+                <View android:layout_width="1dp" android:layout_height="match_parent" android:background="@color/card_border" />
 
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:orientation="vertical"
-                    android:paddingHorizontal="14dp">
+                    android:paddingHorizontal="16dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Units Sold"
-                        android:textColor="#64748B"
-                        android:textSize="11sp" />
+                        android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                     <TextView
                         android:id="@+id/tvInsightsUnitsSold"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
-                        android:textColor="#0F172A"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:layout_marginTop="2dp" />
+                        android:textColor="@color/text_primary"
+
+
+                        android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Title" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -255,36 +252,36 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:layout_marginBottom="6dp">
+                    android:layout_marginBottom="8dp">
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Transfer Opportunities"
-                        android:textColor="#0F172A"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
+                        android:textColor="@color/text_primary"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Section" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:background="@drawable/bg_badge_blue"
                         android:paddingHorizontal="8dp"
-                        android:paddingVertical="3dp"
+                        android:paddingVertical="4dp"
                         android:text="Smart Recommendation"
-                        android:textColor="#2563EB"
-                        android:textSize="10sp"
-                        android:textStyle="bold" />
+                        android:textColor="@color/primary"
+
+                        android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Caption" />
                 </LinearLayout>
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Identifies inventory imbalances where one store faces potential stockout while another holds surplus coverage."
-                    android:textColor="#64748B"
-                    android:textSize="12sp"
-                    android:layout_marginBottom="14dp" />
+                    android:textColor="@color/text_secondary"
+
+                    android:layout_marginBottom="16dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                 <!-- Container for Transfer Recommendation Cards -->
                 <LinearLayout
@@ -309,16 +306,16 @@
                     android:background="@drawable/bg_card_white"
                     android:orientation="vertical"
                     android:padding="16dp"
-                    android:layout_marginEnd="10dp">
+                    android:layout_marginEnd="12dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Stockout Risk (Under 7 Days)"
-                        android:textColor="#DC2626"
-                        android:textSize="14sp"
+                        android:textColor="@color/danger_strong"
+
                         android:textStyle="bold"
-                        android:layout_marginBottom="12dp" />
+                        android:layout_marginBottom="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
                     <LinearLayout
                         android:id="@+id/llStockoutRisks"
@@ -340,10 +337,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Fast-Moving Items"
-                        android:textColor="#059669"
-                        android:textSize="14sp"
+                        android:textColor="@color/success_strong"
+
                         android:textStyle="bold"
-                        android:layout_marginBottom="12dp" />
+                        android:layout_marginBottom="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
                     <LinearLayout
                         android:id="@+id/llFastMoving"
@@ -366,28 +363,28 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Store Performance Comparison"
-                    android:textColor="#0F172A"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="12dp" />
+                    android:textColor="@color/text_primary"
+
+
+                    android:layout_marginBottom="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Section" />
 
                 <!-- Table Header -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
-                    android:background="#F8FAFC"
+                    android:background="@color/app_background"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
                     android:paddingHorizontal="12dp">
 
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1.8" android:text="STORE" android:textColor="#64748B" android:textSize="11sp" android:textStyle="bold" />
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1.2" android:gravity="end" android:text="SALES" android:textColor="#64748B" android:textSize="11sp" android:textStyle="bold" />
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="0.8" android:gravity="end" android:text="ORDERS" android:textColor="#64748B" android:textSize="11sp" android:textStyle="bold" />
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1.0" android:gravity="end" android:text="AVG ORDER" android:textColor="#64748B" android:textSize="11sp" android:textStyle="bold" />
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="0.8" android:gravity="end" android:text="UNITS" android:textColor="#64748B" android:textSize="11sp" android:textStyle="bold" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1.8" android:text="STORE" android:textColor="@color/text_secondary" android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1.2" android:gravity="end" android:text="SALES" android:textColor="@color/text_secondary" android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="0.8" android:gravity="end" android:text="ORDERS" android:textColor="@color/text_secondary" android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1.0" android:gravity="end" android:text="AVG ORDER" android:textColor="@color/text_secondary" android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="0.8" android:gravity="end" android:text="UNITS" android:textColor="@color/text_secondary" android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
                 </LinearLayout>
 
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E2E8F0" />
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/card_border" />
 
                 <LinearLayout
                     android:id="@+id/llStoreComparisonRows"

@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -41,8 +42,9 @@ public class CashierDashboardActivity extends AppCompatActivity {
     private TextView tvCashierStaffName, tvCashierHeaderStorePill, tvCashierHeaderDate;
     private TextView tvStaffAvatarInitials, tvStaffProfileName;
     private TextView tvCashierShiftSales, tvCashierShiftTxCount, tvCashierEmptySales;
+    private TextView tvCashierShiftSalesTrend;
     private TextView tvShiftStartTime, tvShiftLastTime, tvShiftTotalSalesSummary;
-    private View navStaffDashboard, navStaffPOS, navStaffTransactions, navStaffShift, navStaffLogout;
+    private View navStaffDashboard, navStaffPOS, navStaffTransactions, navStaffShift, navStaffSettings, navStaffLogout;
     private RecyclerView rvCashierRecentSales;
     private TransactionAdapter adapter;
     private final List<Transaction> shiftTransactions = new ArrayList<>();
@@ -68,8 +70,8 @@ public class CashierDashboardActivity extends AppCompatActivity {
             Toast.makeText(this, "This dashboard is available only to Staff accounts with a valid store.", Toast.LENGTH_LONG).show();
             Intent intent = new Intent(this, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
+            ScreenTransitions.open(CashierDashboardActivity.this, intent);
+            ScreenTransitions.finish(CashierDashboardActivity.this);
             return;
         }
 
@@ -85,6 +87,7 @@ public class CashierDashboardActivity extends AppCompatActivity {
         // Stat Card Views
         tvCashierShiftSales = findViewById(R.id.tvCashierShiftSales);
         tvCashierShiftTxCount = findViewById(R.id.tvCashierShiftTxCount);
+        tvCashierShiftSalesTrend = findViewById(R.id.tvCashierShiftSalesTrend);
 
         // Shift Summary Card Views
         tvShiftStartTime = findViewById(R.id.tvShiftStartTime);
@@ -106,11 +109,7 @@ public class CashierDashboardActivity extends AppCompatActivity {
         }
 
         if (tvCashierRefresh != null) {
-            tvCashierRefresh.setOnClickListener(v -> {
-                Intent intent = new Intent(this, TransactionHistoryActivity.class);
-                addIdentityExtras(intent);
-                startActivity(intent);
-            });
+            tvCashierRefresh.setOnClickListener(v -> openTransactionHistory());
         }
 
         // Sidebar Navigation
@@ -119,22 +118,44 @@ public class CashierDashboardActivity extends AppCompatActivity {
         navStaffTransactions = findViewById(R.id.navStaffTransactions);
         navStaffShift = findViewById(R.id.navStaffShift);
         navStaffLogout = findViewById(R.id.navStaffLogout);
+        navStaffSettings = findViewById(R.id.navStaffSettings);
 
         if (navStaffPOS != null) {
             navStaffPOS.setOnClickListener(v -> openPOS());
         }
         if (navStaffTransactions != null) {
-            navStaffTransactions.setOnClickListener(v -> {
-                Intent intent = new Intent(this, TransactionHistoryActivity.class);
-                addIdentityExtras(intent);
-                startActivity(intent);
-            });
+            navStaffTransactions.setOnClickListener(v -> openTransactionHistory());
         }
         if (navStaffShift != null) {
             navStaffShift.setOnClickListener(v -> showShiftSummaryDialog());
         }
+        if (navStaffSettings != null) {
+            // Settings is admin/manager-only and bounces other roles back to
+            // login, so staff get an explanatory toast instead of a session wipe.
+            navStaffSettings.setOnClickListener(v ->
+                    Toast.makeText(this, "Settings is only available to administrator accounts.", Toast.LENGTH_SHORT).show());
+        }
         if (navStaffLogout != null) {
             navStaffLogout.setOnClickListener(v -> ApiSession.logout(this));
+        }
+
+        // Collapsible sidebar sections (accordion): OVERVIEW opens by default
+        SidebarSection.attach(this, R.id.navHeaderOverview, R.id.navArrowOverview, R.id.navSectionOverviewItems, true);
+        SidebarSection.attach(this, R.id.navHeaderManagement, R.id.navArrowManagement, R.id.navSectionManagementItems, false);
+        SidebarSection.attach(this, R.id.navHeaderAnalytics, R.id.navArrowAnalytics, R.id.navSectionAnalyticsItems, false);
+        SidebarSection.attach(this, R.id.navHeaderSystem, R.id.navArrowSystem, R.id.navSectionSystemItems, false);
+
+        // Tapping the profile name or avatar opens the profile screen
+        View.OnClickListener openProfile = v -> {
+            Intent intent = new Intent(CashierDashboardActivity.this, ProfileActivity.class);
+            addIdentityExtras(intent);
+            ScreenTransitions.open(CashierDashboardActivity.this, intent);
+        };
+        if (tvStaffProfileName != null) {
+            tvStaffProfileName.setOnClickListener(openProfile);
+        }
+        if (tvStaffAvatarInitials != null) {
+            tvStaffAvatarInitials.setOnClickListener(openProfile);
         }
 
         // Recycler View
@@ -142,6 +163,42 @@ public class CashierDashboardActivity extends AppCompatActivity {
         rvCashierRecentSales.setLayoutManager(new LinearLayoutManager(this));
         adapter = new TransactionAdapter(this, shiftTransactions);
         rvCashierRecentSales.setAdapter(adapter);
+
+        // Every dashboard card responds to a tap: navigation where a matching
+        // screen exists, a detail sheet for the rest.
+        setupCardClicks();
+
+        ViewFeedbackUtil.attachAll(findViewById(android.R.id.content));
+    }
+
+    /** Wires the stat cards, the shift summary card and the transactions card. */
+    private void setupCardClicks() {
+        View shiftSalesCard = findViewById(R.id.cardCashierShiftSales);
+        if (shiftSalesCard != null) {
+            shiftSalesCard.setOnClickListener(v -> showShiftSummaryDialog());
+        }
+
+        View shiftTxCard = findViewById(R.id.cardCashierShiftTx);
+        if (shiftTxCard != null) {
+            shiftTxCard.setOnClickListener(v -> openTransactionHistory());
+        }
+
+        View shiftSummaryCard = findViewById(R.id.cardShiftSummary);
+        if (shiftSummaryCard != null) {
+            shiftSummaryCard.setOnClickListener(v -> showShiftSummaryDialog());
+        }
+
+        View recentSalesCard = findViewById(R.id.cardCashierRecentSales);
+        if (recentSalesCard != null) {
+            recentSalesCard.setOnClickListener(v -> openTransactionHistory());
+        }
+    }
+
+    /** Opens the full transaction list for this shift's store and user. */
+    private void openTransactionHistory() {
+        Intent intent = new Intent(this, TransactionHistoryActivity.class);
+        addIdentityExtras(intent);
+        ScreenTransitions.open(CashierDashboardActivity.this, intent);
     }
 
     private void setupHeaderInfo() {
@@ -205,7 +262,7 @@ public class CashierDashboardActivity extends AppCompatActivity {
     private void openPOS() {
         Intent intent = new Intent(this, POSActivity.class);
         addIdentityExtras(intent);
-        startActivity(intent);
+        ScreenTransitions.open(CashierDashboardActivity.this, intent);
     }
 
     private void addIdentityExtras(Intent intent) {
@@ -289,8 +346,24 @@ public class CashierDashboardActivity extends AppCompatActivity {
         if (tvCashierShiftSales != null) {
             tvCashierShiftSales.setText(String.format(Locale.US, "₱%.2f", totalShiftSales));
         }
+        int shiftTxCount = shiftTransactions.size();
         if (tvCashierShiftTxCount != null) {
-            tvCashierShiftTxCount.setText(String.valueOf(shiftTransactions.size()));
+            tvCashierShiftTxCount.setText(String.valueOf(shiftTxCount));
+        }
+        // Real, derived figure: average sale so far this shift. Hidden when there's
+        // nothing to average — the cashier view only has today's data, so a
+        // day-over-day percentage isn't computable here.
+        if (tvCashierShiftSalesTrend != null) {
+            if (shiftTxCount > 0 && totalShiftSales > 0.0) {
+                double avg = totalShiftSales / shiftTxCount;
+                tvCashierShiftSalesTrend.setText(
+                        getString(R.string.trend_avg_ticket, String.format(Locale.US, "₱%.2f", avg)));
+                tvCashierShiftSalesTrend.setTextColor(
+                        ContextCompat.getColor(this, R.color.text_muted));
+                tvCashierShiftSalesTrend.setVisibility(View.VISIBLE);
+            } else {
+                tvCashierShiftSalesTrend.setVisibility(View.GONE);
+            }
         }
 
         if (tvShiftStartTime != null) {

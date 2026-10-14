@@ -2,6 +2,7 @@ package com.example.stockease;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -34,6 +35,9 @@ public class UsersActivity extends AppCompatActivity {
     private final List<User> users = new ArrayList<>();
     private final Map<Integer, String> storeNames = new HashMap<>();
     private UserAdapter adapter;
+    private View emptyUsers;
+    private View loadingUsers;
+    private RecyclerView rvUsersList;
     private int authenticatedUserId = -1;
     private String authenticatedRole = "";
 
@@ -54,6 +58,12 @@ public class UsersActivity extends AppCompatActivity {
         rvUsers.setLayoutManager(new LinearLayoutManager(this));
         adapter = new UserAdapter(users, this::showRoleDialog);
         rvUsers.setAdapter(adapter);
+        rvUsersList = rvUsers;
+        emptyUsers = findViewById(R.id.emptyUsers);
+        loadingUsers = findViewById(R.id.loadingUsers);
+        StateViews.bindEmpty(emptyUsers,
+                getString(R.string.empty_users_title),
+                getString(R.string.empty_users_msg), null, null);
 
         loadStoresThenUsers();
 
@@ -99,6 +109,7 @@ public class UsersActivity extends AppCompatActivity {
                 USERS_URL,
                 null,
                 response -> {
+                    StateViews.hideLoading(loadingUsers);
                     try {
                         if (!response.optBoolean("success", false)) {
                             Toast.makeText(this, response.optString("message", "Unable to load users"), Toast.LENGTH_SHORT).show();
@@ -127,16 +138,29 @@ public class UsersActivity extends AppCompatActivity {
                             ));
                         }
                         adapter.notifyDataSetChanged();
+                        updateEmptyState();
                     } catch (JSONException e) {
                         Toast.makeText(this, "Unable to parse users", Toast.LENGTH_SHORT).show();
                     }
                 },
                 error -> {
+                    StateViews.hideLoading(loadingUsers);
                     if (ApiSession.handleAuthError(this, error)) return;
                     Toast.makeText(this, "Failed to load users", Toast.LENGTH_SHORT).show();
                 }
         );
         queue.add(request);
+    }
+
+    /** Swaps list ↔ empty state so an account with no users reads as intentional. */
+    private void updateEmptyState() {
+        boolean empty = users == null || users.isEmpty();
+        if (emptyUsers != null) {
+            StateViews.setEmptyVisible(emptyUsers, empty);
+        }
+        if (rvUsersList != null) {
+            rvUsersList.setVisibility(empty ? View.INVISIBLE : View.VISIBLE);
+        }
     }
 
     private void showRoleDialog(User targetUser) {
@@ -281,7 +305,7 @@ public class UsersActivity extends AppCompatActivity {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
         Intent intent = new Intent(this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
+        ScreenTransitions.open(UsersActivity.this, intent);
+        ScreenTransitions.finish(UsersActivity.this);
     }
 }

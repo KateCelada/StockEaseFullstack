@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="4dp"
-    android:layout_marginVertical="5dp"
+    android:layout_marginVertical="4dp"
     android:background="@drawable/bg_card_white"
     android:orientation="vertical"
     android:padding="16dp">
@@ -22,21 +22,21 @@
             android:layout_weight="1"
             android:text="#1056"
             android:textColor="@color/text_primary"
-            android:textSize="15sp"
-            android:textStyle="bold" />
+
+  android:textAppearance="@style/TextAppearance.StockEase.Section" />
 
         <TextView
             android:id="@+id/tvTxStatusBadge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingHorizontal="8dp"
-            android:paddingVertical="2dp"
+            android:paddingVertical="4dp"
             android:layout_marginEnd="8dp"
             android:text="COMPLETED"
-            android:textSize="10sp"
+
             android:textStyle="bold"
-            android:textColor="#166534"
-            android:background="#DCFCE7" />
+            android:textColor="@color/success_text"
+            android:background="@color/success_bg"  android:textAppearance="@style/TextAppearance.StockEase.Caption" />
 
         <TextView
             android:id="@+id/tvTxTotal"
@@ -44,8 +44,8 @@
             android:layout_height="wrap_content"
             android:text="₱0.00"
             android:textColor="@color/success"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+
+  android:textAppearance="@style/TextAppearance.StockEase.Section" />
     </LinearLayout>
 
     <!-- Cashier & Payment Type -->
@@ -53,26 +53,26 @@
         android:id="@+id/tvTxMeta"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="3dp"
+        android:layout_marginTop="4dp"
         android:text="Cashier: Main Cashier • Cash"
         android:textColor="@color/text_secondary"
-        android:textSize="12sp" />
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
     <!-- Date & Time -->
     <TextView
         android:id="@+id/tvTxDate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
+        android:layout_marginTop="4dp"
         android:text="2026-09-26 09:22:00"
         android:textColor="@color/text_muted"
-        android:textSize="11sp" />
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp"
         android:background="@color/card_border" />
 
     <!-- Summary of items purchased -->
@@ -82,7 +82,7 @@
         android:layout_height="wrap_content"
         android:text="1x Item Description"
         android:textColor="@color/text_secondary"
-        android:textSize="12sp" />
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
     <!-- Action Row (Void Button) -->
     <LinearLayout
@@ -90,7 +90,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="end"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="12dp"
         android:orientation="horizontal">
 
         <Button
@@ -98,11 +98,11 @@
             android:layout_width="wrap_content"
             android:layout_height="32dp"
             android:text="Void Transaction"
-            android:textSize="11sp"
-            android:textColor="#DC2626"
-            android:background="#FEE2E2"
+
+            android:textColor="@color/danger_strong"
+            android:background="@color/danger_bg"
             android:paddingHorizontal="12dp"
-            style="?attr/borderlessButtonStyle" />
+            style="?attr/borderlessButtonStyle"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
     </LinearLayout>
 
 </LinearLayout>

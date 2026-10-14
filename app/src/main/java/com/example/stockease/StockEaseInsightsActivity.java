@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import androidx.core.content.ContextCompat;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -113,17 +114,17 @@ public class StockEaseInsightsActivity extends AppCompatActivity {
     }
 
     private void updateFilterUI() {
-        int activeBg = 0xFF2563EB;
-        int activeText = 0xFFFFFFFF;
-        int inactiveText = 0xFF94A3B8;
+        int activeBg = ContextCompat.getColor(this, R.color.primary);
+        int activeText = ContextCompat.getColor(this, R.color.white);
+        int inactiveText = ContextCompat.getColor(this, R.color.text_muted);
 
-        btnRange7d.setBackgroundColor("7".equals(activeRange) ? activeBg : 0x00000000);
+        btnRange7d.setBackgroundColor("7".equals(activeRange) ? activeBg : ContextCompat.getColor(this, R.color.transparent));
         btnRange7d.setTextColor("7".equals(activeRange) ? activeText : inactiveText);
 
-        btnRange30d.setBackgroundColor("30".equals(activeRange) ? activeBg : 0x00000000);
+        btnRange30d.setBackgroundColor("30".equals(activeRange) ? activeBg : ContextCompat.getColor(this, R.color.transparent));
         btnRange30d.setTextColor("30".equals(activeRange) ? activeText : inactiveText);
 
-        btnRangeMonth.setBackgroundColor("this_month".equals(activeRange) ? activeBg : 0x00000000);
+        btnRangeMonth.setBackgroundColor("this_month".equals(activeRange) ? activeBg : ContextCompat.getColor(this, R.color.transparent));
         btnRangeMonth.setTextColor("this_month".equals(activeRange) ? activeText : inactiveText);
     }
 
@@ -202,7 +203,7 @@ public class StockEaseInsightsActivity extends AppCompatActivity {
         if (arr == null || arr.length() == 0) {
             TextView emptyTv = new TextView(this);
             emptyTv.setText("No critical inventory imbalances detected across stores for this period.");
-            emptyTv.setTextColor(0xFF64748B);
+            emptyTv.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             emptyTv.setTextSize(12f);
             emptyTv.setPadding(0, (int) (12 * density), 0, (int) (12 * density));
             llTransferOpportunities.addView(emptyTv);
@@ -240,16 +241,16 @@ public class StockEaseInsightsActivity extends AppCompatActivity {
             TextView tvTitle = new TextView(this);
             tvTitle.setText(prodName);
             tvTitle.setTextSize(14f);
-            tvTitle.setTypeface(null, Typeface.BOLD);
-            tvTitle.setTextColor(0xFF0F172A);
+            tvTitle.setTypeface(tvTitle.getTypeface(), Typeface.BOLD);
+            tvTitle.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
             tvTitle.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
             row1.addView(tvTitle);
 
             TextView tvBadge = new TextView(this);
             tvBadge.setText("Transfer " + recQty + " units");
             tvBadge.setTextSize(11f);
-            tvBadge.setTypeface(null, Typeface.BOLD);
-            tvBadge.setTextColor(0xFF2563EB);
+            tvBadge.setTypeface(tvBadge.getTypeface(), Typeface.BOLD);
+            tvBadge.setTextColor(ContextCompat.getColor(this, R.color.primary));
             tvBadge.setBackgroundResource(R.drawable.bg_badge_blue);
             tvBadge.setPadding((int) (8 * density), (int) (3 * density), (int) (8 * density), (int) (3 * density));
             row1.addView(tvBadge);
@@ -260,8 +261,8 @@ public class StockEaseInsightsActivity extends AppCompatActivity {
             TextView tvRoute = new TextView(this);
             tvRoute.setText(srcName + " (" + srcStock + " in stock)  →  " + destName + " (" + destStock + " in stock)");
             tvRoute.setTextSize(12f);
-            tvRoute.setTypeface(null, Typeface.BOLD);
-            tvRoute.setTextColor(0xFF334155);
+            tvRoute.setTypeface(tvRoute.getTypeface(), Typeface.BOLD);
+            tvRoute.setTextColor(ContextCompat.getColor(this, R.color.slate_700));
             tvRoute.setPadding(0, (int) (4 * density), 0, (int) (4 * density));
             card.addView(tvRoute);
 
@@ -269,7 +270,7 @@ public class StockEaseInsightsActivity extends AppCompatActivity {
             TextView tvReason = new TextView(this);
             tvReason.setText(reason);
             tvReason.setTextSize(12f);
-            tvReason.setTextColor(0xFF64748B);
+            tvReason.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             tvReason.setPadding(0, 0, 0, (int) (10 * density));
             card.addView(tvReason);
 
@@ -277,8 +278,8 @@ public class StockEaseInsightsActivity extends AppCompatActivity {
             Button btnCreate = new Button(this);
             btnCreate.setText("Create Transfer (Prefilled)");
             btnCreate.setTextSize(11f);
-            btnCreate.setTextColor(0xFFFFFFFF);
-            btnCreate.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF2563EB));
+            btnCreate.setTextColor(ContextCompat.getColor(this, R.color.white));
+            btnCreate.setBackgroundTintList(android.content.res.ColorStateList.valueOf(ContextCompat.getColor(this, R.color.primary)));
             btnCreate.setPadding((int) (14 * density), 0, (int) (14 * density), 0);
             LinearLayout.LayoutParams lpBtn = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, (int) (32 * density));
             btnCreate.setLayoutParams(lpBtn);
@@ -292,7 +293,7 @@ public class StockEaseInsightsActivity extends AppCompatActivity {
                 intent.putExtra(StockTransfersActivity.EXTRA_PREFILL_DEST_STORE_ID, destId);
                 intent.putExtra(StockTransfersActivity.EXTRA_PREFILL_PRODUCT_ID, srcProdId);
                 intent.putExtra(StockTransfersActivity.EXTRA_PREFILL_QTY, recQty);
-                startActivity(intent);
+                ScreenTransitions.open(StockEaseInsightsActivity.this, intent);
             });
 
             card.addView(btnCreate);
@@ -310,7 +311,7 @@ public class StockEaseInsightsActivity extends AppCompatActivity {
         if (arr == null || arr.length() == 0) {
             TextView emptyTv = new TextView(this);
             emptyTv.setText("No immediate stockout risks identified.");
-            emptyTv.setTextColor(0xFF64748B);
+            emptyTv.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             emptyTv.setTextSize(12f);
             llStockoutRisks.addView(emptyTv);
             return;
@@ -336,14 +337,14 @@ public class StockEaseInsightsActivity extends AppCompatActivity {
             TextView tvName = new TextView(this);
             tvName.setText(name);
             tvName.setTextSize(12f);
-            tvName.setTypeface(null, Typeface.BOLD);
-            tvName.setTextColor(0xFF0F172A);
+            tvName.setTypeface(tvName.getTypeface(), Typeface.BOLD);
+            tvName.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
             colLeft.addView(tvName);
 
             TextView tvStore = new TextView(this);
             tvStore.setText(store + " • Stock: " + stock);
             tvStore.setTextSize(11f);
-            tvStore.setTextColor(0xFF64748B);
+            tvStore.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             colLeft.addView(tvStore);
 
             row.addView(colLeft);
@@ -351,8 +352,8 @@ public class StockEaseInsightsActivity extends AppCompatActivity {
             TextView tvCoverage = new TextView(this);
             tvCoverage.setText(days <= 0 ? "Stocked out" : String.format(Locale.US, "%.1fd coverage", days));
             tvCoverage.setTextSize(11f);
-            tvCoverage.setTypeface(null, Typeface.BOLD);
-            tvCoverage.setTextColor(0xFFDC2626);
+            tvCoverage.setTypeface(tvCoverage.getTypeface(), Typeface.BOLD);
+            tvCoverage.setTextColor(ContextCompat.getColor(this, R.color.danger_strong));
             tvCoverage.setGravity(Gravity.END);
             row.addView(tvCoverage);
 
@@ -369,7 +370,7 @@ public class StockEaseInsightsActivity extends AppCompatActivity {
         if (arr == null || arr.length() == 0) {
             TextView emptyTv = new TextView(this);
             emptyTv.setText("No items currently classified as fast moving.");
-            emptyTv.setTextColor(0xFF64748B);
+            emptyTv.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             emptyTv.setTextSize(12f);
             llFastMoving.addView(emptyTv);
             return;
@@ -395,14 +396,14 @@ public class StockEaseInsightsActivity extends AppCompatActivity {
             TextView tvName = new TextView(this);
             tvName.setText(name);
             tvName.setTextSize(12f);
-            tvName.setTypeface(null, Typeface.BOLD);
-            tvName.setTextColor(0xFF0F172A);
+            tvName.setTypeface(tvName.getTypeface(), Typeface.BOLD);
+            tvName.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
             colLeft.addView(tvName);
 
             TextView tvStore = new TextView(this);
             tvStore.setText(store);
             tvStore.setTextSize(11f);
-            tvStore.setTextColor(0xFF64748B);
+            tvStore.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             colLeft.addView(tvStore);
 
             row.addView(colLeft);
@@ -410,8 +411,8 @@ public class StockEaseInsightsActivity extends AppCompatActivity {
             TextView tvUnits = new TextView(this);
             tvUnits.setText(sold + " sold (" + velocity + "/day)");
             tvUnits.setTextSize(11f);
-            tvUnits.setTypeface(null, Typeface.BOLD);
-            tvUnits.setTextColor(0xFF059669);
+            tvUnits.setTypeface(tvUnits.getTypeface(), Typeface.BOLD);
+            tvUnits.setTextColor(ContextCompat.getColor(this, R.color.success_strong));
             tvUnits.setGravity(Gravity.END);
             row.addView(tvUnits);
 
@@ -459,15 +460,15 @@ public class StockEaseInsightsActivity extends AppCompatActivity {
             row.setOrientation(LinearLayout.HORIZONTAL);
             row.setPadding(padH, padV, padH, padV);
             row.setGravity(Gravity.CENTER_VERTICAL);
-            row.setBackgroundColor(0xFFFFFFFF);
+            row.setBackgroundColor(ContextCompat.getColor(this, R.color.white));
 
             // Store Name (1.8)
             TextView tvName = new TextView(this);
             tvName.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.8f));
             tvName.setText(name);
             tvName.setTextSize(12f);
-            tvName.setTypeface(null, Typeface.BOLD);
-            tvName.setTextColor(0xFF0F172A);
+            tvName.setTypeface(tvName.getTypeface(), Typeface.BOLD);
+            tvName.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
             row.addView(tvName);
 
             // Sales (1.2)
@@ -475,8 +476,8 @@ public class StockEaseInsightsActivity extends AppCompatActivity {
             tvSales.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.2f));
             tvSales.setText(String.format(Locale.US, "₱%.2f", sales));
             tvSales.setTextSize(12f);
-            tvSales.setTypeface(null, Typeface.BOLD);
-            tvSales.setTextColor(0xFF0F172A);
+            tvSales.setTypeface(tvSales.getTypeface(), Typeface.BOLD);
+            tvSales.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
             tvSales.setGravity(Gravity.END);
             row.addView(tvSales);
 
@@ -485,7 +486,7 @@ public class StockEaseInsightsActivity extends AppCompatActivity {
             tvOrders.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.8f));
             tvOrders.setText(String.valueOf(orders));
             tvOrders.setTextSize(12f);
-            tvOrders.setTextColor(0xFF64748B);
+            tvOrders.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             tvOrders.setGravity(Gravity.END);
             row.addView(tvOrders);
 
@@ -494,7 +495,7 @@ public class StockEaseInsightsActivity extends AppCompatActivity {
             tvAvg.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f));
             tvAvg.setText(String.format(Locale.US, "₱%.2f", avg));
             tvAvg.setTextSize(12f);
-            tvAvg.setTextColor(0xFF64748B);
+            tvAvg.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             tvAvg.setGravity(Gravity.END);
             row.addView(tvAvg);
 
@@ -503,7 +504,7 @@ public class StockEaseInsightsActivity extends AppCompatActivity {
             tvUnits.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.8f));
             tvUnits.setText(String.valueOf(units));
             tvUnits.setTextSize(12f);
-            tvUnits.setTextColor(0xFF64748B);
+            tvUnits.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             tvUnits.setGravity(Gravity.END);
             row.addView(tvUnits);
 
@@ -511,7 +512,7 @@ public class StockEaseInsightsActivity extends AppCompatActivity {
 
             View divider = new View(this);
             divider.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1));
-            divider.setBackgroundColor(0xFFE2E8F0);
+            divider.setBackgroundColor(ContextCompat.getColor(this, R.color.card_border));
             llStoreComparisonRows.addView(divider);
         }
     }
@@ -527,7 +528,7 @@ public class StockEaseInsightsActivity extends AppCompatActivity {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
         Intent intent = new Intent(this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
+        ScreenTransitions.open(StockEaseInsightsActivity.this, intent);
+        ScreenTransitions.finish(StockEaseInsightsActivity.this);
     }
 }

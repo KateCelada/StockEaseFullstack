@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:padding="12dp"
-    android:background="#1E1E1E"
+    android:background="@color/sidebar_bg"
     android:gravity="center_vertical"
     android:layout_marginBottom="4dp">
 
@@ -18,34 +18,33 @@
             android:id="@+id/tvPosProductName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textColor="@color/white"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Section" />
 
         <TextView
             android:id="@+id/tvPosProductStock"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#B0B0B0"
-            android:textSize="12sp" />
+            android:textColor="@color/text_muted"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
     </LinearLayout>
 
     <TextView
         android:id="@+id/tvPosProductPrice"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="#4CAF50"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:layout_marginEnd="12dp" />
+        android:textColor="@color/success"
 
-    <Button
+        android:textStyle="bold"
+        android:layout_marginEnd="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnAddToCart"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="+ Add"
-        android:textSize="12sp"
-        android:backgroundTint="#7C4DFF"
-        android:textColor="#FFFFFF" />
+
+        android:textColor="@color/white"  android:textAppearance="@style/TextAppearance.StockEase.Label" style="@style/Widget.StockEase.Button.Primary" />
 
 </LinearLayout>

@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="#FFFFFF"
+    android:background="@color/card_background"
     android:padding="16dp"
     android:layout_marginBottom="12dp">
 
@@ -21,21 +21,21 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Product Name"
-            android:textColor="#1B1C30"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textColor="@color/text_primary"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Section" />
 
         <TextView
             android:id="@+id/tvRestockUrgencyBadge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="CRITICAL"
-            android:textColor="#C62828"
-            android:background="#FFEBEE"
+            android:textColor="@color/danger_strong"
+            android:background="@color/danger_bg"
             android:textStyle="bold"
-            android:textSize="11sp"
-            android:paddingHorizontal="10dp"
-            android:paddingVertical="4dp" />
+
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
     </LinearLayout>
 
     <!-- Category -->
@@ -44,18 +44,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Category: General"
-        android:textColor="#6E7191"
-        android:textSize="12sp"
-        android:layout_marginBottom="14dp" />
+        android:textColor="@color/text_secondary"
+
+        android:layout_marginBottom="16dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
     <!-- Metrics Grid / Row -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:background="#F8F9FC"
+        android:background="@color/app_background"
         android:padding="12dp"
-        android:layout_marginBottom="14dp">
+        android:layout_marginBottom="16dp">
 
         <!-- Current Stock -->
         <LinearLayout
@@ -68,18 +68,18 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Current Stock"
-                android:textColor="#6E7191"
-                android:textSize="11sp" />
+                android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
             <TextView
                 android:id="@+id/tvRestockCurrentStock"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="3 units"
-                android:textColor="#C62828"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:layout_marginTop="2dp" />
+
+                android:textColor="@color/danger_strong"
+
+
+                android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Section" />
         </LinearLayout>
 
         <!-- Target Par Level -->
@@ -93,18 +93,18 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Target Par"
-                android:textColor="#6E7191"
-                android:textSize="11sp" />
+                android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
             <TextView
                 android:id="@+id/tvRestockTargetPar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="30 units"
-                android:textColor="#1B1C30"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:layout_marginTop="2dp" />
+
+                android:textColor="@color/text_primary"
+
+
+                android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Section" />
         </LinearLayout>
 
         <!-- Suggested Reorder -->
@@ -118,18 +118,18 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Suggested Reorder"
-                android:textColor="#6E7191"
-                android:textSize="11sp" />
+                android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
             <TextView
                 android:id="@+id/tvRestockSuggestedQty"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="+27 units"
-                android:textColor="#2E7D32"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:layout_marginTop="2dp" />
+
+                android:textColor="@color/success_text"
+
+
+                android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Section" />
         </LinearLayout>
 
         <!-- Estimated Cost -->
@@ -143,18 +143,18 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Est. Cost"
-                android:textColor="#6E7191"
-                android:textSize="11sp" />
+                android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
             <TextView
                 android:id="@+id/tvRestockEstCost"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="₱1,350.00"
-                android:textColor="#7C4DFF"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:layout_marginTop="2dp" />
+
+                android:textColor="@color/brand_accent"
+
+
+                android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Section" />
         </LinearLayout>
     </LinearLayout>
 
@@ -170,20 +170,19 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Unit Price: ₱50.00"
-            android:textColor="#6E7191"
-            android:textSize="12sp" />
 
-        <Button
+            android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnRestockAction"
             android:layout_width="wrap_content"
             android:layout_height="38dp"
-            android:text="⚡ Restock Now"
-            android:textColor="#FFFFFF"
-            android:backgroundTint="#7C4DFF"
-            android:textSize="12sp"
+            android:text="Restock Now"
+            android:textColor="@color/white"
+
             android:paddingHorizontal="16dp"
-            android:paddingVertical="0dp" />
+            android:paddingVertical="0dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" style="@style/Widget.StockEase.Button.Primary" />
     </LinearLayout>
 
 </LinearLayout>

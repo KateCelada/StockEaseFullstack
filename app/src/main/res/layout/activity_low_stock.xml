@@ -3,30 +3,29 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F5F6FA">
+    android:background="@color/app_background">
 
     <!-- Top Action / Navigation Bar -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#FFFFFF"
+        android:background="@color/card_background"
         android:paddingHorizontal="20dp"
         android:paddingVertical="16dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:elevation="2dp">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLowStockBack"
             android:layout_width="wrap_content"
             android:layout_height="36dp"
-            android:text="← Back"
-            android:textColor="#1B1C30"
-            android:backgroundTint="#F5F6FA"
-            android:textSize="12sp"
+            android:text="Back"
+            android:textColor="@color/text_primary"
+
             android:paddingHorizontal="12dp"
             android:paddingVertical="0dp"
-            android:layout_marginEnd="16dp" />
+            android:layout_marginEnd="16dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" style="@style/Widget.StockEase.Button.Secondary" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -38,17 +37,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Restock Intelligence &amp; Suggestions"
-                android:textColor="#1B1C30"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:textColor="@color/text_primary"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Title" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Replenishment recommendations based on 30-unit par levels"
-                android:textColor="#6E7191"
-                android:textSize="12sp"
-                android:layout_marginTop="2dp" />
+                android:textColor="@color/text_secondary"
+
+                android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
         </LinearLayout>
     </LinearLayout>
 
@@ -75,7 +74,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="#FFFFFF"
+                    android:background="@color/card_background"
                     android:padding="16dp"
                     android:orientation="vertical"
                     android:layout_marginEnd="8dp">
@@ -84,18 +83,18 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Items to Reorder"
-                        android:textColor="#6E7191"
-                        android:textSize="12sp" />
+                        android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                     <TextView
                         android:id="@+id/tvRestockTotalItems"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
-                        android:textColor="#1B1C30"
-                        android:textSize="22sp"
-                        android:textStyle="bold"
-                        android:layout_marginTop="4dp" />
+                        android:textColor="@color/text_primary"
+
+
+                        android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Title" />
                 </LinearLayout>
 
                 <!-- Card 2: Critical Urgency (<5) -->
@@ -103,7 +102,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="#FFFFFF"
+                    android:background="@color/card_background"
                     android:padding="16dp"
                     android:orientation="vertical"
                     android:layout_marginEnd="8dp">
@@ -112,18 +111,18 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Critical Stock (&lt; 5)"
-                        android:textColor="#6E7191"
-                        android:textSize="12sp" />
+                        android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                     <TextView
                         android:id="@+id/tvRestockCriticalItems"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
-                        android:textColor="#C62828"
-                        android:textSize="22sp"
-                        android:textStyle="bold"
-                        android:layout_marginTop="4dp" />
+                        android:textColor="@color/danger_strong"
+
+
+                        android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Title" />
                 </LinearLayout>
 
                 <!-- Card 3: Est Capital Required -->
@@ -131,7 +130,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="#FFFFFF"
+                    android:background="@color/card_background"
                     android:padding="16dp"
                     android:orientation="vertical">
 
@@ -139,18 +138,18 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Est. Restock Cost"
-                        android:textColor="#6E7191"
-                        android:textSize="12sp" />
+                        android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                     <TextView
                         android:id="@+id/tvRestockTotalEstCost"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="₱0.00"
-                        android:textColor="#7C4DFF"
-                        android:textSize="20sp"
-                        android:textStyle="bold"
-                        android:layout_marginTop="4dp" />
+                        android:textColor="@color/brand_accent"
+
+
+                        android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Title" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -158,7 +157,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#EDE7F6"
+                android:background="@color/purple_bg"
                 android:padding="12dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
@@ -167,16 +166,16 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="💡 "
-                    android:textSize="14sp" />
+                    android:text=""
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="StockEase Reorder Formula: Suggested = max(0, Par Level [30] - Current Stock). Est. Cost = Suggested × Unit Price."
-                    android:textColor="#4A148C"
-                    android:textSize="12sp" />
+                    android:textColor="@color/purple_text"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
             </LinearLayout>
 
             <!-- Empty State -->
@@ -186,33 +185,33 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
-                android:background="#FFFFFF"
+                android:background="@color/card_background"
                 android:padding="48dp"
                 android:visibility="gone">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="✅"
-                    android:textSize="40sp"
-                    android:layout_marginBottom="12dp" />
+                    android:text=""
+
+                    android:layout_marginBottom="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Display" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="All Inventory Levels Healthy"
-                    android:textColor="#1B1C30"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:textColor="@color/text_primary"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Title" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="No products in this store are currently below the low stock threshold."
-                    android:textColor="#6E7191"
-                    android:textSize="13sp"
+                    android:textColor="@color/text_secondary"
+
                     android:layout_marginTop="4dp"
-                    android:gravity="center" />
+                    android:gravity="center"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
             </LinearLayout>
 
             <!-- RecyclerView of Suggestions -->

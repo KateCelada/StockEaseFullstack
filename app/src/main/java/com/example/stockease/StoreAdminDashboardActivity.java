@@ -141,7 +141,7 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
             cardTransactions.setOnClickListener(v -> {
                 Intent intent = new Intent(this, TransactionHistoryActivity.class);
                 addIdentityExtras(intent);
-                startActivity(intent);
+                ScreenTransitions.open(StoreAdminDashboardActivity.this, intent);
             });
         }
 
@@ -149,7 +149,7 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
             cardTotalProducts.setOnClickListener(v -> {
                 Intent intent = new Intent(this, ProductsActivity.class);
                 addIdentityExtras(intent);
-                startActivity(intent);
+                ScreenTransitions.open(StoreAdminDashboardActivity.this, intent);
             });
         }
 
@@ -186,7 +186,7 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
             tvViewAllTransactions.setOnClickListener(v -> {
                 Intent intent = new Intent(this, TransactionHistoryActivity.class);
                 addIdentityExtras(intent);
-                startActivity(intent);
+                ScreenTransitions.open(StoreAdminDashboardActivity.this, intent);
             });
         }
 
@@ -216,7 +216,64 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
             if (navStores != null) navStores.setVisibility(View.GONE);
         }
 
+        // Collapsible sidebar sections (accordion): OVERVIEW opens by default
+        SidebarSection.attach(this, R.id.navHeaderOverview, R.id.navArrowOverview, R.id.navSectionOverviewItems, true);
+        SidebarSection.attach(this, R.id.navHeaderManagement, R.id.navArrowManagement, R.id.navSectionManagementItems, false);
+        SidebarSection.attach(this, R.id.navHeaderAnalytics, R.id.navArrowAnalytics, R.id.navSectionAnalyticsItems, false);
+        SidebarSection.attach(this, R.id.navHeaderSystem, R.id.navArrowSystem, R.id.navSectionSystemItems, false);
+
+        // Tapping the profile name or avatar opens the profile screen
+        View.OnClickListener openProfile = v -> {
+            Intent intent = new Intent(StoreAdminDashboardActivity.this, ProfileActivity.class);
+            if (getIntent().getExtras() != null) {
+                intent.putExtras(getIntent().getExtras());
+            }
+            ScreenTransitions.open(StoreAdminDashboardActivity.this, intent);
+        };
+        if (tvAdminProfileName != null) {
+            tvAdminProfileName.setOnClickListener(openProfile);
+        }
+        if (tvAdminAvatarInitials != null) {
+            tvAdminAvatarInitials.setOnClickListener(openProfile);
+        }
+
+        // Every dashboard card responds to a tap: navigation where a matching
+        // screen exists, a detail sheet for the rest.
+        setupCardClicks();
+
         ViewFeedbackUtil.attachAll(findViewById(android.R.id.content));
+    }
+
+    /** Wires the cards that are not already covered by a dedicated listener. */
+    private void setupCardClicks() {
+        if (containerManagerBranchSection != null) {
+            containerManagerBranchSection.setOnClickListener(v -> showBranchesMenuDialog());
+        }
+
+        View recentTransactions = findViewById(R.id.cardRecentTransactions);
+        if (recentTransactions != null) {
+            recentTransactions.setOnClickListener(v -> {
+                Intent intent = new Intent(this, TransactionHistoryActivity.class);
+                addIdentityExtras(intent);
+                ScreenTransitions.open(StoreAdminDashboardActivity.this, intent);
+            });
+        }
+
+        View lowStockPanel = findViewById(R.id.cardLowStockPanel);
+        if (lowStockPanel != null) {
+            lowStockPanel.setOnClickListener(v -> openLowStockSuggestions());
+        }
+
+        View earningsChart = findViewById(R.id.cardEarningsChart);
+        if (earningsChart != null) {
+            earningsChart.setOnClickListener(v -> {
+                TextView tvSubtitle = findViewById(R.id.tvChartEarningsSubtitle);
+                TextView tvWeeklyTotal = findViewById(R.id.tvChartWeeklyTotal);
+                CardDetailDialog.show(this, "Store Earnings Progress",
+                        "Period: " + (tvSubtitle != null ? tvSubtitle.getText() : ""),
+                        "Total: " + (tvWeeklyTotal != null ? tvWeeklyTotal.getText() : ""));
+            });
+        }
     }
 
     private void setupHeaderInfo() {
@@ -269,35 +326,35 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
             cardActionProducts.setOnClickListener(v -> {
                 Intent intent = new Intent(this, ProductsActivity.class);
                 addIdentityExtras(intent);
-                startActivity(intent);
+                ScreenTransitions.open(StoreAdminDashboardActivity.this, intent);
             });
         }
         if (cardActionStaff != null) {
             cardActionStaff.setOnClickListener(v -> {
                 Intent intent = new Intent(this, StaffActivity.class);
                 addIdentityExtras(intent);
-                startActivity(intent);
+                ScreenTransitions.open(StoreAdminDashboardActivity.this, intent);
             });
         }
         if (cardActionReports != null) {
             cardActionReports.setOnClickListener(v -> {
                 Intent intent = new Intent(this, ReportsActivity.class);
                 addIdentityExtras(intent);
-                startActivity(intent);
+                ScreenTransitions.open(StoreAdminDashboardActivity.this, intent);
             });
         }
         if (cardActionTransfers != null) {
             cardActionTransfers.setOnClickListener(v -> {
                 Intent intent = new Intent(this, StockTransfersActivity.class);
                 addIdentityExtras(intent);
-                startActivity(intent);
+                ScreenTransitions.open(StoreAdminDashboardActivity.this, intent);
             });
         }
         if (cardActionInsights != null) {
             cardActionInsights.setOnClickListener(v -> {
                 Intent intent = new Intent(this, StockEaseInsightsActivity.class);
                 addIdentityExtras(intent);
-                startActivity(intent);
+                ScreenTransitions.open(StoreAdminDashboardActivity.this, intent);
             });
         }
     }
@@ -389,6 +446,7 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
                             }
                             if (tvProducts != null) tvProducts.setText(String.valueOf(totalProducts));
                             if (tvLowStockAlerts != null) tvLowStockAlerts.setText(String.valueOf(lowStock));
+                            bindLowStockState(lowStock);
 
                             cachedTodaySoldProducts = response.optJSONArray("today_sold_products");
                             if (cachedTodaySoldProducts == null) cachedTodaySoldProducts = new JSONArray();
@@ -430,6 +488,10 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
                                 }
                             }
 
+                            // Real trend lines, derived from the same daily_sales_trend the chart uses.
+                            bindSalesTrend(response.optJSONArray("daily_sales_trend"));
+                            bindAverageTicket(todaySalesAmt, todayTxCount);
+
                             // Inbound Stock Transfer Alert
                             JSONObject inbound = response.optJSONObject("inbound_transfer");
                             if (inbound != null && containerInboundTransferAlert != null) {
@@ -452,7 +514,7 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
                                 View.OnClickListener openTransfers = v -> {
                                     Intent intent = new Intent(this, StockTransfersActivity.class);
                                     addIdentityExtras(intent);
-                                    startActivity(intent);
+                                    ScreenTransitions.open(StoreAdminDashboardActivity.this, intent);
                                 };
 
                                 containerInboundTransferAlert.setOnClickListener(openTransfers);
@@ -493,6 +555,76 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
         queue.add(transactionsRequest);
     }
 
+    /**
+     * Real day-over-day delta, derived from daily_sales_trend (last entry = today,
+     * the one before it = yesterday). Colour is earned by the data: up is green,
+     * down is red, flat is muted. Replaces the old hardcoded "+12% vs yesterday".
+     */
+    private void bindSalesTrend(JSONArray dailyTrend) {
+        if (tvTodaySalesTrend == null) return;
+        if (dailyTrend == null || dailyTrend.length() < 2) {
+            tvTodaySalesTrend.setVisibility(View.GONE);
+            return;
+        }
+
+        JSONObject today = dailyTrend.optJSONObject(dailyTrend.length() - 1);
+        JSONObject yesterday = dailyTrend.optJSONObject(dailyTrend.length() - 2);
+        double todaySales = today == null ? 0.0 : today.optDouble("daily_sales", 0.0);
+        double yesterdaySales = yesterday == null ? 0.0 : yesterday.optDouble("daily_sales", 0.0);
+
+        if (yesterdaySales <= 0.0) {
+            // No baseline to compare against — don't invent a percentage.
+            if (todaySales > 0.0) {
+                tvTodaySalesTrend.setText(R.string.trend_first_sales);
+                tvTodaySalesTrend.setTextColor(ContextCompat.getColor(this, R.color.text_muted));
+                tvTodaySalesTrend.setVisibility(View.VISIBLE);
+            } else {
+                tvTodaySalesTrend.setVisibility(View.GONE);
+            }
+            return;
+        }
+
+        double pct = ((todaySales - yesterdaySales) / yesterdaySales) * 100.0;
+        String rounded = String.format(Locale.US, "%+.0f%%", pct);
+        tvTodaySalesTrend.setText(getString(R.string.trend_vs_yesterday, rounded));
+        if (pct > 0.5) {
+            tvTodaySalesTrend.setTextColor(ContextCompat.getColor(this, R.color.success));
+        } else if (pct < -0.5) {
+            tvTodaySalesTrend.setTextColor(ContextCompat.getColor(this, R.color.danger));
+        } else {
+            tvTodaySalesTrend.setTextColor(ContextCompat.getColor(this, R.color.text_muted));
+        }
+        tvTodaySalesTrend.setVisibility(View.VISIBLE);
+    }
+
+    /** Average ticket size — real, derived from today's sales and transaction count. */
+    private void bindAverageTicket(double todaySalesAmt, int todayTxCount) {
+        if (tvTxTrend == null) return;
+        if (todayTxCount <= 0 || todaySalesAmt <= 0.0) {
+            tvTxTrend.setVisibility(View.GONE);
+            return;
+        }
+        double avg = todaySalesAmt / todayTxCount;
+        tvTxTrend.setText(getString(R.string.trend_avg_ticket, String.format(Locale.US, "₱%.2f", avg)));
+        tvTxTrend.setTextColor(ContextCompat.getColor(this, R.color.text_muted));
+        tvTxTrend.setVisibility(View.VISIBLE);
+    }
+
+    /** Low-stock colour is earned: quiet at zero, red only when something needs attention. */
+    private void bindLowStockState(int lowStock) {
+        if (tvLowStockAlerts != null) {
+            tvLowStockAlerts.setTextColor(ContextCompat.getColor(this,
+                    lowStock > 0 ? R.color.danger : R.color.text_primary));
+        }
+        if (tvLowStockSubtitle != null) {
+            tvLowStockSubtitle.setText(lowStock > 0
+                    ? R.string.low_stock_attention
+                    : R.string.low_stock_all_good);
+            tvLowStockSubtitle.setTextColor(ContextCompat.getColor(this,
+                    lowStock > 0 ? R.color.danger : R.color.text_muted));
+        }
+    }
+
     private void renderLowStockPreview(JSONArray items) {
         if (containerLowStockList == null) return;
         containerLowStockList.removeAllViews();
@@ -500,7 +632,7 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
         if (items == null || items.length() == 0) {
             TextView empty = new TextView(this);
             empty.setText("All products well-stocked.");
-            empty.setTextColor(0xFF64748B);
+            empty.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             empty.setTextSize(12f);
             empty.setPadding(0, 16, 0, 16);
             containerLowStockList.addView(empty);
@@ -523,13 +655,13 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
             tvName.setLayoutParams(lp);
             tvName.setText(name);
-            tvName.setTextColor(0xFF0F172A);
+            tvName.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
             tvName.setTextSize(13f);
 
             TextView tvStock = new TextView(this);
             tvStock.setText(stock + " left");
-            tvStock.setTextColor(stock < 5 ? 0xFFEF4444 : 0xFFF59E0B);
-            tvStock.setTypeface(null, Typeface.BOLD);
+            tvStock.setTextColor(stock < 5 ? ContextCompat.getColor(this, R.color.danger) : ContextCompat.getColor(this, R.color.warning));
+            tvStock.setTypeface(tvStock.getTypeface(), Typeface.BOLD);
             tvStock.setTextSize(12f);
 
             row.addView(tvName);
@@ -541,7 +673,7 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
             // Divider
             View divider = new View(this);
             divider.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1));
-            divider.setBackgroundColor(0xFFE2E8F0);
+            divider.setBackgroundColor(ContextCompat.getColor(this, R.color.card_border));
             containerLowStockList.addView(divider);
         }
     }
@@ -553,7 +685,7 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
         if (recentTx == null || recentTx.length() == 0) {
             TextView empty = new TextView(this);
             empty.setText("No recent sales recorded.");
-            empty.setTextColor(0xFF64748B);
+            empty.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             empty.setTextSize(12f);
             empty.setPadding(0, 16, 0, 16);
             containerRecentSales.addView(empty);
@@ -577,13 +709,13 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.5f);
             tvTxId.setLayoutParams(lp);
             tvTxId.setText("#" + id + " • " + method);
-            tvTxId.setTextColor(0xFF0F172A);
+            tvTxId.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
             tvTxId.setTextSize(13f);
 
             TextView tvAmt = new TextView(this);
             tvAmt.setText(String.format(Locale.US, "₱%.2f", amount));
-            tvAmt.setTextColor(0xFF10B981);
-            tvAmt.setTypeface(null, Typeface.BOLD);
+            tvAmt.setTextColor(ContextCompat.getColor(this, R.color.success));
+            tvAmt.setTypeface(tvAmt.getTypeface(), Typeface.BOLD);
             tvAmt.setTextSize(13f);
 
             row.addView(tvTxId);
@@ -592,7 +724,7 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
             row.setOnClickListener(v -> {
                 Intent intent = new Intent(this, TransactionHistoryActivity.class);
                 addIdentityExtras(intent);
-                startActivity(intent);
+                ScreenTransitions.open(StoreAdminDashboardActivity.this, intent);
             });
 
             containerRecentSales.addView(row);
@@ -600,7 +732,7 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
             // Divider
             View divider = new View(this);
             divider.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1));
-            divider.setBackgroundColor(0xFFE2E8F0);
+            divider.setBackgroundColor(ContextCompat.getColor(this, R.color.card_border));
             containerRecentSales.addView(divider);
         }
     }
@@ -639,7 +771,7 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
             navProducts.setOnClickListener(v -> {
                 Intent intent = new Intent(this, ProductsActivity.class);
                 addIdentityExtras(intent);
-                startActivity(intent);
+                ScreenTransitions.open(StoreAdminDashboardActivity.this, intent);
             });
         }
 
@@ -650,7 +782,7 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
                 } else if ("super_admin".equals(role)) {
                     Intent intent = new Intent(this, StoresActivity.class);
                     addIdentityExtras(intent);
-                    startActivity(intent);
+                    ScreenTransitions.open(StoreAdminDashboardActivity.this, intent);
                 } else {
                     Toast.makeText(this, "Branch management is restricted to Store Managers.", Toast.LENGTH_SHORT).show();
                 }
@@ -661,7 +793,7 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
             navInventory.setOnClickListener(v -> {
                 Intent intent = new Intent(this, InventoryActivity.class);
                 addIdentityExtras(intent);
-                startActivity(intent);
+                ScreenTransitions.open(StoreAdminDashboardActivity.this, intent);
             });
         }
 
@@ -669,7 +801,7 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
             navStaff.setOnClickListener(v -> {
                 Intent intent = new Intent(this, StaffActivity.class);
                 addIdentityExtras(intent);
-                startActivity(intent);
+                ScreenTransitions.open(StoreAdminDashboardActivity.this, intent);
             });
         }
 
@@ -677,7 +809,7 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
             navSales.setOnClickListener(v -> {
                 Intent intent = new Intent(this, TransactionHistoryActivity.class);
                 addIdentityExtras(intent);
-                startActivity(intent);
+                ScreenTransitions.open(StoreAdminDashboardActivity.this, intent);
             });
         }
 
@@ -685,7 +817,7 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
             navReports.setOnClickListener(v -> {
                 Intent intent = new Intent(this, ReportsActivity.class);
                 addIdentityExtras(intent);
-                startActivity(intent);
+                ScreenTransitions.open(StoreAdminDashboardActivity.this, intent);
             });
         }
 
@@ -693,7 +825,7 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
             navTransfers.setOnClickListener(v -> {
                 Intent intent = new Intent(this, StockTransfersActivity.class);
                 addIdentityExtras(intent);
-                startActivity(intent);
+                ScreenTransitions.open(StoreAdminDashboardActivity.this, intent);
             });
         }
 
@@ -701,7 +833,7 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
             navInsights.setOnClickListener(v -> {
                 Intent intent = new Intent(this, StockEaseInsightsActivity.class);
                 addIdentityExtras(intent);
-                startActivity(intent);
+                ScreenTransitions.open(StoreAdminDashboardActivity.this, intent);
             });
         }
 
@@ -709,7 +841,7 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
             navSubscription.setOnClickListener(v -> {
                 Intent intent = new Intent(this, SubscriptionActivity.class);
                 addIdentityExtras(intent);
-                startActivity(intent);
+                ScreenTransitions.open(StoreAdminDashboardActivity.this, intent);
             });
         }
 
@@ -717,7 +849,7 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
             navSettings.setOnClickListener(v -> {
                 Intent intent = new Intent(this, SettingsActivity.class);
                 addIdentityExtras(intent);
-                startActivity(intent);
+                ScreenTransitions.open(StoreAdminDashboardActivity.this, intent);
             });
         }
 
@@ -750,8 +882,8 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
     private void updatePeriodButtonUI() {
         int activeBg = R.drawable.bg_btn_primary;
         int normalBg = R.drawable.bg_pill_header;
-        int activeText = 0xFFFFFFFF;
-        int normalText = 0xFF0F172A;
+        int activeText = ContextCompat.getColor(this, R.color.white);
+        int normalText = ContextCompat.getColor(this, R.color.text_primary);
 
         if (btnPeriodToday != null) {
             boolean active = "today".equals(selectedPeriod);
@@ -873,14 +1005,14 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
             TextView tvHourlyTitle = new TextView(this);
             tvHourlyTitle.setText("Intraday Sales Trajectory (Hourly)");
             tvHourlyTitle.setTextSize(12f);
-            tvHourlyTitle.setTextColor(0xFF64748B);
-            tvHourlyTitle.setTypeface(null, Typeface.BOLD);
+            tvHourlyTitle.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
+            tvHourlyTitle.setTypeface(tvHourlyTitle.getTypeface(), Typeface.BOLD);
             container.addView(tvHourlyTitle);
 
             SimpleLineChartView hourlyChart = new SimpleLineChartView(this);
             hourlyChart.setLayoutParams(new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT, 200));
-            hourlyChart.setBackgroundColor(0xFFF8FAFC);
+            hourlyChart.setBackgroundColor(ContextCompat.getColor(this, R.color.app_background));
 
             List<Float> hPoints = new ArrayList<>();
             List<String> hLabels = new ArrayList<>();
@@ -896,7 +1028,7 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
 
             View div = new View(this);
             div.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 2));
-            div.setBackgroundColor(0xFFE2E8F0);
+            div.setBackgroundColor(ContextCompat.getColor(this, R.color.card_border));
             div.setPadding(0, 16, 0, 16);
             container.addView(div);
         }
@@ -908,7 +1040,7 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
         if (cachedTodaySoldProducts == null || cachedTodaySoldProducts.length() == 0) {
             TextView empty = new TextView(this);
             empty.setText("No products sold today yet.");
-            empty.setTextColor(0xFF64748B);
+            empty.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             empty.setPadding(0, 24, 0, 24);
             itemsList.addView(empty);
         } else {
@@ -928,9 +1060,9 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
 
                 TextView tvRank = new TextView(this);
                 tvRank.setText("#" + (i + 1) + " ");
-                tvRank.setTextColor(0xFF2563EB);
+                tvRank.setTextColor(ContextCompat.getColor(this, R.color.primary));
                 tvRank.setTextSize(14f);
-                tvRank.setTypeface(null, Typeface.BOLD);
+                tvRank.setTypeface(tvRank.getTypeface(), Typeface.BOLD);
 
                 LinearLayout info = new LinearLayout(this);
                 info.setOrientation(LinearLayout.VERTICAL);
@@ -938,13 +1070,13 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
 
                 TextView tvName = new TextView(this);
                 tvName.setText(name);
-                tvName.setTextColor(0xFF0F172A);
+                tvName.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
                 tvName.setTextSize(13f);
-                tvName.setTypeface(null, Typeface.BOLD);
+                tvName.setTypeface(tvName.getTypeface(), Typeface.BOLD);
 
                 TextView tvCat = new TextView(this);
                 tvCat.setText(category + " • " + qty + " units sold");
-                tvCat.setTextColor(0xFF64748B);
+                tvCat.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
                 tvCat.setTextSize(11f);
 
                 info.addView(tvName);
@@ -952,9 +1084,9 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
 
                 TextView tvEarn = new TextView(this);
                 tvEarn.setText(String.format(Locale.US, "₱%.2f", earned));
-                tvEarn.setTextColor(0xFF10B981);
+                tvEarn.setTextColor(ContextCompat.getColor(this, R.color.success));
                 tvEarn.setTextSize(13f);
-                tvEarn.setTypeface(null, Typeface.BOLD);
+                tvEarn.setTypeface(tvEarn.getTypeface(), Typeface.BOLD);
 
                 row.addView(tvRank);
                 row.addView(info);
@@ -963,7 +1095,7 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
 
                 View div = new View(this);
                 div.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1));
-                div.setBackgroundColor(0xFFE2E8F0);
+                div.setBackgroundColor(ContextCompat.getColor(this, R.color.card_border));
                 itemsList.addView(div);
             }
         }
@@ -987,7 +1119,7 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
         if (cachedAllLowStockItems == null || cachedAllLowStockItems.length() == 0) {
             TextView empty = new TextView(this);
             empty.setText("All items in store are currently well-stocked.");
-            empty.setTextColor(0xFF64748B);
+            empty.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             empty.setPadding(0, 24, 0, 24);
             itemsList.addView(empty);
         } else {
@@ -1010,13 +1142,13 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
 
                 TextView tvName = new TextView(this);
                 tvName.setText(name);
-                tvName.setTextColor(0xFF0F172A);
+                tvName.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
                 tvName.setTextSize(13f);
-                tvName.setTypeface(null, Typeface.BOLD);
+                tvName.setTypeface(tvName.getTypeface(), Typeface.BOLD);
 
                 TextView tvPrice = new TextView(this);
                 tvPrice.setText(String.format(Locale.US, "Unit Price: ₱%.2f", price));
-                tvPrice.setTextColor(0xFF64748B);
+                tvPrice.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
                 tvPrice.setTextSize(11f);
 
                 info.addView(tvName);
@@ -1024,9 +1156,9 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
 
                 TextView tvStock = new TextView(this);
                 tvStock.setText(stock + " left");
-                tvStock.setTextColor(stock < 5 ? 0xFFEF4444 : 0xFFF59E0B);
+                tvStock.setTextColor(stock < 5 ? ContextCompat.getColor(this, R.color.danger) : ContextCompat.getColor(this, R.color.warning));
                 tvStock.setTextSize(13f);
-                tvStock.setTypeface(null, Typeface.BOLD);
+                tvStock.setTypeface(tvStock.getTypeface(), Typeface.BOLD);
 
                 row.addView(info);
                 row.addView(tvStock);
@@ -1034,7 +1166,7 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
 
                 View div = new View(this);
                 div.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1));
-                div.setBackgroundColor(0xFFE2E8F0);
+                div.setBackgroundColor(ContextCompat.getColor(this, R.color.card_border));
                 itemsList.addView(div);
             }
         }
@@ -1044,7 +1176,7 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
         builder.setPositiveButton("Manage Products", (dialog, which) -> {
             Intent intent = new Intent(this, ProductsActivity.class);
             addIdentityExtras(intent);
-            startActivity(intent);
+            ScreenTransitions.open(StoreAdminDashboardActivity.this, intent);
         });
         builder.setNegativeButton("Close", null);
         builder.show();
@@ -1077,7 +1209,7 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
         if (owners == null || owners.length() == 0) {
             TextView empty = new TextView(this);
             empty.setText("No branches found. Tap '+ Add Branch' to create your first store branch.");
-            empty.setTextColor(0xFF64748B);
+            empty.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             empty.setTextSize(12f);
             empty.setPadding(0, 12, 0, 12);
             containerManagerBranchCards.addView(empty);
@@ -1124,14 +1256,14 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
                 colName.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
 
                 TextView tvBranchName = new TextView(this);
-                tvBranchName.setText("📍 " + bName);
-                tvBranchName.setTextColor(0xFF0F172A);
+                tvBranchName.setText(bName);
+                tvBranchName.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
                 tvBranchName.setTextSize(16f);
-                tvBranchName.setTypeface(null, Typeface.BOLD);
+                tvBranchName.setTypeface(tvBranchName.getTypeface(), Typeface.BOLD);
 
                 TextView tvBranchLoc = new TextView(this);
                 tvBranchLoc.setText(bLoc);
-                tvBranchLoc.setTextColor(0xFF64748B);
+                tvBranchLoc.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
                 tvBranchLoc.setTextSize(12f);
                 tvBranchLoc.setPadding(0, 2, 0, 0);
 
@@ -1139,10 +1271,10 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
                 colName.addView(tvBranchLoc);
 
                 TextView tvArrow = new TextView(this);
-                tvArrow.setText("View Progress ▶");
-                tvArrow.setTextColor(0xFF2563EB);
+                tvArrow.setText("View Progress ▸");
+                tvArrow.setTextColor(ContextCompat.getColor(this, R.color.primary));
                 tvArrow.setTextSize(12f);
-                tvArrow.setTypeface(null, Typeface.BOLD);
+                tvArrow.setTypeface(tvArrow.getTypeface(), Typeface.BOLD);
                 tvArrow.setBackground(ContextCompat.getDrawable(this, R.drawable.bg_badge_blue));
                 tvArrow.setPadding(16, 6, 16, 6);
 
@@ -1157,7 +1289,7 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
                     intent.putExtra(BusinessProgressActivity.EXTRA_SUBTITLE, "Location: " + bLoc);
                     intent.putExtra("user_id", userId);
                     intent.putExtra("role", role);
-                    startActivity(intent);
+                    ScreenTransitions.open(StoreAdminDashboardActivity.this, intent);
                 });
 
                 containerManagerBranchCards.addView(branchCard);
@@ -1166,7 +1298,7 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
     }
 
     private void showBranchesMenuDialog() {
-        String[] options = {"➕ Add New Branch", "👥 Create & Assign Store Admins", "🏢 View Branches List"};
+        String[] options = {"Add New Branch", "Create & Assign Store Admins", "View Branches List"};
         new androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle("Branches Management")
                 .setItems(options, (dialog, which) -> {
@@ -1175,7 +1307,7 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
                     } else if (which == 1) {
                         Intent intent = new Intent(this, StoreAdminsActivity.class);
                         addIdentityExtras(intent);
-                        startActivity(intent);
+                        ScreenTransitions.open(StoreAdminDashboardActivity.this, intent);
                     } else if (which == 2) {
                         if (containerManagerBranchSection != null) {
                             containerManagerBranchSection.setVisibility(View.VISIBLE);
@@ -1225,25 +1357,25 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
         layout.setPadding(36, 24, 36, 24);
 
         TextView tvH = new TextView(this);
-        tvH.setText(bName + " (📍 " + bLoc + ")");
-        tvH.setTextColor(0xFF0F172A);
+        tvH.setText(bName + " (" + bLoc + ")");
+        tvH.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
         tvH.setTextSize(15f);
-        tvH.setTypeface(null, Typeface.BOLD);
+        tvH.setTypeface(tvH.getTypeface(), Typeface.BOLD);
         layout.addView(tvH);
 
         TextView tvMetrics = new TextView(this);
         tvMetrics.setText(String.format(Locale.US, "Today: ₱%.2f  |  Total Sales: ₱%.2f", bToday, bTotal));
-        tvMetrics.setTextColor(0xFF2563EB);
+        tvMetrics.setTextColor(ContextCompat.getColor(this, R.color.primary));
         tvMetrics.setTextSize(12f);
         tvMetrics.setPadding(0, 4, 0, 10);
         layout.addView(tvMetrics);
 
         // Branch Line Chart
         TextView tvChartLbl = new TextView(this);
-        tvChartLbl.setText("📈 Branch Sales Progress Line Chart (tap for top products):");
-        tvChartLbl.setTextColor(0xFF334155);
+        tvChartLbl.setText("Branch Sales Progress Line Chart (tap for top products):");
+        tvChartLbl.setTextColor(ContextCompat.getColor(this, R.color.slate_700));
         tvChartLbl.setTextSize(12f);
-        tvChartLbl.setTypeface(null, Typeface.BOLD);
+        tvChartLbl.setTypeface(tvChartLbl.getTypeface(), Typeface.BOLD);
         layout.addView(tvChartLbl);
 
         SimpleLineChartView chart = new SimpleLineChartView(this);
@@ -1270,10 +1402,10 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
         layout.addView(chart);
 
         Button btnTop = new Button(this);
-        btnTop.setText("🏆 View Top Purchased Products & Profit");
+        btnTop.setText("View Top Purchased Products & Profit");
         btnTop.setTextSize(11f);
-        btnTop.setTextColor(0xFF059669);
-        btnTop.setBackgroundColor(0xFFECFDF5);
+        btnTop.setTextColor(ContextCompat.getColor(this, R.color.success_strong));
+        btnTop.setBackgroundColor(ContextCompat.getColor(this, R.color.success_bg));
         btnTop.setOnClickListener(v -> showManagerTopProductsDialog(bName, topProducts));
         LinearLayout.LayoutParams btnTLp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -1283,10 +1415,10 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
 
         // Branch Users & Roles
         TextView tvUsersH = new TextView(this);
-        tvUsersH.setText("👥 Branch Staff & Roles (tap user for details):");
-        tvUsersH.setTextColor(0xFF334155);
+        tvUsersH.setText("Branch Staff & Roles (tap user for details):");
+        tvUsersH.setTextColor(ContextCompat.getColor(this, R.color.slate_700));
         tvUsersH.setTextSize(12f);
-        tvUsersH.setTypeface(null, Typeface.BOLD);
+        tvUsersH.setTypeface(tvUsersH.getTypeface(), Typeface.BOLD);
         layout.addView(tvUsersH);
 
         if (branchUsers != null && branchUsers.length() > 0) {
@@ -1300,7 +1432,7 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
 
                 LinearLayout uCard = new LinearLayout(this);
                 uCard.setOrientation(LinearLayout.VERTICAL);
-                uCard.setBackgroundColor(0xFFF8FAFC);
+                uCard.setBackgroundColor(ContextCompat.getColor(this, R.color.app_background));
                 uCard.setPadding(16, 10, 16, 10);
                 LinearLayout.LayoutParams uLp = new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -1309,13 +1441,13 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
 
                 TextView tvUN = new TextView(this);
                 tvUN.setText(fn + " (@" + un + ")");
-                tvUN.setTextColor(0xFF0F172A);
+                tvUN.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
                 tvUN.setTextSize(12f);
-                tvUN.setTypeface(null, Typeface.BOLD);
+                tvUN.setTypeface(tvUN.getTypeface(), Typeface.BOLD);
 
                 TextView tvUR = new TextView(this);
                 tvUR.setText("Role: " + rl);
-                tvUR.setTextColor(0xFF2563EB);
+                tvUR.setTextColor(ContextCompat.getColor(this, R.color.primary));
                 tvUR.setTextSize(11f);
 
                 uCard.addView(tvUN);
@@ -1450,7 +1582,7 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
     private void openLowStockSuggestions() {
         Intent intent = new Intent(this, LowStockActivity.class);
         addIdentityExtras(intent);
-        startActivity(intent);
+        ScreenTransitions.open(StoreAdminDashboardActivity.this, intent);
     }
 
     private void addIdentityExtras(Intent intent) {
@@ -1467,7 +1599,7 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
         Intent intent = new Intent(this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
+        ScreenTransitions.open(StoreAdminDashboardActivity.this, intent);
+        ScreenTransitions.finish(StoreAdminDashboardActivity.this);
     }
 }

@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="6dp"
-    android:layout_marginVertical="5dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="1dp"
-    app:cardBackgroundColor="@color/card_background">
+    android:layout_marginHorizontal="@dimen/space_8"
+    android:layout_marginVertical="@dimen/space_4"
+    style="@style/Widget.StockEase.Card">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="@dimen/space_16">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -26,25 +24,22 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Product Name"
-                android:textColor="@color/text_primary"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                android:text="@string/product_name_fallback"
+                android:textAppearance="@style/TextAppearance.StockEase.Section" />
 
             <TextView
                 android:id="@+id/tvProductPrice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="₱0.00"
-                android:textColor="@color/primary"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:text="@string/product_price_fallback"
+                android:textAppearance="@style/TextAppearance.StockEase.Title"
+                android:textColor="@color/primary" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="@dimen/space_8"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -53,28 +48,25 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Category: Beverages"
-                android:textColor="@color/text_secondary"
-                android:textSize="13sp" />
+                android:text="@string/product_name_fallback"
+                android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
             <TextView
                 android:id="@+id/tvProductQty"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_pill_header"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="3dp"
-                android:text="Stock: 0"
-                android:textColor="@color/text_primary"
-                android:textSize="12sp"
-                android:textStyle="bold" />
+                android:paddingHorizontal="@dimen/space_12"
+                android:paddingVertical="@dimen/space_4"
+                android:text="@string/product_stock_fallback"
+                android:textAppearance="@style/TextAppearance.StockEase.Label"
+                android:textColor="@color/text_primary" />
         </LinearLayout>
 
-        <!-- Profit / Cost metrics row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
+            android:layout_marginTop="@dimen/space_8"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -83,28 +75,24 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Cost: ₱0.00"
-                android:textColor="@color/text_muted"
-                android:textSize="12sp" />
+                android:text="@string/product_price_fallback"
+                android:textAppearance="@style/TextAppearance.StockEase.Caption" />
 
             <TextView
                 android:id="@+id/tvProductProfit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Profit: +₱0.00"
-                android:textColor="#16A34A"
-                android:textSize="12sp"
-                android:textStyle="bold" />
+                android:text="@string/product_price_fallback"
+                android:textAppearance="@style/TextAppearance.StockEase.Label"
+                android:textColor="@color/profit" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/tvProductBarcode"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="Barcode: PRD-1-12345"
-            android:textColor="@color/text_muted"
-            android:textSize="11sp" />
-
+            android:layout_marginTop="@dimen/space_8"
+            android:text="@string/product_name_fallback"
+            android:textAppearance="@style/TextAppearance.StockEase.Caption" />
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

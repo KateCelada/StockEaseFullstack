@@ -234,7 +234,7 @@ public class LowStockActivity extends AppCompatActivity {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
         Intent intent = new Intent(this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
+        ScreenTransitions.open(LowStockActivity.this, intent);
+        ScreenTransitions.finish(LowStockActivity.this);
     }
 }

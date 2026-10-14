@@ -2,7 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#EFEFF6">
+    android:background="@color/app_background">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,11 +21,11 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Settings"
-                android:textColor="#1B1C30"
-                android:textSize="22sp"
-                android:textStyle="bold" />
+                android:textColor="@color/text_primary"
 
-            <Button
+  android:textAppearance="@style/TextAppearance.StockEase.Title" />
+
+            <com.google.android.material.button.MaterialButton style="@style/Widget.StockEase.Button.Secondary"
                 android:id="@+id/btnSettingsBack"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -38,15 +38,15 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="Account"
-            android:textColor="#6E7191"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:textColor="@color/text_secondary"
+
+            android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:background="#FFFFFF"
+            android:background="@color/card_background"
             android:orientation="vertical"
             android:padding="16dp">
 
@@ -54,81 +54,81 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Full Name"
-                android:textColor="#6E7191"
-                android:textSize="12sp" />
+                android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
             <TextView
                 android:id="@+id/tvSettingsName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#1B1C30"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textColor="@color/text_primary"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Section" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:text="Username"
-                android:textColor="#6E7191"
-                android:textSize="12sp" />
+                android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
             <TextView
                 android:id="@+id/tvSettingsUsername"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#1B1C30"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textColor="@color/text_primary"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Section" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:text="Email"
-                android:textColor="#6E7191"
-                android:textSize="12sp" />
+                android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
             <TextView
                 android:id="@+id/tvSettingsEmail"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#1B1C30"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textColor="@color/text_primary"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Section" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:text="Role"
-                android:textColor="#6E7191"
-                android:textSize="12sp" />
+                android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
             <TextView
                 android:id="@+id/tvSettingsRole"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#1B1C30"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textColor="@color/text_primary"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Section" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:text="Account Status"
-                android:textColor="#6E7191"
-                android:textSize="12sp" />
+                android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
             <TextView
                 android:id="@+id/tvSettingsStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Active"
-                android:textColor="#2E7D32"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textColor="@color/success_text"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Section" />
         </LinearLayout>
 
         <!-- Security Section -->
@@ -137,15 +137,15 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="Security"
-            android:textColor="#6E7191"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:textColor="@color/text_secondary"
+
+            android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:background="#FFFFFF"
+            android:background="@color/card_background"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:padding="16dp">
@@ -160,19 +160,19 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Account Password"
-                    android:textColor="#6E7191"
-                    android:textSize="12sp" />
+                    android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="••••••••"
-                    android:textColor="#1B1C30"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textColor="@color/text_primary"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Section" />
             </LinearLayout>
 
-            <Button
+            <com.google.android.material.button.MaterialButton style="@style/Widget.StockEase.Button.Secondary"
                 android:id="@+id/btnSettingsChangePassword"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -185,15 +185,15 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="Subscription"
-            android:textColor="#6E7191"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:textColor="@color/text_secondary"
+
+            android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:background="#FFFFFF"
+            android:background="@color/card_background"
             android:orientation="vertical"
             android:padding="16dp">
 
@@ -213,20 +213,20 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Current Plan"
-                        android:textColor="#6E7191"
-                        android:textSize="12sp" />
+                        android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                     <TextView
                         android:id="@+id/tvSettingsPlan"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="StockEase Subscription"
-                        android:textColor="#1B1C30"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
+                        android:textColor="@color/text_primary"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Section" />
                 </LinearLayout>
 
-                <Button
+                <com.google.android.material.button.MaterialButton style="@style/Widget.StockEase.Button.Secondary"
                     android:id="@+id/btnSettingsManageSubscription"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -240,15 +240,15 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="System"
-            android:textColor="#6E7191"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:textColor="@color/text_secondary"
+
+            android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:background="#FFFFFF"
+            android:background="@color/card_background"
             android:orientation="vertical"
             android:padding="16dp">
 
@@ -256,23 +256,23 @@
                 android:id="@+id/tvApplicationName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#1B1C30"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textColor="@color/text_primary"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Section" />
 
             <TextView
                 android:id="@+id/tvApplicationVersion"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:textColor="#6E7191"
-                android:textSize="14sp" />
+                android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginVertical="12dp"
-                android:background="#EFEFF6" />
+                android:background="@color/app_background" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -289,17 +289,17 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Total Stores"
-                        android:textColor="#6E7191"
-                        android:textSize="12sp" />
+                        android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                     <TextView
                         android:id="@+id/tvSettingsTotalStores"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="—"
-                        android:textColor="#1B1C30"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:textColor="@color/text_primary"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Title" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -312,17 +312,17 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Total Users"
-                        android:textColor="#6E7191"
-                        android:textSize="12sp" />
+                        android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                     <TextView
                         android:id="@+id/tvSettingsTotalUsers"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="—"
-                        android:textColor="#1B1C30"
-                        android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:textColor="@color/text_primary"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Title" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -331,16 +331,16 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:text="Permissions Scope"
-                android:textColor="#6E7191"
-                android:textSize="12sp" />
+                android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
             <TextView
                 android:id="@+id/tvSettingsScope"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Full Platform Administration (All Stores)"
-                android:textColor="#1B1C30"
-                android:textSize="14sp" />
+                android:textColor="@color/text_primary"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

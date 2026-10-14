@@ -27,22 +27,59 @@
                 android:layout_height="32dp"
                 android:background="@drawable/bg_btn_primary"
                 android:text="S"
-                android:textColor="#FFFFFF"
-                android:textSize="17sp"
-                android:textStyle="bold"
+                android:textColor="@color/white"
                 android:gravity="center"
-                android:layout_marginEnd="10dp" />
+                android:layout_marginEnd="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Section" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="StockEase"
-                android:textColor="#FFFFFF"
-                android:textSize="19sp"
-                android:textStyle="bold" />
+                android:textColor="@color/white"
+android:textAppearance="@style/TextAppearance.StockEase.Title" />
         </LinearLayout>
 
         <!-- Sidebar Navigation Items -->
+
+        <!-- SECTION HEADER: OVERVIEW -->
+        <LinearLayout
+            android:id="@+id/navHeaderOverview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="OVERVIEW"
+                android:letterSpacing="0.08"
+                android:textColor="@color/sidebar_text"
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+            <TextView
+                android:id="@+id/navArrowOverview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/sidebar_text"
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navSectionOverviewItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="4dp">
+
         <LinearLayout
             android:id="@+id/navDashboard"
             android:layout_width="match_parent"
@@ -50,24 +87,64 @@
             android:background="@drawable/bg_btn_primary"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingHorizontal="14dp"
-            android:paddingVertical="10dp"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
             android:layout_marginBottom="4dp">
 
             <ImageView
                 android:layout_width="18dp"
                 android:layout_height="18dp"
                 android:src="@drawable/ic_nav_dashboard_white"
-                android:layout_marginEnd="12dp" />
+                android:layout_marginEnd="12dp"  android:contentDescription="@string/cd_nav_icon" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Dashboard"
-                android:textColor="#FFFFFF"
-                android:textSize="13sp"
-                android:textStyle="bold" />
+                android:textColor="@color/white"
+                android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
         </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- SECTION HEADER: MANAGEMENT -->
+        <LinearLayout
+            android:id="@+id/navHeaderManagement"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="MANAGEMENT"
+                android:letterSpacing="0.08"
+                android:textColor="@color/sidebar_text"
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+            <TextView
+                android:id="@+id/navArrowManagement"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/sidebar_text"
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navSectionManagementItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="4dp">
 
         <LinearLayout
             android:id="@+id/navProducts"
@@ -75,22 +152,23 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingHorizontal="14dp"
-            android:paddingVertical="10dp"
-            android:layout_marginBottom="4dp">
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
+            android:layout_marginBottom="4dp"
+            android:background="?attr/selectableItemBackground">
 
             <ImageView
                 android:layout_width="18dp"
                 android:layout_height="18dp"
                 android:src="@drawable/ic_nav_products"
-                android:layout_marginEnd="12dp" />
+                android:layout_marginEnd="12dp"  android:contentDescription="@string/cd_nav_icon" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Inventory &amp; Products"
-                android:textColor="#94A3B8"
-                android:textSize="13sp" />
+                android:textColor="@color/sidebar_text"
+android:textAppearance="@style/TextAppearance.StockEase.Body" />
         </LinearLayout>
 
         <LinearLayout
@@ -99,22 +177,23 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingHorizontal="14dp"
-            android:paddingVertical="10dp"
-            android:layout_marginBottom="4dp">
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
+            android:layout_marginBottom="4dp"
+            android:background="?attr/selectableItemBackground">
 
             <ImageView
                 android:layout_width="18dp"
                 android:layout_height="18dp"
                 android:src="@drawable/ic_nav_dashboard"
-                android:layout_marginEnd="12dp" />
+                android:layout_marginEnd="12dp"  android:contentDescription="@string/cd_nav_icon" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Branches"
-                android:textColor="#94A3B8"
-                android:textSize="13sp" />
+                android:textColor="@color/sidebar_text"
+android:textAppearance="@style/TextAppearance.StockEase.Body" />
         </LinearLayout>
 
         <LinearLayout
@@ -123,22 +202,23 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingHorizontal="14dp"
-            android:paddingVertical="10dp"
-            android:layout_marginBottom="4dp">
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
+            android:layout_marginBottom="4dp"
+            android:background="?attr/selectableItemBackground">
 
             <ImageView
                 android:layout_width="18dp"
                 android:layout_height="18dp"
                 android:src="@drawable/ic_nav_users"
-                android:layout_marginEnd="12dp" />
+                android:layout_marginEnd="12dp"  android:contentDescription="@string/cd_nav_icon" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Staff"
-                android:textColor="#94A3B8"
-                android:textSize="13sp" />
+                android:textColor="@color/sidebar_text"
+android:textAppearance="@style/TextAppearance.StockEase.Body" />
         </LinearLayout>
 
         <LinearLayout
@@ -147,46 +227,23 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingHorizontal="14dp"
-            android:paddingVertical="10dp"
-            android:layout_marginBottom="4dp">
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
+            android:layout_marginBottom="4dp"
+            android:background="?attr/selectableItemBackground">
 
             <ImageView
                 android:layout_width="18dp"
                 android:layout_height="18dp"
                 android:src="@drawable/ic_nav_sales"
-                android:layout_marginEnd="12dp" />
+                android:layout_marginEnd="12dp"  android:contentDescription="@string/cd_nav_icon" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Sales"
-                android:textColor="#94A3B8"
-                android:textSize="13sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/navReports"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingHorizontal="14dp"
-            android:paddingVertical="10dp"
-            android:layout_marginBottom="4dp">
-
-            <ImageView
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:src="@drawable/ic_nav_reports"
-                android:layout_marginEnd="12dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Reports"
-                android:textColor="#94A3B8"
-                android:textSize="13sp" />
+                android:textColor="@color/sidebar_text"
+android:textAppearance="@style/TextAppearance.StockEase.Body" />
         </LinearLayout>
 
         <LinearLayout
@@ -195,22 +252,89 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingHorizontal="14dp"
-            android:paddingVertical="10dp"
-            android:layout_marginBottom="4dp">
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
+            android:layout_marginBottom="4dp"
+            android:background="?attr/selectableItemBackground">
 
             <ImageView
                 android:layout_width="18dp"
                 android:layout_height="18dp"
                 android:src="@drawable/ic_nav_products"
-                android:layout_marginEnd="12dp" />
+                android:layout_marginEnd="12dp"  android:contentDescription="@string/cd_nav_icon" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Transfers"
-                android:textColor="#94A3B8"
-                android:textSize="13sp" />
+                android:textColor="@color/sidebar_text"
+android:textAppearance="@style/TextAppearance.StockEase.Body" />
+        </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- SECTION HEADER: ANALYTICS -->
+        <LinearLayout
+            android:id="@+id/navHeaderAnalytics"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="ANALYTICS"
+                android:letterSpacing="0.08"
+                android:textColor="@color/sidebar_text"
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+            <TextView
+                android:id="@+id/navArrowAnalytics"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/sidebar_text"
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navSectionAnalyticsItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="4dp">
+
+        <LinearLayout
+            android:id="@+id/navReports"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
+            android:layout_marginBottom="4dp"
+            android:background="?attr/selectableItemBackground">
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/ic_nav_reports"
+                android:layout_marginEnd="12dp"  android:contentDescription="@string/cd_nav_icon" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Reports"
+                android:textColor="@color/sidebar_text"
+android:textAppearance="@style/TextAppearance.StockEase.Body" />
         </LinearLayout>
 
         <LinearLayout
@@ -219,23 +343,65 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingHorizontal="14dp"
-            android:paddingVertical="10dp"
-            android:layout_marginBottom="4dp">
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
+            android:layout_marginBottom="4dp"
+            android:background="?attr/selectableItemBackground">
 
             <ImageView
                 android:layout_width="18dp"
                 android:layout_height="18dp"
                 android:src="@drawable/ic_nav_sales"
-                android:layout_marginEnd="12dp" />
+                android:layout_marginEnd="12dp"  android:contentDescription="@string/cd_nav_icon" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Insights"
-                android:textColor="#94A3B8"
-                android:textSize="13sp" />
+                android:textColor="@color/sidebar_text"
+android:textAppearance="@style/TextAppearance.StockEase.Body" />
         </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- SECTION HEADER: SYSTEM -->
+        <LinearLayout
+            android:id="@+id/navHeaderSystem"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="SYSTEM"
+                android:letterSpacing="0.08"
+                android:textColor="@color/sidebar_text"
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+            <TextView
+                android:id="@+id/navArrowSystem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/sidebar_text"
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navSectionSystemItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="4dp">
 
         <LinearLayout
             android:id="@+id/navSubscription"
@@ -243,22 +409,23 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingHorizontal="14dp"
-            android:paddingVertical="10dp"
-            android:layout_marginBottom="4dp">
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
+            android:layout_marginBottom="4dp"
+            android:background="?attr/selectableItemBackground">
 
             <ImageView
                 android:layout_width="18dp"
                 android:layout_height="18dp"
                 android:src="@drawable/ic_nav_dashboard"
-                android:layout_marginEnd="12dp" />
+                android:layout_marginEnd="12dp"  android:contentDescription="@string/cd_nav_icon" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Subscription"
-                android:textColor="#94A3B8"
-                android:textSize="13sp" />
+                android:textColor="@color/sidebar_text"
+android:textAppearance="@style/TextAppearance.StockEase.Body" />
         </LinearLayout>
 
         <LinearLayout
@@ -267,22 +434,25 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingHorizontal="14dp"
-            android:paddingVertical="10dp"
-            android:layout_marginBottom="4dp">
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
+            android:layout_marginBottom="4dp"
+            android:background="?attr/selectableItemBackground">
 
             <ImageView
                 android:layout_width="18dp"
                 android:layout_height="18dp"
                 android:src="@drawable/ic_nav_settings"
-                android:layout_marginEnd="12dp" />
+                android:layout_marginEnd="12dp"  android:contentDescription="@string/cd_nav_icon" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Settings"
-                android:textColor="#94A3B8"
-                android:textSize="13sp" />
+                android:textColor="@color/sidebar_text"
+android:textAppearance="@style/TextAppearance.StockEase.Body" />
+        </LinearLayout>
+
         </LinearLayout>
 
         <!-- Bottom User Profile & Logout -->
@@ -305,10 +475,9 @@
                 android:background="@drawable/bg_avatar_circle"
                 android:gravity="center"
                 android:text="MS"
-                android:textColor="#FFFFFF"
-                android:textSize="13sp"
+                android:textColor="@color/white"
                 android:textStyle="bold"
-                android:layout_marginEnd="10dp" />
+                android:layout_marginEnd="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -321,19 +490,25 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Mark Santos"
-                    android:textColor="#FFFFFF"
-                    android:textSize="13sp"
+                    android:textColor="@color/white"
                     android:textStyle="bold"
-                    android:singleLine="true" />
+                    android:singleLine="true"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Store Admin"
-                    android:textColor="#94A3B8"
-                    android:textSize="11sp" />
+                    android:textColor="@color/sidebar_text"
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
             </LinearLayout>
         </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="@color/sidebar_divider" />
 
         <LinearLayout
             android:id="@+id/navLogout"
@@ -343,20 +518,21 @@
             android:gravity="center_vertical"
             android:paddingVertical="8dp"
             android:clickable="true"
-            android:focusable="true">
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground">
 
             <ImageView
                 android:layout_width="18dp"
                 android:layout_height="18dp"
                 android:src="@drawable/ic_nav_logout"
-                android:layout_marginEnd="10dp" />
+                android:layout_marginEnd="12dp"  android:contentDescription="@string/cd_nav_icon" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Log out"
-                android:textColor="#94A3B8"
-                android:textSize="13sp" />
+                android:textColor="@color/sidebar_text"
+android:textAppearance="@style/TextAppearance.StockEase.Body" />
         </LinearLayout>
 
     </LinearLayout>
@@ -395,8 +571,7 @@
                         android:layout_height="wrap_content"
                         android:text="Good evening, Mark"
                         android:textColor="@color/text_primary"
-                        android:textSize="22sp"
-                        android:textStyle="bold" />
+android:textAppearance="@style/TextAppearance.StockEase.Title" />
 
                     <TextView
                         android:id="@+id/tvHeaderSubtitle"
@@ -404,8 +579,7 @@
                         android:layout_height="wrap_content"
                         android:text="Here's how your store is performing."
                         android:textColor="@color/text_secondary"
-                        android:textSize="13sp"
-                        android:layout_marginTop="2dp" />
+                        android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
                 </LinearLayout>
 
                 <!-- Store Selector Pill -->
@@ -413,10 +587,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/bg_pill_header"
-                    android:paddingHorizontal="14dp"
+                    android:paddingHorizontal="16dp"
                     android:paddingVertical="8dp"
                     android:gravity="center_vertical"
-                    android:layout_marginEnd="10dp">
+                    android:layout_marginEnd="12dp">
 
                     <TextView
                         android:id="@+id/tvHeaderStorePill"
@@ -424,16 +598,15 @@
                         android:layout_height="wrap_content"
                         android:text="Store"
                         android:textColor="@color/text_primary"
-                        android:textSize="12sp"
                         android:textStyle="bold"
-                        android:layout_marginEnd="6dp" />
+                        android:layout_marginEnd="8dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="▼"
+                        android:text=""
                         android:textColor="@color/text_muted"
-                        android:textSize="8sp" />
+android:textAppearance="@style/TextAppearance.StockEase.Caption" />
                 </LinearLayout>
 
                 <!-- Date Picker Box -->
@@ -441,7 +614,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/bg_pill_header"
-                    android:paddingHorizontal="14dp"
+                    android:paddingHorizontal="16dp"
                     android:paddingVertical="8dp"
                     android:gravity="center_vertical">
 
@@ -456,7 +629,7 @@
                             android:layout_height="wrap_content"
                             android:text="Today"
                             android:textColor="@color/text_secondary"
-                            android:textSize="11sp" />
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                         <TextView
                             android:id="@+id/tvHeaderDate"
@@ -464,16 +637,15 @@
                             android:layout_height="wrap_content"
                             android:text="Sep 26, 2026"
                             android:textColor="@color/text_primary"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
+                            android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
                     </LinearLayout>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="▼"
+                        android:text=""
                         android:textColor="@color/text_muted"
-                        android:textSize="8sp" />
+android:textAppearance="@style/TextAppearance.StockEase.Caption" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -506,26 +678,23 @@
                             android:layout_height="wrap_content"
                             android:text="Your Store Branches (Manager Portfolio)"
                             android:textColor="@color/text_primary"
-                            android:textSize="15sp"
-                            android:textStyle="bold" />
+android:textAppearance="@style/TextAppearance.StockEase.Section" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Manage all owned branches, switch views, or add new stores."
                             android:textColor="@color/text_secondary"
-                            android:textSize="11sp" />
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
                     </LinearLayout>
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton style="@style/Widget.StockEase.Button.Primary"
                         android:id="@+id/btnManagerAddBranch"
                         android:layout_width="wrap_content"
                         android:layout_height="36dp"
                         android:text="+ Add Branch"
-                        android:background="@drawable/bg_btn_primary"
-                        android:textColor="#FFFFFF"
-                        android:textSize="12sp"
-                        android:paddingHorizontal="14dp" />
+                        android:textColor="@color/white"
+                        android:paddingHorizontal="16dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -566,12 +735,11 @@
                             android:layout_height="wrap_content"
                             android:background="@drawable/bg_badge_blue"
                             android:paddingHorizontal="8dp"
-                            android:paddingVertical="3dp"
+                            android:paddingVertical="4dp"
                             android:text="IN TRANSIT"
-                            android:textColor="#1E40AF"
-                            android:textSize="10sp"
+                            android:textColor="@color/primary_ink"
                             android:textStyle="bold"
-                            android:layout_marginEnd="8dp" />
+                            android:layout_marginEnd="8dp"  android:textAppearance="@style/TextAppearance.StockEase.Caption" />
 
                         <TextView
                             android:id="@+id/tvInboundTitle"
@@ -579,8 +747,7 @@
                             android:layout_height="wrap_content"
                             android:text="Incoming Stock Transfer"
                             android:textColor="@color/text_primary"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
+                            android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
                     </LinearLayout>
 
                     <TextView
@@ -589,19 +756,17 @@
                         android:layout_height="wrap_content"
                         android:text="Stock items are on their way to your store."
                         android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
                 </LinearLayout>
 
-                <Button
+                <com.google.android.material.button.MaterialButton style="@style/Widget.StockEase.Button.Primary"
                     android:id="@+id/btnViewInboundTransfer"
                     android:layout_width="wrap_content"
                     android:layout_height="36dp"
                     android:text="Confirm Receipt"
-                    android:background="@drawable/bg_btn_primary"
-                    android:textColor="#FFFFFF"
-                    android:textSize="12sp"
-                    android:paddingHorizontal="14dp"
-                    android:layout_marginStart="12dp" />
+                    android:textColor="@color/white"
+                    android:paddingHorizontal="16dp"
+                    android:layout_marginStart="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
             </LinearLayout>
 
             <!-- 4 Stat Cards in a Row -->
@@ -629,26 +794,23 @@
                         android:layout_height="wrap_content"
                         android:text="Today's Sales"
                         android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                     <TextView
                         android:id="@+id/tvTodaySales"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="₱0.00"
-                        android:textSize="22sp"
-                        android:textStyle="bold"
                         android:textColor="@color/text_primary"
-                        android:layout_marginTop="4dp" />
+                        android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Title" />
 
                     <TextView
                         android:id="@+id/tvTodaySalesTrend"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="+12% vs yesterday"
-                        android:textColor="@color/success"
-                        android:textSize="11sp"
-                        android:layout_marginTop="4dp" />
+                        android:layout_marginTop="4dp"
+                        android:visibility="gone"
+                        android:textAppearance="@style/TextAppearance.StockEase.Label" />
                 </LinearLayout>
 
                 <!-- Card 2: Transactions -->
@@ -669,26 +831,23 @@
                         android:layout_height="wrap_content"
                         android:text="Transactions"
                         android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                     <TextView
                         android:id="@+id/tvTransactions"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
-                        android:textSize="22sp"
-                        android:textStyle="bold"
                         android:textColor="@color/text_primary"
-                        android:layout_marginTop="4dp" />
+                        android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Title" />
 
                     <TextView
                         android:id="@+id/tvTxTrend"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="+4% vs yesterday"
-                        android:textColor="@color/success"
-                        android:textSize="11sp"
-                        android:layout_marginTop="4dp" />
+                        android:layout_marginTop="4dp"
+                        android:visibility="gone"
+                        android:textAppearance="@style/TextAppearance.StockEase.Label" />
                 </LinearLayout>
 
                 <!-- Card 3: Total Products / Active Staff -->
@@ -709,25 +868,22 @@
                         android:layout_height="wrap_content"
                         android:text="Total Products"
                         android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                     <TextView
                         android:id="@+id/tvProducts"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
-                        android:textSize="22sp"
-                        android:textStyle="bold"
                         android:textColor="@color/text_primary"
-                        android:layout_marginTop="4dp" />
+                        android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Title" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Catalog items"
                         android:textColor="@color/text_muted"
-                        android:textSize="11sp"
-                        android:layout_marginTop="4dp" />
+                        android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
                 </LinearLayout>
 
                 <!-- Card 4: Low Stock Alerts -->
@@ -747,31 +903,29 @@
                         android:layout_height="wrap_content"
                         android:text="Low Stock Items"
                         android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                     <TextView
                         android:id="@+id/tvLowStockAlerts"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
-                        android:textSize="22sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/danger"
-                        android:layout_marginTop="4dp" />
+                        android:textColor="@color/text_primary"
+                        android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Title" />
 
                     <TextView
                         android:id="@+id/tvLowStockSubtitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Needs attention"
-                        android:textColor="@color/danger"
-                        android:textSize="11sp"
-                        android:layout_marginTop="4dp" />
+                        android:text="Stock levels"
+                        android:textColor="@color/text_muted"
+                        android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
                 </LinearLayout>
             </LinearLayout>
 
             <!-- Store Earnings Progress Line Chart Card -->
             <LinearLayout
+                android:id="@+id/cardEarningsChart"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -797,8 +951,7 @@
                             android:layout_height="wrap_content"
                             android:text="Store Earnings Progress"
                             android:textColor="@color/text_primary"
-                            android:textSize="15sp"
-                            android:textStyle="bold" />
+android:textAppearance="@style/TextAppearance.StockEase.Section" />
 
                         <TextView
                             android:id="@+id/tvChartEarningsSubtitle"
@@ -806,7 +959,7 @@
                             android:layout_height="wrap_content"
                             android:text="7-Day sales and revenue trajectory"
                             android:textColor="@color/text_secondary"
-                            android:textSize="12sp" />
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
                     </LinearLayout>
 
                     <TextView
@@ -815,8 +968,7 @@
                         android:layout_height="wrap_content"
                         android:text="₱0.00"
                         android:textColor="@color/primary"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
+android:textAppearance="@style/TextAppearance.StockEase.Section" />
                 </LinearLayout>
 
                 <!-- Period Selector Buttons -->
@@ -833,14 +985,13 @@
                         android:layout_height="wrap_content"
                         android:background="@drawable/bg_btn_primary"
                         android:text="Today"
-                        android:textColor="#FFFFFF"
-                        android:textSize="11sp"
+                        android:textColor="@color/white"
                         android:textStyle="bold"
                         android:paddingHorizontal="12dp"
-                        android:paddingVertical="5dp"
+                        android:paddingVertical="4dp"
                         android:clickable="true"
                         android:focusable="true"
-                        android:layout_marginEnd="6dp" />
+                        android:layout_marginEnd="8dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                     <TextView
                         android:id="@+id/btnPeriodThisWeek"
@@ -849,12 +1000,11 @@
                         android:background="@drawable/bg_pill_header"
                         android:text="This Week"
                         android:textColor="@color/text_primary"
-                        android:textSize="11sp"
                         android:paddingHorizontal="12dp"
-                        android:paddingVertical="5dp"
+                        android:paddingVertical="4dp"
                         android:clickable="true"
                         android:focusable="true"
-                        android:layout_marginEnd="6dp" />
+                        android:layout_marginEnd="8dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                     <TextView
                         android:id="@+id/btnPeriodThisMonth"
@@ -863,12 +1013,11 @@
                         android:background="@drawable/bg_pill_header"
                         android:text="This Month"
                         android:textColor="@color/text_primary"
-                        android:textSize="11sp"
                         android:paddingHorizontal="12dp"
-                        android:paddingVertical="5dp"
+                        android:paddingVertical="4dp"
                         android:clickable="true"
                         android:focusable="true"
-                        android:layout_marginEnd="6dp" />
+                        android:layout_marginEnd="8dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                     <TextView
                         android:id="@+id/btnPeriodCustom"
@@ -877,18 +1026,17 @@
                         android:background="@drawable/bg_pill_header"
                         android:text="Custom"
                         android:textColor="@color/text_primary"
-                        android:textSize="11sp"
                         android:paddingHorizontal="12dp"
-                        android:paddingVertical="5dp"
+                        android:paddingVertical="4dp"
                         android:clickable="true"
-                        android:focusable="true" />
+                        android:focusable="true"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
                 </LinearLayout>
 
                 <com.example.stockease.SimpleLineChartView
                     android:id="@+id/chartStoreEarnings"
                     android:layout_width="match_parent"
                     android:layout_height="140dp"
-                    android:background="#F8FAFC" />
+                    android:background="@color/app_background" />
             </LinearLayout>
 
             <!-- Quick Actions Grid -->
@@ -897,9 +1045,7 @@
                 android:layout_height="wrap_content"
                 android:text="Quick Actions"
                 android:textColor="@color/text_primary"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="12dp" />
+                android:layout_marginBottom="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Section" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -924,23 +1070,21 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_nav_products"
-                        android:layout_marginBottom="8dp" />
+                        android:layout_marginBottom="8dp"  android:contentDescription="@string/cd_nav_icon" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Products &amp; Inventory"
                         android:textColor="@color/text_primary"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Catalog &amp; Stock levels"
                         android:textColor="@color/text_muted"
-                        android:textSize="11sp"
-                        android:layout_marginTop="2dp" />
+                        android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
                 </LinearLayout>
 
                 <!-- Staff -->
@@ -960,23 +1104,21 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_nav_users"
-                        android:layout_marginBottom="8dp" />
+                        android:layout_marginBottom="8dp"  android:contentDescription="@string/cd_nav_icon" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Staff"
                         android:textColor="@color/text_primary"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Manage store staff"
                         android:textColor="@color/text_muted"
-                        android:textSize="11sp"
-                        android:layout_marginTop="2dp" />
+                        android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
                 </LinearLayout>
 
                 <!-- Reports -->
@@ -995,23 +1137,21 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_nav_reports"
-                        android:layout_marginBottom="8dp" />
+                        android:layout_marginBottom="8dp"  android:contentDescription="@string/cd_nav_icon" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Reports"
                         android:textColor="@color/text_primary"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="View store reports"
                         android:textColor="@color/text_muted"
-                        android:textSize="11sp"
-                        android:layout_marginTop="2dp" />
+                        android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -1040,23 +1180,21 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_nav_products"
-                        android:layout_marginBottom="8dp" />
+                        android:layout_marginBottom="8dp"  android:contentDescription="@string/cd_nav_icon" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Stock Transfers"
                         android:textColor="@color/text_primary"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Inter-store movement"
                         android:textColor="@color/text_muted"
-                        android:textSize="11sp"
-                        android:layout_marginTop="2dp" />
+                        android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
                 </LinearLayout>
 
                 <!-- Insights -->
@@ -1075,23 +1213,21 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_nav_sales"
-                        android:layout_marginBottom="8dp" />
+                        android:layout_marginBottom="8dp"  android:contentDescription="@string/cd_nav_icon" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Store Insights"
                         android:textColor="@color/text_primary"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Velocity and rebalancing"
                         android:textColor="@color/text_muted"
-                        android:textSize="11sp"
-                        android:layout_marginTop="2dp" />
+                        android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -1104,6 +1240,7 @@
 
                 <!-- Recent Transactions Card -->
                 <LinearLayout
+                    android:id="@+id/cardRecentTransactions"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1.6"
@@ -1117,27 +1254,24 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:layout_marginBottom="14dp">
+                        android:layout_marginBottom="16dp">
 
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Recent Transactions"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/text_primary" />
+                            android:textColor="@color/text_primary"  android:textAppearance="@style/TextAppearance.StockEase.Section" />
 
                         <TextView
                             android:id="@+id/tvViewAllTransactions"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="View All"
-                            android:textSize="12sp"
                             android:textColor="@color/primary"
                             android:textStyle="bold"
                             android:clickable="true"
-                            android:focusable="true" />
+                            android:focusable="true"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -1149,6 +1283,7 @@
 
                 <!-- Low Stock Items Panel -->
                 <LinearLayout
+                    android:id="@+id/cardLowStockPanel"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -1161,27 +1296,24 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:layout_marginBottom="14dp">
+                        android:layout_marginBottom="16dp">
 
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="Low Stock Items"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/text_primary" />
+                            android:textColor="@color/text_primary"  android:textAppearance="@style/TextAppearance.StockEase.Section" />
 
                         <TextView
                             android:id="@+id/tvViewAllLowStock"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Restock"
-                            android:textSize="12sp"
                             android:textColor="@color/danger"
                             android:textStyle="bold"
                             android:clickable="true"
-                            android:focusable="true" />
+                            android:focusable="true"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
                     </LinearLayout>
 
                     <LinearLayout

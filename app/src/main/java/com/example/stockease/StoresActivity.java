@@ -35,6 +35,8 @@ public class StoresActivity extends AppCompatActivity {
     public static final String TARGET_REPORTS = "reports";
 
     private RecyclerView rvStores;
+    private View emptyStores;
+    private View loadingStores;
     private Button btnAddStore;
     private TextView tvStoresTitle, tvStoresSubtitle;
     private StoreAdapter adapter;
@@ -71,11 +73,16 @@ public class StoresActivity extends AppCompatActivity {
                 && !TARGET_TRANSACTIONS.equals(selectionTarget)
                 && !TARGET_REPORTS.equals(selectionTarget)) {
             Toast.makeText(this, "Invalid store-selection destination", Toast.LENGTH_LONG).show();
-            finish();
+            ScreenTransitions.finish(StoresActivity.this);
             return;
         }
 
         rvStores = findViewById(R.id.rvStores);
+        emptyStores = findViewById(R.id.emptyStores);
+        loadingStores = findViewById(R.id.loadingStores);
+        StateViews.bindEmpty(emptyStores,
+                getString(R.string.empty_stores_title),
+                getString(R.string.empty_stores_msg), null, null);
         btnAddStore = findViewById(R.id.btnAddStore);
         tvStoresTitle = findViewById(R.id.tvStoresTitle);
         tvStoresSubtitle = findViewById(R.id.tvStoresSubtitle);
@@ -181,6 +188,7 @@ public class StoresActivity extends AppCompatActivity {
         JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.GET, FETCH_STORES_URL, null,
                 response -> {
+                    StateViews.hideLoading(loadingStores);
                     try {
                         if (response.getBoolean("success")) {
                             storeList.clear();
@@ -198,15 +206,30 @@ public class StoresActivity extends AppCompatActivity {
                             if (adapter != null) {
                                 adapter.notifyDataSetChanged();
                             }
+                            updateEmptyState();
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 },
-                error -> ApiSession.handleAuthError(StoresActivity.this, error)
+                error -> {
+                    StateViews.hideLoading(loadingStores);
+                    ApiSession.handleAuthError(StoresActivity.this, error);
+                }
         );
 
         queue.add(request);
+    }
+
+    /** Swaps list ↔ empty state so a fresh account with no stores reads as intentional. */
+    private void updateEmptyState() {
+        boolean empty = storeList == null || storeList.isEmpty();
+        if (emptyStores != null) {
+            StateViews.setEmptyVisible(emptyStores, empty);
+        }
+        if (rvStores != null) {
+            rvStores.setVisibility(empty ? View.INVISIBLE : View.VISIBLE);
+        }
     }
 
     private void handleStoreSelected(StoreAdapter.StoreItem store) {
@@ -230,8 +253,8 @@ public class StoresActivity extends AppCompatActivity {
         intent.putExtra("user_id", userId);
         intent.putExtra("role", role);
         intent.putExtra("full_name", fullName);
-        startActivity(intent);
-        finish();
+        ScreenTransitions.open(StoresActivity.this, intent);
+        ScreenTransitions.finish(StoresActivity.this);
     }
 
     private void showStoreActionsDialog(StoreAdapter.StoreItem store) {
@@ -324,7 +347,7 @@ public class StoresActivity extends AppCompatActivity {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
         Intent intent = new Intent(this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
+        ScreenTransitions.open(StoresActivity.this, intent);
+        ScreenTransitions.finish(StoresActivity.this);
     }
 }

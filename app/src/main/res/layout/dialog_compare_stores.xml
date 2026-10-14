@@ -2,7 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#FFFFFF">
+    android:background="@color/card_background">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,19 +13,19 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="⚖ Store Comparison Tool"
-            android:textColor="#1B1C30"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:text="Store Comparison Tool"
+            android:textColor="@color/text_primary"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Title" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Select two branch stores to compare performance side-by-side"
-            android:textColor="#6E7191"
-            android:textSize="12sp"
-            android:layout_marginTop="2dp"
-            android:layout_marginBottom="16dp" />
+            android:textColor="@color/text_secondary"
+
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="16dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
         <!-- Store Selection Dropdowns -->
         <LinearLayout
@@ -39,22 +39,22 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="vertical"
-                android:layout_marginEnd="6dp">
+                android:layout_marginEnd="8dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Branch Store A"
-                    android:textColor="#7C4DFF"
-                    android:textSize="12sp"
+                    android:textColor="@color/brand_accent"
+
                     android:textStyle="bold"
-                    android:layout_marginBottom="4dp" />
+                    android:layout_marginBottom="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                 <Spinner
                     android:id="@+id/spinnerCompareStoreA"
                     android:layout_width="match_parent"
                     android:layout_height="44dp"
-                    android:background="#F5F6FA"
+                    android:background="@color/app_background"
                     android:paddingHorizontal="8dp" />
             </LinearLayout>
 
@@ -63,22 +63,22 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="vertical"
-                android:layout_marginStart="6dp">
+                android:layout_marginStart="8dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Branch Store B"
-                    android:textColor="#2E7D32"
-                    android:textSize="12sp"
+                    android:textColor="@color/success_text"
+
                     android:textStyle="bold"
-                    android:layout_marginBottom="4dp" />
+                    android:layout_marginBottom="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                 <Spinner
                     android:id="@+id/spinnerCompareStoreB"
                     android:layout_width="match_parent"
                     android:layout_height="44dp"
-                    android:background="#F5F6FA"
+                    android:background="@color/app_background"
                     android:paddingHorizontal="8dp" />
             </LinearLayout>
         </LinearLayout>
@@ -87,9 +87,9 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#1B1C30"
-            android:paddingHorizontal="14dp"
-            android:paddingVertical="10dp"
+            android:background="@color/sidebar_bg"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
             android:orientation="horizontal">
 
             <TextView
@@ -97,9 +97,9 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1.2"
                 android:text="METRIC"
-                android:textColor="#FFFFFF"
-                android:textSize="11sp"
-                android:textStyle="bold" />
+                android:textColor="@color/white"
+
+                android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
             <TextView
                 android:id="@+id/tvCompareColA"
@@ -108,9 +108,9 @@
                 android:layout_weight="1"
                 android:gravity="end"
                 android:text="STORE A"
-                android:textColor="#D1C4E9"
-                android:textSize="11sp"
-                android:textStyle="bold" />
+                android:textColor="@color/brand_accent"
+
+                android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
             <TextView
                 android:id="@+id/tvCompareColB"
@@ -119,18 +119,18 @@
                 android:layout_weight="1"
                 android:gravity="end"
                 android:text="STORE B"
-                android:textColor="#C8E6C9"
-                android:textSize="11sp"
-                android:textStyle="bold" />
+                android:textColor="@color/success"
+
+                android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
         </LinearLayout>
 
         <!-- Metric Row 1: Today's Sales -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="14dp"
+            android:paddingHorizontal="16dp"
             android:paddingVertical="12dp"
-            android:background="#FFFFFF"
+            android:background="@color/card_background"
             android:orientation="horizontal">
 
             <TextView
@@ -138,9 +138,9 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1.2"
                 android:text="Today's Sales"
-                android:textColor="#1B1C30"
-                android:textSize="13sp"
-                android:textStyle="bold" />
+                android:textColor="@color/text_primary"
+
+                android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
             <TextView
                 android:id="@+id/tvCompareSalesA"
@@ -149,9 +149,9 @@
                 android:layout_weight="1"
                 android:gravity="end"
                 android:text="₱0.00"
-                android:textColor="#1B1C30"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:textColor="@color/text_primary"
+
+                android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
             <TextView
                 android:id="@+id/tvCompareSalesB"
@@ -160,19 +160,19 @@
                 android:layout_weight="1"
                 android:gravity="end"
                 android:text="₱0.00"
-                android:textColor="#1B1C30"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:textColor="@color/text_primary"
+
+                android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
         </LinearLayout>
-        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EFEFF6" />
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/app_background" />
 
         <!-- Metric Row 2: Transactions -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="14dp"
+            android:paddingHorizontal="16dp"
             android:paddingVertical="12dp"
-            android:background="#FFFFFF"
+            android:background="@color/card_background"
             android:orientation="horizontal">
 
             <TextView
@@ -180,8 +180,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1.2"
                 android:text="Transactions"
-                android:textColor="#1B1C30"
-                android:textSize="13sp" />
+                android:textColor="@color/text_primary"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
             <TextView
                 android:id="@+id/tvCompareTxA"
@@ -190,8 +190,8 @@
                 android:layout_weight="1"
                 android:gravity="end"
                 android:text="0"
-                android:textColor="#1B1C30"
-                android:textSize="13sp" />
+                android:textColor="@color/text_primary"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
             <TextView
                 android:id="@+id/tvCompareTxB"
@@ -200,18 +200,18 @@
                 android:layout_weight="1"
                 android:gravity="end"
                 android:text="0"
-                android:textColor="#1B1C30"
-                android:textSize="13sp" />
+                android:textColor="@color/text_primary"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
         </LinearLayout>
-        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EFEFF6" />
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/app_background" />
 
         <!-- Metric Row 3: Average Basket Size -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="14dp"
+            android:paddingHorizontal="16dp"
             android:paddingVertical="12dp"
-            android:background="#FFFFFF"
+            android:background="@color/card_background"
             android:orientation="horizontal">
 
             <TextView
@@ -219,8 +219,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1.2"
                 android:text="Avg Basket"
-                android:textColor="#1B1C30"
-                android:textSize="13sp" />
+                android:textColor="@color/text_primary"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
             <TextView
                 android:id="@+id/tvCompareAvgA"
@@ -229,8 +229,8 @@
                 android:layout_weight="1"
                 android:gravity="end"
                 android:text="₱0.00"
-                android:textColor="#1B1C30"
-                android:textSize="13sp" />
+                android:textColor="@color/text_primary"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
             <TextView
                 android:id="@+id/tvCompareAvgB"
@@ -239,18 +239,18 @@
                 android:layout_weight="1"
                 android:gravity="end"
                 android:text="₱0.00"
-                android:textColor="#1B1C30"
-                android:textSize="13sp" />
+                android:textColor="@color/text_primary"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
         </LinearLayout>
-        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EFEFF6" />
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/app_background" />
 
         <!-- Metric Row 4: Assigned Staff -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="14dp"
+            android:paddingHorizontal="16dp"
             android:paddingVertical="12dp"
-            android:background="#FFFFFF"
+            android:background="@color/card_background"
             android:orientation="horizontal">
 
             <TextView
@@ -258,8 +258,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1.2"
                 android:text="Assigned Staff"
-                android:textColor="#1B1C30"
-                android:textSize="13sp" />
+                android:textColor="@color/text_primary"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
             <TextView
                 android:id="@+id/tvCompareStaffA"
@@ -268,8 +268,8 @@
                 android:layout_weight="1"
                 android:gravity="end"
                 android:text="0"
-                android:textColor="#1B1C30"
-                android:textSize="13sp" />
+                android:textColor="@color/text_primary"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
             <TextView
                 android:id="@+id/tvCompareStaffB"
@@ -278,18 +278,18 @@
                 android:layout_weight="1"
                 android:gravity="end"
                 android:text="0"
-                android:textColor="#1B1C30"
-                android:textSize="13sp" />
+                android:textColor="@color/text_primary"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
         </LinearLayout>
-        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EFEFF6" />
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/app_background" />
 
         <!-- Metric Row 5: Location -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="14dp"
+            android:paddingHorizontal="16dp"
             android:paddingVertical="12dp"
-            android:background="#FFFFFF"
+            android:background="@color/card_background"
             android:orientation="horizontal"
             android:layout_marginBottom="20dp">
 
@@ -298,8 +298,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1.2"
                 android:text="Location"
-                android:textColor="#1B1C30"
-                android:textSize="13sp" />
+                android:textColor="@color/text_primary"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
             <TextView
                 android:id="@+id/tvCompareLocA"
@@ -308,8 +308,8 @@
                 android:layout_weight="1"
                 android:gravity="end"
                 android:text="—"
-                android:textColor="#6E7191"
-                android:textSize="11sp" />
+                android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
             <TextView
                 android:id="@+id/tvCompareLocB"
@@ -318,17 +318,16 @@
                 android:layout_weight="1"
                 android:gravity="end"
                 android:text="—"
-                android:textColor="#6E7191"
-                android:textSize="11sp" />
+                android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
         </LinearLayout>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCompareClose"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Close"
-            android:textColor="#FFFFFF"
-            android:backgroundTint="#7C4DFF" />
+            android:textColor="@color/white"  style="@style/Widget.StockEase.Button.Primary" />
 
     </LinearLayout>
 </ScrollView>

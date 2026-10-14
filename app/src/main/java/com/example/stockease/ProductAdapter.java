@@ -1,12 +1,11 @@
 package com.example.stockease;
 
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
@@ -56,7 +55,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         if (holder.tvProfit != null) {
             double profit = product.getGrossProfit();
             holder.tvProfit.setText(String.format(Locale.getDefault(), "Profit: %s₱%.2f", profit >= 0 ? "+" : "-", Math.abs(profit)));
-            holder.tvProfit.setTextColor(profit >= 0 ? Color.parseColor("#16A34A") : Color.parseColor("#DC2626"));
+            int colorRes = profit >= 0 ? R.color.profit : R.color.danger_strong;
+            holder.tvProfit.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), colorRes));
         }
 
         if (holder.tvBarcode != null) {

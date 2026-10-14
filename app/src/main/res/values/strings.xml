@@ -1,3 +1,154 @@
 <resources>
     <string name="app_name">StockEase</string>
+
+    <!-- Login -->
+    <string name="login_brand">StockEase</string>
+    <string name="login_tagline">Inventory that keeps up with the shop floor</string>
+    <string name="login_title">Welcome back</string>
+    <string name="login_subtitle">Sign in to open today’s shift</string>
+    <string name="login_username_hint">Username</string>
+    <string name="login_password_hint">Password</string>
+    <string name="login_action">Log in</string>
+    <string name="login_foot">Ask your store admin for access or a password reset.</string>
+
+    <!-- Dashboard -->
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_pos">POS / Sales</string>
+    <string name="nav_inventory">Inventory</string>
+    <string name="nav_logout">Log out</string>
+    <string name="dashboard_title">Dashboard</string>
+    <string name="dashboard_shift">Southern Branch — Today’s shift</string>
+    <string name="dashboard_profile">Hilbert\nStaff</string>
+    <string name="metric_sales">Total sales</string>
+    <string name="metric_txns">Transactions</string>
+    <string name="metric_items">Items sold</string>
+    <string name="metric_time">Time</string>
+    <string name="sales_summary">Sales summary</string>
+    <string name="sales_today">Today</string>
+    <string name="top_sellers">Top selling items</string>
+    <string name="recent_txns">Recent transactions</string>
+    <string name="col_invoice">Invoice #</string>
+    <string name="col_customer">Customer</string>
+    <string name="col_total">Total</string>
+    <string name="col_time">Time</string>
+    <string name="brand_initial">S</string>
+    <string name="demo_sales">₱5,900</string>
+    <string name="demo_txns">18</string>
+    <string name="demo_items">35</string>
+    <string name="demo_time">10:30 AM</string>
+    <string name="demo_chart">Chart connects here</string>
+    <string name="demo_item_a">Ballpen (Black)</string>
+    <string name="demo_qty_a">17 pcs</string>
+    <string name="demo_item_b">Bond Paper</string>
+    <string name="demo_qty_b">13 pcs</string>
+    <string name="demo_item_c">Stapler</string>
+    <string name="demo_qty_c">8 pcs</string>
+    <string name="demo_inv_a">INV-008</string>
+    <string name="demo_cust_a">Walk-in Customer</string>
+    <string name="demo_total_a">₱1,450</string>
+    <string name="demo_time_a">5:00 PM</string>
+    <string name="demo_inv_b">INV-007</string>
+    <string name="demo_cust_b">Walter White</string>
+    <string name="demo_total_b">₱800</string>
+    <string name="demo_time_b">12:00 PM</string>
+    <string name="demo_inv_c">INV-006</string>
+    <string name="demo_cust_c">Armstrong</string>
+    <string name="demo_total_c">₱2,050</string>
+    <string name="demo_time_c">8:00 AM</string>
+
+    <!-- Product row -->
+    <string name="product_name_fallback">Product name</string>
+    <string name="product_price_fallback">₱0.00</string>
+    <string name="product_stock_fallback">In stock</string>
+
+    <!-- Accessibility -->
+    <string name="cd_brand_mark">StockEase brand mark</string>
+    <string name="cd_nav_icon">Navigation icon</string>
+    <string name="cd_empty_state">Empty tray</string>
+
+    <!-- Shared loading / empty states -->
+    <string name="state_empty_title">Nothing to show yet</string>
+    <string name="state_empty_message">When there\'s activity here, it will show up in this list.</string>
+    <string name="state_action_retry">Try again</string>
+    <string name="state_action_clear">Clear filter</string>
+
+    <!-- Register -->
+    <string name="register_tagline">New accounts are tied to your store</string>
+    <string name="register_title">Create your account</string>
+    <string name="register_subtitle">Your admin assigns you to a store — this adds your login</string>
+    <string name="register_full_name_hint">Full name</string>
+    <string name="register_username_hint">Username</string>
+    <string name="register_email_hint">Email address</string>
+    <string name="register_password_hint">Password</string>
+    <string name="register_action">Create account</string>
+    <string name="register_login_link">Already have an account? Log in</string>
+    <string name="register_foot">Store admins create staff accounts from the Users screen.</string>
+
+    <!-- Inline validation (Login + Register) -->
+    <string name="err_username_required">Username is required</string>
+    <string name="err_password_required">Password is required</string>
+    <string name="err_full_name_required">Full name is required</string>
+    <string name="err_email_required">Email address is required</string>
+    <string name="err_email_invalid">Enter a valid email address</string>
+    <string name="err_password_short">Use at least 6 characters</string>
+    <string name="err_store_missing">No store assigned — ask your admin</string>
+
+    <!-- In-flight button labels -->
+    <string name="action_signing_in">Signing in…</string>
+    <string name="action_creating_account">Creating account…</string>
+
+    <!-- Point of Sale -->
+    <string name="pos_title">Point of Sale</string>
+    <string name="pos_subtitle">Tap a product to add it to the cart</string>
+    <string name="pos_products_header">Available products</string>
+    <string name="pos_cart_header">Current cart</string>
+    <string name="pos_total_label">Total</string>
+    <string name="pos_checkout_action">Checkout</string>
+    <string name="pos_history_action">History</string>
+    <string name="pos_empty_products">No products in this store</string>
+    <string name="pos_empty_products_msg">Products added by your admin will appear here.</string>
+    <string name="pos_empty_cart">Cart is empty</string>
+    <string name="pos_empty_cart_msg">Tap a product above to start a sale.</string>
+    <string name="action_processing">Processing…</string>
+
+    <!-- Dashboard metric trends (real, data-derived — never hardcoded) -->
+    <string name="trend_vs_yesterday">%1$s vs yesterday</string>
+    <string name="trend_first_sales">First sales today</string>
+    <string name="trend_avg_ticket">Avg %1$s per sale</string>
+    <string name="low_stock_all_good">All stocked</string>
+    <string name="low_stock_attention">Needs attention</string>
+
+    <!-- Dashboard empty states -->
+    <string name="super_empty_stores_title">No stores yet</string>
+    <string name="super_empty_stores_msg">Stores you register will show their performance here.</string>
+
+    <!-- Receipt header: real identity only, never invented details -->
+    <string name="receipt_store_header">StockEase POS</string>
+    <string name="receipt_store_named">StockEase POS — %1$s</string>
+    <string name="receipt_cashier">CASHIER: %1$s</string>
+    <string name="receipt_cashier_unknown">CASHIER: —</string>
+
+    <!-- List screen empty states -->
+    <string name="empty_stores_title">No stores yet</string>
+    <string name="empty_stores_msg">Register your first store branch to start tracking stock and sales.</string>
+    <string name="empty_users_title">No user accounts</string>
+    <string name="empty_users_msg">Accounts you create will be listed here.</string>
+    <string name="empty_admins_title">No store admins yet</string>
+    <string name="empty_admins_msg">Assign an administrator to a branch and they\'ll appear here.</string>
+    <string name="empty_staff_title">No staff yet</string>
+    <string name="empty_staff_msg">Add cashiers and inventory checkers to this branch to get started.</string>
+    <string name="empty_products_title">No products yet</string>
+    <string name="empty_products_msg">Add your first product to start tracking inventory.</string>
+    <string name="empty_products_no_match_title">No products match</string>
+    <string name="empty_products_no_match_msg">No products match this search or category filter.</string>
+    <string name="empty_tx_no_match_msg">No transactions match this search or status filter.</string>
+    <string name="empty_categories_title">No categories yet</string>
+    <string name="empty_categories_msg">Group products into categories to make the catalog easier to browse.</string>
+    <string name="inv_empty_action">Add a category</string>
+    <string name="products_add_action">+ Add Product</string>
+    <string name="cart_dec_cd">Decrease quantity</string>
+    <string name="cart_inc_cd">Increase quantity</string>
+    <string name="cart_remove_cd">Remove item</string>
+    <string name="empty_transactions_title">No transactions yet</string>
+    <string name="empty_transactions_msg">Sales recorded at the register will show up here.</string>
 </resources>

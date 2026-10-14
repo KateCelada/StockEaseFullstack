@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import androidx.core.content.ContextCompat;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -83,6 +84,8 @@ public class AuditLogsActivity extends AppCompatActivity {
     }
 
     private final List<LogEntry> logsList = new ArrayList<>();
+    /** How many entries the table is currently showing (after search filtering). */
+    private int renderedCount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,9 +165,76 @@ public class AuditLogsActivity extends AppCompatActivity {
             btnAuditRefresh.setOnClickListener(v -> fetchLogs());
         }
 
+        // Collapsible sidebar sections (accordion): ANALYTICS opens by default (current screen)
+        SidebarSection.attach(this, R.id.navHeaderOverview, R.id.navArrowOverview, R.id.navSectionOverviewItems, false);
+        SidebarSection.attach(this, R.id.navHeaderManagement, R.id.navArrowManagement, R.id.navSectionManagementItems, false);
+        SidebarSection.attach(this, R.id.navHeaderAnalytics, R.id.navArrowAnalytics, R.id.navSectionAnalyticsItems, true);
+        SidebarSection.attach(this, R.id.navHeaderSystem, R.id.navArrowSystem, R.id.navSectionSystemItems, false);
+
+        // Tapping the profile name or avatar opens the profile screen
+        View.OnClickListener openProfile = v -> {
+            Intent intent = new Intent(AuditLogsActivity.this, ProfileActivity.class);
+            if (getIntent().getExtras() != null) {
+                intent.putExtras(getIntent().getExtras());
+            }
+            ScreenTransitions.open(AuditLogsActivity.this, intent);
+        };
+        if (tvAuditProfileName != null) {
+            tvAuditProfileName.setOnClickListener(openProfile);
+        }
+        if (tvAuditAvatarInitials != null) {
+            tvAuditAvatarInitials.setOnClickListener(openProfile);
+        }
+
+        // The filter toolbar and the audit table react to taps as well
+        setupCardClicks();
+
         ViewFeedbackUtil.attachAll(findViewById(android.R.id.content));
 
         fetchLogs();
+    }
+
+    /** Makes the filter toolbar and the audit table card respond to taps. */
+    private void setupCardClicks() {
+        View filtersCard = findViewById(R.id.cardAuditFilters);
+        if (filtersCard != null) {
+            filtersCard.setOnClickListener(v -> {
+                if (etAuditSearch == null) return;
+                etAuditSearch.requestFocus();
+                etAuditSearch.post(() -> {
+                    android.view.inputmethod.InputMethodManager imm =
+                            (android.view.inputmethod.InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+                    if (imm != null) {
+                        imm.showSoftInput(etAuditSearch,
+                                android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);
+                    }
+                });
+            });
+        }
+
+        View tableCard = findViewById(R.id.cardAuditTable);
+        if (tableCard != null) {
+            tableCard.setOnClickListener(v -> {
+                String dateFilter = selectedPeriod.isEmpty()
+                        ? "All time"
+                        : ("custom".equals(selectedPeriod)
+                            ? (customStartDate + " - " + customEndDate)
+                            : selectedPeriod);
+                String actionFilter = (spinnerAuditActionFilter != null
+                        && spinnerAuditActionFilter.getSelectedItem() != null)
+                        ? spinnerAuditActionFilter.getSelectedItem().toString()
+                        : "All Actions";
+                String query = etAuditSearch != null
+                        ? etAuditSearch.getText().toString().trim()
+                        : "";
+
+                CardDetailDialog.show(this, "Audit Logs",
+                        "Events shown: " + renderedCount + " of " + logsList.size(),
+                        "Date filter: " + dateFilter,
+                        "Action filter: " + actionFilter,
+                        query.isEmpty() ? "Search: none" : "Search: " + query);
+            });
+        }
     }
 
     private void setupProfileInfo() {
@@ -258,10 +328,10 @@ public class AuditLogsActivity extends AppCompatActivity {
     }
 
     private void updateDateFilterButtonsUI() {
-        int activeBg = 0xFF2563EB;
-        int activeText = 0xFFFFFFFF;
-        int inactiveBg = 0xFFE2E8F0;
-        int inactiveText = 0xFF475569;
+        int activeBg = ContextCompat.getColor(this, R.color.primary);
+        int activeText = ContextCompat.getColor(this, R.color.white);
+        int inactiveBg = ContextCompat.getColor(this, R.color.card_border);
+        int inactiveText = ContextCompat.getColor(this, R.color.slate_600);
 
         if (btnAuditFilterAll != null) {
             boolean active = selectedPeriod.isEmpty();
@@ -290,7 +360,7 @@ public class AuditLogsActivity extends AppCompatActivity {
             if (active && !customStartDate.isEmpty()) {
                 btnAuditFilterCustom.setText(customStartDate + " - " + customEndDate);
             } else {
-                btnAuditFilterCustom.setText("Custom 📅");
+                btnAuditFilterCustom.setText("Custom");
             }
         }
     }
@@ -408,6 +478,7 @@ public class AuditLogsActivity extends AppCompatActivity {
     private void renderLogRows(List<LogEntry> list) {
         if (llAuditLogRows == null) return;
         llAuditLogRows.removeAllViews();
+        renderedCount = (list == null) ? 0 : list.size();
 
         if (list.isEmpty()) {
             if (tvAuditLogsStatus != null) {
@@ -430,7 +501,7 @@ public class AuditLogsActivity extends AppCompatActivity {
             row.setOrientation(LinearLayout.HORIZONTAL);
             row.setPadding(padH, padV, padH, padV);
             row.setGravity(Gravity.CENTER_VERTICAL);
-            row.setBackgroundColor(0xFFFFFFFF);
+            row.setBackgroundColor(ContextCompat.getColor(this, R.color.white));
 
             // 1. DATE & TIME (weight 1.4)
             TextView tvTime = new TextView(this);
@@ -438,7 +509,7 @@ public class AuditLogsActivity extends AppCompatActivity {
             tvTime.setLayoutParams(lpTime);
             tvTime.setText(item.createdAt);
             tvTime.setTextSize(12f);
-            tvTime.setTextColor(0xFF64748B);
+            tvTime.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             row.addView(tvTime);
 
             // 2. USER (weight 1.4)
@@ -447,8 +518,8 @@ public class AuditLogsActivity extends AppCompatActivity {
             tvUser.setLayoutParams(lpUser);
             tvUser.setText(item.userName);
             tvUser.setTextSize(13f);
-            tvUser.setTypeface(null, Typeface.BOLD);
-            tvUser.setTextColor(0xFF0F172A);
+            tvUser.setTypeface(tvUser.getTypeface(), Typeface.BOLD);
+            tvUser.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
             tvUser.setSingleLine(true);
             tvUser.setEllipsize(TextUtils.TruncateAt.END);
             row.addView(tvUser);
@@ -459,20 +530,20 @@ public class AuditLogsActivity extends AppCompatActivity {
             colRole.setLayoutParams(lpRole);
             TextView tvRole = new TextView(this);
             tvRole.setTextSize(10f);
-            tvRole.setTypeface(null, Typeface.BOLD);
+            tvRole.setTypeface(tvRole.getTypeface(), Typeface.BOLD);
             tvRole.setPadding((int) (6 * density), (int) (2 * density), (int) (6 * density), (int) (2 * density));
 
             if ("super_admin".equalsIgnoreCase(item.role)) {
                 tvRole.setText("Super Admin");
-                tvRole.setTextColor(0xFF2563EB);
+                tvRole.setTextColor(ContextCompat.getColor(this, R.color.primary));
                 tvRole.setBackgroundResource(R.drawable.bg_badge_blue);
             } else if ("store_admin".equalsIgnoreCase(item.role)) {
                 tvRole.setText("Store Admin");
-                tvRole.setTextColor(0xFF059669);
+                tvRole.setTextColor(ContextCompat.getColor(this, R.color.success_strong));
                 tvRole.setBackgroundResource(R.drawable.bg_badge_emerald);
             } else {
                 tvRole.setText("Staff");
-                tvRole.setTextColor(0xFF475569);
+                tvRole.setTextColor(ContextCompat.getColor(this, R.color.slate_600));
                 tvRole.setBackgroundResource(R.drawable.bg_badge_gray);
             }
             colRole.addView(tvRole);
@@ -484,8 +555,8 @@ public class AuditLogsActivity extends AppCompatActivity {
             tvAction.setLayoutParams(lpAction);
             tvAction.setText(item.action);
             tvAction.setTextSize(12f);
-            tvAction.setTypeface(null, Typeface.BOLD);
-            tvAction.setTextColor(0xFF0F172A);
+            tvAction.setTypeface(tvAction.getTypeface(), Typeface.BOLD);
+            tvAction.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
             tvAction.setSingleLine(true);
             tvAction.setEllipsize(TextUtils.TruncateAt.END);
             row.addView(tvAction);
@@ -496,7 +567,7 @@ public class AuditLogsActivity extends AppCompatActivity {
             tvStore.setLayoutParams(lpStore);
             tvStore.setText(item.storeName);
             tvStore.setTextSize(12f);
-            tvStore.setTextColor(0xFF64748B);
+            tvStore.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             tvStore.setSingleLine(true);
             tvStore.setEllipsize(TextUtils.TruncateAt.END);
             row.addView(tvStore);
@@ -507,17 +578,29 @@ public class AuditLogsActivity extends AppCompatActivity {
             tvDetails.setLayoutParams(lpDetails);
             tvDetails.setText(item.details);
             tvDetails.setTextSize(12f);
-            tvDetails.setTextColor(0xFF334155);
+            tvDetails.setTextColor(ContextCompat.getColor(this, R.color.slate_700));
             tvDetails.setMaxLines(2);
             tvDetails.setEllipsize(TextUtils.TruncateAt.END);
             row.addView(tvDetails);
+
+            // Tapping a row opens the full audit entry
+            final String roleLabel = tvRole.getText().toString();
+            row.setOnClickListener(v -> CardDetailDialog.show(this, "Audit Event",
+                    "Date & Time: " + item.createdAt,
+                    "User: " + item.userName,
+                    "Role: " + roleLabel,
+                    "Action: " + item.action,
+                    "Target: " + item.target,
+                    "Store / Scope: " + item.storeName,
+                    "Details: " + item.details));
+            ViewFeedbackUtil.attach(row);
 
             llAuditLogRows.addView(row);
 
             // 1px Subtle Divider
             View divider = new View(this);
             divider.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1));
-            divider.setBackgroundColor(0xFFE2E8F0);
+            divider.setBackgroundColor(ContextCompat.getColor(this, R.color.card_border));
             llAuditLogRows.addView(divider);
         }
     }
@@ -540,7 +623,7 @@ public class AuditLogsActivity extends AppCompatActivity {
         intent.putExtra("full_name", fullName);
         intent.putExtra("username", username);
         intent.putExtra("email", email);
-        startActivity(intent);
+        ScreenTransitions.open(AuditLogsActivity.this, intent);
     }
 
     private void openStoreSelection(String selectionTarget) {
@@ -552,14 +635,14 @@ public class AuditLogsActivity extends AppCompatActivity {
         intent.putExtra("full_name", fullName);
         intent.putExtra("username", username);
         intent.putExtra("email", email);
-        startActivity(intent);
+        ScreenTransitions.open(AuditLogsActivity.this, intent);
     }
 
     private void returnToLogin(String message) {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
         Intent intent = new Intent(this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
+        ScreenTransitions.open(AuditLogsActivity.this, intent);
+        ScreenTransitions.finish(AuditLogsActivity.this);
     }
 }

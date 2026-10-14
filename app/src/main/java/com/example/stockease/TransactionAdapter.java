@@ -2,7 +2,6 @@ package com.example.stockease;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +10,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
@@ -62,19 +62,19 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
         boolean isVoided = transaction.isVoided();
         if (isVoided) {
             holder.tvTxStatusBadge.setText("VOIDED");
-            holder.tvTxStatusBadge.setTextColor(Color.parseColor("#991B1B"));
-            holder.tvTxStatusBadge.setBackgroundColor(Color.parseColor("#FEE2E2"));
+            holder.tvTxStatusBadge.setTextColor(ContextCompat.getColor(context, R.color.danger_text));
+            holder.tvTxStatusBadge.setBackgroundColor(ContextCompat.getColor(context, R.color.danger_bg));
             holder.tvTxTotal.setText(String.format("₱%.2f", transaction.getTotalAmount()));
             holder.tvTxTotal.setPaintFlags(holder.tvTxTotal.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-            holder.tvTxTotal.setTextColor(Color.parseColor("#94A3B8"));
+            holder.tvTxTotal.setTextColor(ContextCompat.getColor(context, R.color.text_muted));
             holder.btnVoidTx.setVisibility(View.GONE);
         } else {
             holder.tvTxStatusBadge.setText("COMPLETED");
-            holder.tvTxStatusBadge.setTextColor(Color.parseColor("#166534"));
-            holder.tvTxStatusBadge.setBackgroundColor(Color.parseColor("#DCFCE7"));
+            holder.tvTxStatusBadge.setTextColor(ContextCompat.getColor(context, R.color.success_text));
+            holder.tvTxStatusBadge.setBackgroundColor(ContextCompat.getColor(context, R.color.success_bg));
             holder.tvTxTotal.setText(String.format("₱%.2f", transaction.getTotalAmount()));
             holder.tvTxTotal.setPaintFlags(holder.tvTxTotal.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
-            holder.tvTxTotal.setTextColor(Color.parseColor("#16A34A"));
+            holder.tvTxTotal.setTextColor(ContextCompat.getColor(context, R.color.profit));
             holder.btnVoidTx.setVisibility(View.VISIBLE);
         }
 
@@ -90,7 +90,7 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
             intent.putExtra("transaction_id", transaction.getId());
             intent.putExtra("total_amount", transaction.getTotalAmount());
             intent.putExtra("items_summary", transaction.getItemsSummary());
-            context.startActivity(intent);
+            ScreenTransitions.open(context, intent);
         });
     }
 

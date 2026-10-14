@@ -5,6 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
@@ -69,10 +70,10 @@ public class StoreAdapter extends RecyclerView.Adapter<StoreAdapter.StoreViewHol
         if (holder.tvRole != null) {
             holder.tvRole.setText(store.getStatus() + " (" + store.getAdminCount() + " Admin)");
             if ("Active".equalsIgnoreCase(store.getStatus())) {
-                holder.tvRole.setTextColor(0xFF059669);
+                holder.tvRole.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.success_strong));
                 holder.tvRole.setBackgroundResource(R.drawable.bg_badge_emerald);
             } else {
-                holder.tvRole.setTextColor(0xFF64748B);
+                holder.tvRole.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.text_secondary));
                 holder.tvRole.setBackgroundResource(R.drawable.bg_badge_gray);
             }
         }

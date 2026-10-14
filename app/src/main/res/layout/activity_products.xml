@@ -25,8 +25,8 @@
                 android:layout_height="wrap_content"
                 android:text="Inventory &amp; Products"
                 android:textColor="@color/text_primary"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+
+  android:textAppearance="@style/TextAppearance.StockEase.Title" />
 
             <TextView
                 android:id="@+id/tvProductCountSubtitle"
@@ -34,18 +34,16 @@
                 android:layout_height="wrap_content"
                 android:text="Search, filter by category, and track catalog profits"
                 android:textColor="@color/text_secondary"
-                android:textSize="12sp" />
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
         </LinearLayout>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAddProduct"
+            style="@style/Widget.StockEase.Button.Primary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_btn_primary"
-            android:text="+ Add Product"
-            android:textColor="#FFFFFF"
-            android:textSize="13sp"
-            android:paddingHorizontal="14dp" />
+            android:text="@string/products_add_action"
+            android:paddingHorizontal="16dp" />
     </LinearLayout>
 
     <!-- Unified Search and Category Filter Table Bar -->
@@ -63,13 +61,13 @@
             android:layout_height="42dp"
             android:layout_weight="1"
             android:background="@drawable/bg_input_field"
-            android:hint="🔍 Search products by name..."
+            android:hint="Search products by name..."
             android:textColorHint="@color/text_muted"
             android:textColor="@color/text_primary"
-            android:textSize="13sp"
+
             android:paddingHorizontal="12dp"
             android:singleLine="true"
-            android:layout_marginEnd="8dp" />
+            android:layout_marginEnd="8dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
         <!-- Category Dropdown Filter -->
         <Spinner
@@ -86,45 +84,66 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:paddingHorizontal="12dp"
-        android:paddingVertical="6dp"
-        android:background="#E2E8F0">
+        android:paddingVertical="8dp"
+        android:background="@color/card_border">
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="2"
             android:text="PRODUCT / CATEGORY"
-            android:textSize="11sp"
+
             android:textStyle="bold"
-            android:textColor="@color/text_secondary" />
+            android:textColor="@color/text_secondary"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="STOCK"
-            android:textSize="11sp"
+
             android:textStyle="bold"
             android:gravity="center"
-            android:textColor="@color/text_secondary" />
+            android:textColor="@color/text_secondary"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1.2"
             android:text="COST / PRICE"
-            android:textSize="11sp"
+
             android:textStyle="bold"
             android:gravity="end"
-            android:textColor="@color/text_secondary" />
+            android:textColor="@color/text_secondary"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
     </LinearLayout>
 
     <!-- Full Product List Table -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvProducts"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginTop="4dp" />
+        android:layout_marginTop="4dp">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvProducts"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <include
+            android:id="@+id/loadingProducts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="visible"
+            layout="@layout/view_loading_state" />
+
+        <include
+            android:id="@+id/emptyProducts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            layout="@layout/view_empty_state" />
+    </FrameLayout>
 
 </LinearLayout>

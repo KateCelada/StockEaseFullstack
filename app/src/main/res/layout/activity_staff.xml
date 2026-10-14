@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#121212"
+    android:background="@color/app_background"
     android:padding="16dp">
 
     <!-- Header Section -->
@@ -17,18 +17,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Staff Management"
-            android:textColor="#FFFFFF"
-            android:textSize="22sp"
-            android:textStyle="bold" />
+            android:textColor="@color/text_primary"
 
-        <Button
+  android:textAppearance="@style/TextAppearance.StockEase.Title" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAddStaff"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:text="+ Add Staff"
-            android:textColor="#FFFFFF"
-            android:backgroundTint="#6200EE" />
+            android:textColor="@color/white"  style="@style/Widget.StockEase.Button.Primary" />
     </RelativeLayout>
 
     <!-- Table Header Row -->
@@ -37,7 +36,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="12dp"
-        android:background="#1E1E2D"
+        android:background="@color/card_border"
         android:layout_marginBottom="4dp">
 
         <TextView
@@ -45,41 +44,62 @@
             android:layout_height="wrap_content"
             android:layout_weight="2"
             android:text="NAME"
-            android:textColor="#A0A0B0"
-            android:textSize="12sp"
-            android:textStyle="bold" />
+            android:textColor="@color/text_secondary"
+
+            android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1.5"
             android:text="USERNAME"
-            android:textColor="#A0A0B0"
-            android:textSize="12sp"
-            android:textStyle="bold" />
+            android:textColor="@color/text_secondary"
+
+            android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="2"
             android:text="EMAIL"
-            android:textColor="#A0A0B0"
-            android:textSize="12sp"
-            android:textStyle="bold" />
+            android:textColor="@color/text_secondary"
+
+            android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="STATUS"
-            android:textColor="#A0A0B0"
-            android:textSize="12sp"
-            android:textStyle="bold" />
+            android:textColor="@color/text_secondary"
+
+            android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
     </LinearLayout>
 
     <!-- Staff List RecyclerView -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvStaff"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvStaff"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <include
+            android:id="@+id/loadingStaff"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="visible"
+            layout="@layout/view_loading_state" />
+
+        <include
+            android:id="@+id/emptyStaff"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            layout="@layout/view_empty_state" />
+    </FrameLayout>
 
 </LinearLayout>

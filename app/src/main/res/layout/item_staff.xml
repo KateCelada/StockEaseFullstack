@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="14dp"
+    android:padding="16dp"
     android:gravity="center_vertical"
     android:background="@drawable/bg_card_white"
     android:layout_marginBottom="8dp">
@@ -19,18 +19,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Staff Name"
-            android:textColor="#0F172A"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:textColor="@color/text_primary"
+
+            android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
         <TextView
             android:id="@+id/tvStaffRole"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Cashier"
-            android:textColor="#2563EB"
-            android:textSize="11sp"
-            android:textStyle="bold" />
+            android:textColor="@color/primary"
+
+            android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
     </LinearLayout>
 
     <TextView
@@ -39,8 +39,8 @@
         android:layout_height="wrap_content"
         android:layout_weight="1.5"
         android:text="@username"
-        android:textColor="#64748B"
-        android:textSize="13sp" />
+        android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
     <TextView
         android:id="@+id/tvStaffEmail"
@@ -48,16 +48,16 @@
         android:layout_height="wrap_content"
         android:layout_weight="1.5"
         android:text="Email"
-        android:textColor="#64748B"
-        android:textSize="12sp" />
+        android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
     <TextView
         android:id="@+id/tvStaffStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Active"
-        android:textColor="#10B981"
-        android:textSize="12sp"
-        android:textStyle="bold" />
+        android:textColor="@color/success"
+
+        android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
 </LinearLayout>

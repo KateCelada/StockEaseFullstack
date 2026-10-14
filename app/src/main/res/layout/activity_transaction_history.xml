@@ -3,13 +3,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F8FAFC">
+    android:background="@color/app_background">
 
     <!-- Header Banner -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#0F172A"
+        android:background="@color/sidebar_bg"
         android:orientation="vertical"
         android:padding="16dp">
 
@@ -29,36 +29,35 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Transaction Audit Register"
-                    android:textColor="#FFFFFF"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:textColor="@color/white"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Title" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Audit on-duty cashiers, search orders, and void errors"
-                    android:textColor="#94A3B8"
-                    android:textSize="11sp" />
+                    android:textColor="@color/text_muted"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
             </LinearLayout>
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnExportCsv"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
                 android:text="Export CSV"
-                android:textSize="11sp"
-                android:backgroundTint="#334155" />
+  android:textAppearance="@style/TextAppearance.StockEase.Label" style="@style/Widget.StockEase.Button.Secondary" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/tvTotalRevenue"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
+            android:layout_marginTop="8dp"
             android:text="₱0.00"
-            android:textColor="#4ADE80"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:textColor="@color/success"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Title" />
     </LinearLayout>
 
     <!-- Search & Cashier/Status Filter Bar -->
@@ -67,7 +66,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="12dp"
-        android:background="#FFFFFF"
+        android:background="@color/card_background"
         android:gravity="center_vertical">
 
         <!-- Search input for transaction ID, customer, item, or cashier name -->
@@ -77,13 +76,13 @@
             android:layout_height="40dp"
             android:layout_weight="1"
             android:background="@drawable/bg_input_field"
-            android:hint="🔍 Search ID, item, or cashier name..."
-            android:textColorHint="#94A3B8"
-            android:textColor="#0F172A"
-            android:textSize="12sp"
-            android:paddingHorizontal="10dp"
+            android:hint="Search ID, item, or cashier name..."
+            android:textColorHint="@color/text_muted"
+            android:textColor="@color/text_primary"
+
+            android:paddingHorizontal="12dp"
             android:singleLine="true"
-            android:layout_marginEnd="8dp" />
+            android:layout_marginEnd="8dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
         <!-- Status Filter Dropdown -->
         <Spinner
@@ -100,47 +99,43 @@
         android:paddingHorizontal="8dp"
         android:paddingVertical="4dp"
         android:scrollbars="none"
-        android:background="#F1F5F9">
+        android:background="@color/card_subtle_bg">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnFilterAll"
                 android:layout_width="wrap_content"
                 android:layout_height="34dp"
                 android:layout_marginEnd="4dp"
                 android:text="All Dates"
-                android:textSize="11sp"
-                android:backgroundTint="#0F172A" />
+  android:textAppearance="@style/TextAppearance.StockEase.Label" style="@style/Widget.StockEase.Button.Secondary" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnFilterToday"
                 android:layout_width="wrap_content"
                 android:layout_height="34dp"
                 android:layout_marginEnd="4dp"
                 android:text="Today"
-                android:textSize="11sp"
-                android:backgroundTint="#64748B" />
+  android:textAppearance="@style/TextAppearance.StockEase.Label" style="@style/Widget.StockEase.Button.Secondary" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnFilterMonth"
                 android:layout_width="wrap_content"
                 android:layout_height="34dp"
                 android:layout_marginEnd="4dp"
                 android:text="This Month"
-                android:textSize="11sp"
-                android:backgroundTint="#64748B" />
+  android:textAppearance="@style/TextAppearance.StockEase.Label" style="@style/Widget.StockEase.Button.Secondary" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnFilterCustom"
                 android:layout_width="wrap_content"
                 android:layout_height="34dp"
                 android:text="Custom Range"
-                android:textSize="11sp"
-                android:backgroundTint="#64748B" />
+  android:textAppearance="@style/TextAppearance.StockEase.Label" style="@style/Widget.StockEase.Button.Secondary" />
         </LinearLayout>
     </HorizontalScrollView>
 
@@ -150,34 +145,55 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:paddingHorizontal="12dp"
-        android:paddingVertical="6dp"
-        android:background="#E2E8F0">
+        android:paddingVertical="8dp"
+        android:background="@color/card_border">
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1.5"
             android:text="TRANS # / ON-DUTY CASHIER"
-            android:textSize="10sp"
+
             android:textStyle="bold"
-            android:textColor="#475569" />
+            android:textColor="@color/slate_600"  android:textAppearance="@style/TextAppearance.StockEase.Caption" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="STATUS / AMOUNT"
-            android:textSize="10sp"
+
             android:textStyle="bold"
             android:gravity="end"
-            android:textColor="#475569" />
+            android:textColor="@color/slate_600"  android:textAppearance="@style/TextAppearance.StockEase.Caption" />
     </LinearLayout>
 
     <!-- Transaction List Table -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvTransactions"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:paddingVertical="2dp" />
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvTransactions"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingVertical="4dp" />
+
+        <include
+            android:id="@+id/loadingTransactions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="visible"
+            layout="@layout/view_loading_state" />
+
+        <include
+            android:id="@+id/emptyTransactions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            layout="@layout/view_empty_state" />
+    </FrameLayout>
 
 </LinearLayout>

@@ -22,38 +22,58 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Inventory Categories"
-                android:textColor="#212121"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+                android:textColor="@color/text_primary"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Title" />
 
             <TextView
                 android:id="@+id/tvHeaderSubtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
+                android:layout_marginTop="4dp"
                 android:text="Select a category to view products"
-                android:textColor="#757575"
-                android:textSize="13sp" />
+                android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
         </LinearLayout>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAddCategory"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="#2563EB"
             android:text="+ Add Category"
-            android:textColor="#FFFFFF"
-            android:textSize="12sp"
-            android:textStyle="bold" />
+            android:textColor="@color/white"
+
+            android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" style="@style/Widget.StockEase.Button.Primary" />
     </LinearLayout>
 
     <!-- Categories Grid View -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvCategories"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="12dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:layout_marginTop="12dp">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvCategories"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <include
+            android:id="@+id/loadingCategories"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="visible"
+            layout="@layout/view_loading_state" />
+
+        <include
+            android:id="@+id/emptyCategories"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            layout="@layout/view_empty_state" />
+    </FrameLayout>
 
     <!-- Filtered Products View (Initially Hidden) -->
     <LinearLayout
@@ -64,13 +84,12 @@
         android:orientation="vertical"
         android:visibility="gone">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnBackToCategories"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="#757575"
-            android:text="← Back to Categories"
-            android:textColor="#FFFFFF" />
+            android:text="Back to Categories"
+            android:textColor="@color/white"  style="@style/Widget.StockEase.Button.Secondary" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvFilteredProducts"

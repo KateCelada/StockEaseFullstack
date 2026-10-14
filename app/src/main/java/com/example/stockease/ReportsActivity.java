@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import androidx.core.content.ContextCompat;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -118,12 +119,12 @@ public class ReportsActivity extends AppCompatActivity {
     }
 
     private void highlightFilterButton(Button activeButton) {
-        btnFilterToday.setBackgroundColor(0xFF555555);
-        btnFilterThisWeek.setBackgroundColor(0xFF555555);
-        btnFilterThisMonth.setBackgroundColor(0xFF555555);
-        btnFilterCustom.setBackgroundColor(0xFF555555);
+        btnFilterToday.setBackgroundColor(ContextCompat.getColor(this, R.color.slate_600));
+        btnFilterThisWeek.setBackgroundColor(ContextCompat.getColor(this, R.color.slate_600));
+        btnFilterThisMonth.setBackgroundColor(ContextCompat.getColor(this, R.color.slate_600));
+        btnFilterCustom.setBackgroundColor(ContextCompat.getColor(this, R.color.slate_600));
 
-        activeButton.setBackgroundColor(0xFF7C4DFF);
+        activeButton.setBackgroundColor(ContextCompat.getColor(this, R.color.primary));
     }
 
     private void filterToday() {
@@ -277,22 +278,22 @@ public class ReportsActivity extends AppCompatActivity {
             tvType.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.5f));
             tvType.setText(type);
             tvType.setTextSize(13f);
-            tvType.setTypeface(null, Typeface.BOLD);
-            tvType.setTextColor(0xFF1B1C30);
+            tvType.setTypeface(tvType.getTypeface(), Typeface.BOLD);
+            tvType.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
 
             TextView tvCount = new TextView(this);
             tvCount.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
             tvCount.setText(count + " tx");
             tvCount.setTextSize(11f);
-            tvCount.setTextColor(0xFF6E7191);
+            tvCount.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             tvCount.setGravity(Gravity.END);
 
             TextView tvAmt = new TextView(this);
             tvAmt.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.2f));
             tvAmt.setText(String.format(Locale.US, "₱%.2f", amount));
             tvAmt.setTextSize(13f);
-            tvAmt.setTypeface(null, Typeface.BOLD);
-            tvAmt.setTextColor(0xFF2E7D32);
+            tvAmt.setTypeface(tvAmt.getTypeface(), Typeface.BOLD);
+            tvAmt.setTextColor(ContextCompat.getColor(this, R.color.profit));
             tvAmt.setGravity(Gravity.END);
 
             row.addView(tvType);
@@ -330,22 +331,22 @@ public class ReportsActivity extends AppCompatActivity {
             tvRankName.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 2f));
             tvRankName.setText((i + 1) + ". " + name);
             tvRankName.setTextSize(13f);
-            tvRankName.setTypeface(null, Typeface.BOLD);
-            tvRankName.setTextColor(0xFF1B1C30);
+            tvRankName.setTypeface(tvRankName.getTypeface(), Typeface.BOLD);
+            tvRankName.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
 
             TextView tvSold = new TextView(this);
             tvSold.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
             tvSold.setText(totalSold + " sold");
             tvSold.setTextSize(12f);
-            tvSold.setTextColor(0xFF7C4DFF);
-            tvSold.setTypeface(null, Typeface.BOLD);
+            tvSold.setTextColor(ContextCompat.getColor(this, R.color.primary));
+            tvSold.setTypeface(tvSold.getTypeface(), Typeface.BOLD);
             tvSold.setGravity(Gravity.END);
 
             TextView tvRev = new TextView(this);
             tvRev.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.2f));
             tvRev.setText(String.format(Locale.US, "₱%.2f", revenue));
             tvRev.setTextSize(12f);
-            tvRev.setTextColor(0xFF6E7191);
+            tvRev.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             tvRev.setGravity(Gravity.END);
 
             row.addView(tvRankName);
@@ -383,22 +384,22 @@ public class ReportsActivity extends AppCompatActivity {
             tvDate.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.5f));
             tvDate.setText(date);
             tvDate.setTextSize(12f);
-            tvDate.setTypeface(null, Typeface.BOLD);
-            tvDate.setTextColor(0xFF1B1C30);
+            tvDate.setTypeface(tvDate.getTypeface(), Typeface.BOLD);
+            tvDate.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
 
             TextView tvSales = new TextView(this);
             tvSales.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
             tvSales.setText(String.format(Locale.US, "₱%.2f", sales));
             tvSales.setTextSize(12f);
-            tvSales.setTypeface(null, Typeface.BOLD);
-            tvSales.setTextColor(0xFF1B1C30);
+            tvSales.setTypeface(tvSales.getTypeface(), Typeface.BOLD);
+            tvSales.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
             tvSales.setGravity(Gravity.END);
 
             TextView tvCount = new TextView(this);
             tvCount.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
             tvCount.setText(count + " tx");
             tvCount.setTextSize(12f);
-            tvCount.setTextColor(0xFF6E7191);
+            tvCount.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             tvCount.setGravity(Gravity.END);
 
             row.addView(tvDate);
@@ -410,7 +411,7 @@ public class ReportsActivity extends AppCompatActivity {
             // Divider
             View divider = new View(this);
             divider.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1));
-            divider.setBackgroundColor(0xFFEFEFF6);
+            divider.setBackgroundColor(ContextCompat.getColor(this, R.color.card_border));
             llDailySalesList.addView(divider);
         }
     }
@@ -418,7 +419,7 @@ public class ReportsActivity extends AppCompatActivity {
     private TextView createEmptyTextView(String text) {
         TextView tv = new TextView(this);
         tv.setText(text);
-        tv.setTextColor(0xFF6E7191);
+        tv.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
         tv.setTextSize(12f);
         tv.setPadding(0, 16, 0, 16);
         tv.setGravity(Gravity.CENTER);
@@ -436,7 +437,7 @@ public class ReportsActivity extends AppCompatActivity {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
         Intent intent = new Intent(this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
+        ScreenTransitions.open(ReportsActivity.this, intent);
+        ScreenTransitions.finish(ReportsActivity.this);
     }
 }

@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F8FAFC"
+    android:background="@color/app_background"
     android:padding="24dp">
 
     <!-- Header Section -->
@@ -23,38 +23,58 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Store Management"
-                android:textColor="#0F172A"
-                android:textSize="22sp"
-                android:textStyle="bold" />
+                android:textColor="@color/text_primary"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Title" />
 
             <TextView
                 android:id="@+id/tvStoresSubtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="View and register store branches"
-                android:textColor="#64748B"
-                android:textSize="13sp"
-                android:layout_marginTop="2dp" />
+                android:textColor="@color/text_secondary"
+
+                android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
         </LinearLayout>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAddStore"
             android:layout_width="wrap_content"
             android:layout_height="36dp"
             android:text="+ Add Store"
-            android:textSize="12sp"
-            android:backgroundTint="@color/primary"
-            android:textColor="#FFFFFF"
+
+            android:textColor="@color/white"
             android:paddingHorizontal="16dp"
             android:paddingVertical="0dp"
             android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true" />
+            android:layout_centerVertical="true"  android:textAppearance="@style/TextAppearance.StockEase.Label" style="@style/Widget.StockEase.Button.Primary" />
     </RelativeLayout>
 
     <!-- Stores List -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvStores"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvStores"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <include
+            android:id="@+id/loadingStores"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="visible"
+            layout="@layout/view_loading_state" />
+
+        <include
+            android:id="@+id/emptyStores"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            layout="@layout/view_empty_state" />
+    </FrameLayout>
 
 </LinearLayout>

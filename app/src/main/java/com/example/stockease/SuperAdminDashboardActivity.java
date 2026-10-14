@@ -182,7 +182,70 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
             navSuperLogout.setOnClickListener(v -> ApiSession.logout(this));
         }
 
+        // Collapsible sidebar sections (accordion): OVERVIEW opens by default
+        SidebarSection.attach(this, R.id.navHeaderOverview, R.id.navArrowOverview, R.id.navSectionOverviewItems, true);
+        SidebarSection.attach(this, R.id.navHeaderManagement, R.id.navArrowManagement, R.id.navSectionManagementItems, false);
+        SidebarSection.attach(this, R.id.navHeaderAnalytics, R.id.navArrowAnalytics, R.id.navSectionAnalyticsItems, false);
+        SidebarSection.attach(this, R.id.navHeaderSystem, R.id.navArrowSystem, R.id.navSectionSystemItems, false);
+
+        // Tapping the profile name or avatar opens the profile screen
+        View.OnClickListener openProfile = v -> {
+            Intent intent = new Intent(SuperAdminDashboardActivity.this, ProfileActivity.class);
+            if (getIntent().getExtras() != null) {
+                intent.putExtras(getIntent().getExtras());
+            }
+            ScreenTransitions.open(SuperAdminDashboardActivity.this, intent);
+        };
+        if (tvSuperProfileName != null) {
+            tvSuperProfileName.setOnClickListener(openProfile);
+        }
+        if (tvSuperAvatarInitials != null) {
+            tvSuperAvatarInitials.setOnClickListener(openProfile);
+        }
+
+        // Every dashboard card responds to a tap: cards whose numbers have a
+        // destination screen navigate there, the rest open a detail sheet.
+        setupCardClicks();
+
         ViewFeedbackUtil.attachAll(findViewById(android.R.id.content));
+    }
+
+    /** Wires the KPI bar columns and the section cards of this dashboard. */
+    private void setupCardClicks() {
+        View kpiStores = findViewById(R.id.kpiColStores);
+        if (kpiStores != null) {
+            kpiStores.setOnClickListener(v -> openSuperAdminDestination(StoresActivity.class));
+        }
+
+        View kpiUsers = findViewById(R.id.kpiColUsers);
+        if (kpiUsers != null) {
+            kpiUsers.setOnClickListener(v -> openSuperAdminDestination(UsersActivity.class));
+        }
+
+        View kpiSales = findViewById(R.id.kpiColSales);
+        if (kpiSales != null) {
+            kpiSales.setOnClickListener(v -> openStoreSelection(StoresActivity.TARGET_REPORTS));
+        }
+
+        View kpiTransactions = findViewById(R.id.kpiColTransactions);
+        if (kpiTransactions != null) {
+            kpiTransactions.setOnClickListener(v -> openStoreSelection(StoresActivity.TARGET_REPORTS));
+        }
+
+        View salesOverview = findViewById(R.id.cardSalesOverview);
+        if (salesOverview != null) {
+            salesOverview.setOnClickListener(v -> openStoreSelection(StoresActivity.TARGET_REPORTS));
+        }
+
+        View storeOwners = findViewById(R.id.cardStoreOwnersSection);
+        if (storeOwners != null) {
+            storeOwners.setOnClickListener(v -> openSuperAdminDestination(StoresActivity.class));
+        }
+
+        View storePerformance = findViewById(R.id.cardStorePerformance);
+        if (storePerformance != null) {
+            storePerformance.setOnClickListener(v -> openSuperAdminDestination(StoresActivity.class));
+        }
     }
 
     private void setupHeaderInfo() {
@@ -247,6 +310,9 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
                             }
                             if (tvSuperActiveStoresBadge != null) {
                                 tvSuperActiveStoresBadge.setText(storeCount + " active");
+                                // Green is earned by there actually being live stores.
+                                tvSuperActiveStoresBadge.setTextColor(ContextCompat.getColor(
+                                        this, storeCount > 0 ? R.color.success : R.color.text_muted));
                             }
 
                             List<StoreInfo> stores = new ArrayList<>();
@@ -389,13 +455,13 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
         llStorePerformanceRows.removeAllViews();
 
         if (performanceList.isEmpty()) {
-            TextView emptyTv = new TextView(this);
-            emptyTv.setText("No registered stores found.");
-            emptyTv.setPadding(0, 48, 0, 48);
-            emptyTv.setTextSize(13f);
-            emptyTv.setTextColor(0xFF64748B);
-            emptyTv.setGravity(Gravity.CENTER);
-            llStorePerformanceRows.addView(emptyTv);
+            View empty = getLayoutInflater().inflate(
+                    R.layout.view_empty_state, llStorePerformanceRows, false);
+            StateViews.bindEmpty(empty,
+                    getString(R.string.super_empty_stores_title),
+                    getString(R.string.super_empty_stores_msg),
+                    null, null);
+            llStorePerformanceRows.addView(empty);
             return;
         }
 
@@ -408,7 +474,7 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
             row.setOrientation(LinearLayout.HORIZONTAL);
             row.setPadding(padH, padV, padH, padV);
             row.setGravity(Gravity.CENTER_VERTICAL);
-            row.setBackgroundColor(0xFFFFFFFF);
+            row.setBackgroundColor(ContextCompat.getColor(this, R.color.white));
 
             // Column 1: STORE (weight 1.8)
             TextView tvName = new TextView(this);
@@ -416,8 +482,8 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
             tvName.setLayoutParams(lpName);
             tvName.setText(item.storeName);
             tvName.setTextSize(13f);
-            tvName.setTypeface(null, Typeface.BOLD);
-            tvName.setTextColor(0xFF0F172A);
+            tvName.setTypeface(tvName.getTypeface(), Typeface.BOLD);
+            tvName.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
             tvName.setSingleLine(true);
             tvName.setEllipsize(TextUtils.TruncateAt.END);
             row.addView(tvName);
@@ -428,7 +494,7 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
             tvLoc.setLayoutParams(lpLoc);
             tvLoc.setText(!TextUtils.isEmpty(item.location) ? item.location : "—");
             tvLoc.setTextSize(12f);
-            tvLoc.setTextColor(0xFF64748B);
+            tvLoc.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             tvLoc.setSingleLine(true);
             tvLoc.setEllipsize(TextUtils.TruncateAt.END);
             row.addView(tvLoc);
@@ -439,8 +505,8 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
             tvSales.setLayoutParams(lpSales);
             tvSales.setText(String.format(Locale.US, "₱%.2f", item.sales));
             tvSales.setTextSize(13f);
-            tvSales.setTypeface(null, Typeface.BOLD);
-            tvSales.setTextColor(0xFF0F172A);
+            tvSales.setTypeface(tvSales.getTypeface(), Typeface.BOLD);
+            tvSales.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
             tvSales.setGravity(Gravity.END);
             row.addView(tvSales);
 
@@ -450,7 +516,7 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
             tvTx.setLayoutParams(lpTx);
             tvTx.setText(String.valueOf(item.transactionCount));
             tvTx.setTextSize(13f);
-            tvTx.setTextColor(0xFF64748B);
+            tvTx.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             tvTx.setGravity(Gravity.END);
             row.addView(tvTx);
 
@@ -463,8 +529,8 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
             TextView tvStatus = new TextView(this);
             tvStatus.setText("Active");
             tvStatus.setTextSize(11f);
-            tvStatus.setTypeface(null, Typeface.BOLD);
-            tvStatus.setTextColor(0xFF059669);
+            tvStatus.setTypeface(tvStatus.getTypeface(), Typeface.BOLD);
+            tvStatus.setTextColor(ContextCompat.getColor(this, R.color.success_strong));
             tvStatus.setBackgroundResource(R.drawable.bg_badge_emerald);
             tvStatus.setPadding((int) (8 * density), (int) (3 * density), (int) (8 * density), (int) (3 * density));
             colStatus.addView(tvStatus);
@@ -479,8 +545,8 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
             TextView tvAction = new TextView(this);
             tvAction.setText("View");
             tvAction.setTextSize(11f);
-            tvAction.setTypeface(null, Typeface.BOLD);
-            tvAction.setTextColor(0xFF2563EB);
+            tvAction.setTypeface(tvAction.getTypeface(), Typeface.BOLD);
+            tvAction.setTextColor(ContextCompat.getColor(this, R.color.primary));
             tvAction.setBackgroundResource(R.drawable.bg_badge_blue);
             tvAction.setPadding((int) (8 * density), (int) (3 * density), (int) (8 * density), (int) (3 * density));
             colAction.addView(tvAction);
@@ -496,7 +562,7 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
                 intent.putExtra("full_name", fullName);
                 intent.putExtra("username", username);
                 intent.putExtra("email", email);
-                startActivity(intent);
+                ScreenTransitions.open(SuperAdminDashboardActivity.this, intent);
             };
 
             row.setOnClickListener(openReportsListener);
@@ -507,7 +573,7 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
             // Subtle 1px Divider
             View divider = new View(this);
             divider.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1));
-            divider.setBackgroundColor(0xFFE2E8F0);
+            divider.setBackgroundColor(ContextCompat.getColor(this, R.color.card_border));
             llStorePerformanceRows.addView(divider);
         }
     }
@@ -576,14 +642,14 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
                 tvSalesB.setText(String.format(Locale.US, "₱%.2f", b.sales));
 
                 if (a.sales > b.sales) {
-                    tvSalesA.setTextColor(0xFF10B981);
-                    tvSalesB.setTextColor(0xFF0F172A);
+                    tvSalesA.setTextColor(ContextCompat.getColor(SuperAdminDashboardActivity.this, R.color.success));
+                    tvSalesB.setTextColor(ContextCompat.getColor(SuperAdminDashboardActivity.this, R.color.text_primary));
                 } else if (b.sales > a.sales) {
-                    tvSalesA.setTextColor(0xFF0F172A);
-                    tvSalesB.setTextColor(0xFF10B981);
+                    tvSalesA.setTextColor(ContextCompat.getColor(SuperAdminDashboardActivity.this, R.color.text_primary));
+                    tvSalesB.setTextColor(ContextCompat.getColor(SuperAdminDashboardActivity.this, R.color.success));
                 } else {
-                    tvSalesA.setTextColor(0xFF0F172A);
-                    tvSalesB.setTextColor(0xFF0F172A);
+                    tvSalesA.setTextColor(ContextCompat.getColor(SuperAdminDashboardActivity.this, R.color.text_primary));
+                    tvSalesB.setTextColor(ContextCompat.getColor(SuperAdminDashboardActivity.this, R.color.text_primary));
                 }
 
                 tvTxA.setText(String.valueOf(a.transactionCount));
@@ -695,7 +761,7 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
         if (owners == null || owners.length() == 0) {
             TextView empty = new TextView(this);
             empty.setText("No multi-branch store owners configured.");
-            empty.setTextColor(0xFF64748B);
+            empty.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             empty.setTextSize(13f);
             empty.setPadding(0, 16, 0, 16);
             llStoreOwnersCards.addView(empty);
@@ -747,14 +813,14 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
 
             TextView tvBigStoreName = new TextView(this);
             tvBigStoreName.setText(storeNameStr);
-            tvBigStoreName.setTextColor(0xFF0F172A);
+            tvBigStoreName.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
             tvBigStoreName.setTextSize(18f);
-            tvBigStoreName.setTypeface(null, Typeface.BOLD);
+            tvBigStoreName.setTypeface(tvBigStoreName.getTypeface(), Typeface.BOLD);
 
             TextView tvOwnerUnderneath = new TextView(this);
-            String ownerText = "👤 Business Owner: " + ownerName + (managerName.isEmpty() ? "" : " • Manager: " + managerName);
+            String ownerText = "Business Owner: " + ownerName + (managerName.isEmpty() ? "" : " • Manager: " + managerName);
             tvOwnerUnderneath.setText(ownerText);
-            tvOwnerUnderneath.setTextColor(0xFF64748B);
+            tvOwnerUnderneath.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             tvOwnerUnderneath.setTextSize(13f);
             tvOwnerUnderneath.setPadding(0, 3, 0, 0);
 
@@ -765,9 +831,9 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
             TextView tvBranchBadge = new TextView(this);
             int branchCount = (branches != null) ? branches.length() : 1;
             tvBranchBadge.setText(branchCount + (branchCount == 1 ? " Branch" : " Branches"));
-            tvBranchBadge.setTextColor(0xFF2563EB);
+            tvBranchBadge.setTextColor(ContextCompat.getColor(this, R.color.primary));
             tvBranchBadge.setTextSize(11f);
-            tvBranchBadge.setTypeface(null, Typeface.BOLD);
+            tvBranchBadge.setTypeface(tvBranchBadge.getTypeface(), Typeface.BOLD);
             tvBranchBadge.setBackground(ContextCompat.getDrawable(this, R.drawable.bg_badge_blue));
             tvBranchBadge.setPadding(16, 6, 16, 6);
 
@@ -777,8 +843,8 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
 
             // Tap hint bar
             TextView tvTapHint = new TextView(this);
-            tvTapHint.setText("Tap to view full business progress & line chart trend ▶");
-            tvTapHint.setTextColor(0xFF2563EB);
+            tvTapHint.setText("Tap to view full business progress & line chart trend ▸");
+            tvTapHint.setTextColor(ContextCompat.getColor(this, R.color.primary));
             tvTapHint.setTextSize(11f);
             tvTapHint.setPadding(0, 8, 0, 0);
             ownerCard.addView(tvTapHint);
@@ -793,7 +859,7 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
                 progIntent.putExtra(BusinessProgressActivity.EXTRA_SUBTITLE, "Owner: " + ownerName);
                 progIntent.putExtra("user_id", userId);
                 progIntent.putExtra("role", role);
-                startActivity(progIntent);
+                ScreenTransitions.open(SuperAdminDashboardActivity.this, progIntent);
             });
 
             llStoreOwnersCards.addView(ownerCard);
@@ -890,25 +956,25 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
         content.setPadding(36, 24, 36, 24);
 
         TextView tvTitle = new TextView(this);
-        tvTitle.setText(branchName + "\n📍 " + location);
-        tvTitle.setTextColor(0xFF0F172A);
+        tvTitle.setText(branchName + "\n" + location);
+        tvTitle.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
         tvTitle.setTextSize(15f);
-        tvTitle.setTypeface(null, Typeface.BOLD);
+        tvTitle.setTypeface(tvTitle.getTypeface(), Typeface.BOLD);
         content.addView(tvTitle);
 
         TextView tvStats = new TextView(this);
         tvStats.setText(String.format(Locale.US, "Today: ₱%.2f  |  Total: ₱%.2f  |  Items: %d", bToday, bTotal, totalProducts));
-        tvStats.setTextColor(0xFF2563EB);
+        tvStats.setTextColor(ContextCompat.getColor(this, R.color.primary));
         tvStats.setTextSize(12f);
         tvStats.setPadding(0, 6, 0, 12);
         content.addView(tvStats);
 
         // Branch Line Chart
         TextView tvChartLbl = new TextView(this);
-        tvChartLbl.setText("📈 Real-time Branch Sales Line Chart (tap for top products):");
-        tvChartLbl.setTextColor(0xFF334155);
+        tvChartLbl.setText("Real-time Branch Sales Line Chart (tap for top products):");
+        tvChartLbl.setTextColor(ContextCompat.getColor(this, R.color.slate_700));
         tvChartLbl.setTextSize(12f);
-        tvChartLbl.setTypeface(null, Typeface.BOLD);
+        tvChartLbl.setTypeface(tvChartLbl.getTypeface(), Typeface.BOLD);
         content.addView(tvChartLbl);
 
         SimpleLineChartView chart = new SimpleLineChartView(this);
@@ -937,10 +1003,10 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
 
         // Top products quick button
         Button btnTopProds = new Button(this);
-        btnTopProds.setText("🏆 View Top Purchased Products & Profit");
+        btnTopProds.setText("View Top Purchased Products & Profit");
         btnTopProds.setTextSize(11f);
-        btnTopProds.setTextColor(0xFF059669);
-        btnTopProds.setBackgroundColor(0xFFECFDF5);
+        btnTopProds.setTextColor(ContextCompat.getColor(this, R.color.success_strong));
+        btnTopProds.setBackgroundColor(ContextCompat.getColor(this, R.color.success_bg));
         btnTopProds.setOnClickListener(v -> showTopPurchasedProductsDialog(branchName, topProducts));
         LinearLayout.LayoutParams btnPLp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -950,10 +1016,10 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
 
         // Branch Users & Roles Section
         TextView tvUsersLbl = new TextView(this);
-        tvUsersLbl.setText("👥 Branch Staff & Roles (tap user for details):");
-        tvUsersLbl.setTextColor(0xFF334155);
+        tvUsersLbl.setText("Branch Staff & Roles (tap user for details):");
+        tvUsersLbl.setTextColor(ContextCompat.getColor(this, R.color.slate_700));
         tvUsersLbl.setTextSize(12f);
-        tvUsersLbl.setTypeface(null, Typeface.BOLD);
+        tvUsersLbl.setTypeface(tvUsersLbl.getTypeface(), Typeface.BOLD);
         content.addView(tvUsersLbl);
 
         if (branchUsers != null && branchUsers.length() > 0) {
@@ -968,7 +1034,7 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
                 LinearLayout uCard = new LinearLayout(this);
                 uCard.setOrientation(LinearLayout.HORIZONTAL);
                 uCard.setGravity(Gravity.CENTER_VERTICAL);
-                uCard.setBackgroundColor(0xFFF8FAFC);
+                uCard.setBackgroundColor(ContextCompat.getColor(this, R.color.app_background));
                 uCard.setPadding(16, 12, 16, 12);
                 LinearLayout.LayoutParams uLp = new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -981,13 +1047,13 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
 
                 TextView tvUName = new TextView(this);
                 tvUName.setText(fn + " (@" + un + ")");
-                tvUName.setTextColor(0xFF0F172A);
+                tvUName.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
                 tvUName.setTextSize(12f);
-                tvUName.setTypeface(null, Typeface.BOLD);
+                tvUName.setTypeface(tvUName.getTypeface(), Typeface.BOLD);
 
                 TextView tvURole = new TextView(this);
                 tvURole.setText("Role: " + rl);
-                tvURole.setTextColor(0xFF2563EB);
+                tvURole.setTextColor(ContextCompat.getColor(this, R.color.primary));
                 tvURole.setTextSize(11f);
 
                 uInfo.addView(tvUName);
@@ -1003,7 +1069,7 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
         } else {
             TextView noUsers = new TextView(this);
             noUsers.setText("No staff assigned to this branch.");
-            noUsers.setTextColor(0xFF94A3B8);
+            noUsers.setTextColor(ContextCompat.getColor(this, R.color.text_muted));
             noUsers.setTextSize(11f);
             noUsers.setPadding(0, 6, 0, 6);
             content.addView(noUsers);
@@ -1021,7 +1087,7 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
                     repIntent.putExtra("user_id", userId);
                     repIntent.putExtra("role", role);
                     repIntent.putExtra("full_name", fullName);
-                    startActivity(repIntent);
+                    ScreenTransitions.open(SuperAdminDashboardActivity.this, repIntent);
                 })
                 .setNegativeButton("Close", null)
                 .show();
@@ -1099,7 +1165,7 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
         intent.putExtra("full_name", fullName);
         intent.putExtra("username", username);
         intent.putExtra("email", email);
-        startActivity(intent);
+        ScreenTransitions.open(SuperAdminDashboardActivity.this, intent);
     }
 
     private void openStoreSelection(String selectionTarget) {
@@ -1111,14 +1177,14 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
         intent.putExtra("full_name", fullName);
         intent.putExtra("username", username);
         intent.putExtra("email", email);
-        startActivity(intent);
+        ScreenTransitions.open(SuperAdminDashboardActivity.this, intent);
     }
 
     private void returnToLogin(String message) {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
         Intent intent = new Intent(this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
+        ScreenTransitions.open(SuperAdminDashboardActivity.this, intent);
+        ScreenTransitions.finish(SuperAdminDashboardActivity.this);
     }
 }

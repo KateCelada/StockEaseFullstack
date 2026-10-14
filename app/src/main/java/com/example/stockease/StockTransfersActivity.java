@@ -14,6 +14,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import androidx.core.content.ContextCompat;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -146,7 +147,7 @@ public class StockTransfersActivity extends AppCompatActivity {
                     btnToggleNewTransfer.setText("+ New Transfer");
                 } else {
                     cardNewTransfer.setVisibility(View.VISIBLE);
-                    btnToggleNewTransfer.setText("− Hide Form");
+                    btnToggleNewTransfer.setText("- Hide Form");
                 }
             });
         }
@@ -504,15 +505,15 @@ public class StockTransfersActivity extends AppCompatActivity {
             row.setOrientation(LinearLayout.HORIZONTAL);
             row.setPadding(padH, padV, padH, padV);
             row.setGravity(Gravity.CENTER_VERTICAL);
-            row.setBackgroundColor(0xFFFFFFFF);
+            row.setBackgroundColor(ContextCompat.getColor(this, R.color.white));
 
             // 1. ID (0.6f)
             TextView tvId = new TextView(this);
             tvId.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.6f));
             tvId.setText("#" + transferId);
             tvId.setTextSize(12f);
-            tvId.setTypeface(null, Typeface.BOLD);
-            tvId.setTextColor(0xFF0F172A);
+            tvId.setTypeface(tvId.getTypeface(), Typeface.BOLD);
+            tvId.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
             row.addView(tvId);
 
             // 2. ROUTE (2.0f)
@@ -520,8 +521,8 @@ public class StockTransfersActivity extends AppCompatActivity {
             tvRoute.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 2.0f));
             tvRoute.setText(fromName + " → " + toName);
             tvRoute.setTextSize(12f);
-            tvRoute.setTypeface(null, Typeface.BOLD);
-            tvRoute.setTextColor(0xFF0F172A);
+            tvRoute.setTypeface(tvRoute.getTypeface(), Typeface.BOLD);
+            tvRoute.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
             tvRoute.setSingleLine(true);
             tvRoute.setEllipsize(TextUtils.TruncateAt.END);
             row.addView(tvRoute);
@@ -531,7 +532,7 @@ public class StockTransfersActivity extends AppCompatActivity {
             tvQty.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.8f));
             tvQty.setText(String.valueOf(totalQty));
             tvQty.setTextSize(12f);
-            tvQty.setTextColor(0xFF334155);
+            tvQty.setTextColor(ContextCompat.getColor(this, R.color.slate_700));
             tvQty.setGravity(Gravity.END);
             row.addView(tvQty);
 
@@ -542,7 +543,7 @@ public class StockTransfersActivity extends AppCompatActivity {
             tvReq.setLayoutParams(lpReq);
             tvReq.setText(reqBy);
             tvReq.setTextSize(12f);
-            tvReq.setTextColor(0xFF64748B);
+            tvReq.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             tvReq.setSingleLine(true);
             row.addView(tvReq);
 
@@ -552,7 +553,7 @@ public class StockTransfersActivity extends AppCompatActivity {
             String shortDate = date.length() >= 10 ? date.substring(0, 10) : date;
             tvDate.setText(shortDate);
             tvDate.setTextSize(11f);
-            tvDate.setTextColor(0xFF64748B);
+            tvDate.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             row.addView(tvDate);
 
             // 6. STATUS BADGE (1.0f)
@@ -562,24 +563,24 @@ public class StockTransfersActivity extends AppCompatActivity {
 
             TextView tvStatus = new TextView(this);
             tvStatus.setTextSize(10f);
-            tvStatus.setTypeface(null, Typeface.BOLD);
+            tvStatus.setTypeface(tvStatus.getTypeface(), Typeface.BOLD);
             tvStatus.setPadding((int) (6 * density), (int) (2 * density), (int) (6 * density), (int) (2 * density));
 
             if ("completed".equalsIgnoreCase(status)) {
                 tvStatus.setText("Received");
-                tvStatus.setTextColor(0xFF059669);
+                tvStatus.setTextColor(ContextCompat.getColor(this, R.color.success_strong));
                 tvStatus.setBackgroundResource(R.drawable.bg_badge_emerald);
             } else if ("in_transit".equalsIgnoreCase(status)) {
                 tvStatus.setText("In Transit");
-                tvStatus.setTextColor(0xFF2563EB);
+                tvStatus.setTextColor(ContextCompat.getColor(this, R.color.primary));
                 tvStatus.setBackgroundResource(R.drawable.bg_badge_blue);
             } else if ("cancelled".equalsIgnoreCase(status)) {
                 tvStatus.setText("Cancelled");
-                tvStatus.setTextColor(0xFF64748B);
+                tvStatus.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
                 tvStatus.setBackgroundResource(R.drawable.bg_badge_gray);
             } else {
                 tvStatus.setText("Requested");
-                tvStatus.setTextColor(0xFFD97706);
+                tvStatus.setTextColor(ContextCompat.getColor(this, R.color.warning));
                 tvStatus.setBackgroundResource(R.drawable.bg_badge_gray);
             }
             colStatus.addView(tvStatus);
@@ -597,8 +598,8 @@ public class StockTransfersActivity extends AppCompatActivity {
                     Button btnDispatch = new Button(this);
                     btnDispatch.setText("Dispatch");
                     btnDispatch.setTextSize(10f);
-                    btnDispatch.setTextColor(0xFFFFFFFF);
-                    btnDispatch.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF2563EB));
+                    btnDispatch.setTextColor(ContextCompat.getColor(this, R.color.white));
+                    btnDispatch.setBackgroundTintList(android.content.res.ColorStateList.valueOf(ContextCompat.getColor(this, R.color.primary)));
                     btnDispatch.setPadding((int) (6 * density), 0, (int) (6 * density), 0);
                     btnDispatch.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, (int) (28 * density)));
                     btnDispatch.setOnClickListener(v -> performTransferAction("dispatch", transferId));
@@ -608,8 +609,8 @@ public class StockTransfersActivity extends AppCompatActivity {
                 Button btnCancel = new Button(this);
                 btnCancel.setText("Cancel");
                 btnCancel.setTextSize(10f);
-                btnCancel.setTextColor(0xFFDC2626);
-                btnCancel.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFFFEE2E2));
+                btnCancel.setTextColor(ContextCompat.getColor(this, R.color.danger_strong));
+                btnCancel.setBackgroundTintList(android.content.res.ColorStateList.valueOf(ContextCompat.getColor(this, R.color.danger_bg)));
                 btnCancel.setPadding((int) (6 * density), 0, (int) (6 * density), 0);
                 LinearLayout.LayoutParams lpCancel = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, (int) (28 * density));
                 lpCancel.leftMargin = (int) (4 * density);
@@ -624,8 +625,8 @@ public class StockTransfersActivity extends AppCompatActivity {
                     Button btnReceive = new Button(this);
                     btnReceive.setText("Confirm Receipt");
                     btnReceive.setTextSize(10f);
-                    btnReceive.setTextColor(0xFFFFFFFF);
-                    btnReceive.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFF059669));
+                    btnReceive.setTextColor(ContextCompat.getColor(this, R.color.white));
+                    btnReceive.setBackgroundTintList(android.content.res.ColorStateList.valueOf(ContextCompat.getColor(this, R.color.success_strong)));
                     btnReceive.setPadding((int) (6 * density), 0, (int) (6 * density), 0);
                     btnReceive.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, (int) (28 * density)));
                     btnReceive.setOnClickListener(v -> performTransferAction("complete", transferId));
@@ -635,8 +636,8 @@ public class StockTransfersActivity extends AppCompatActivity {
                 Button btnCancel = new Button(this);
                 btnCancel.setText("Cancel");
                 btnCancel.setTextSize(10f);
-                btnCancel.setTextColor(0xFFDC2626);
-                btnCancel.setBackgroundTintList(android.content.res.ColorStateList.valueOf(0xFFFEE2E2));
+                btnCancel.setTextColor(ContextCompat.getColor(this, R.color.danger_strong));
+                btnCancel.setBackgroundTintList(android.content.res.ColorStateList.valueOf(ContextCompat.getColor(this, R.color.danger_bg)));
                 btnCancel.setPadding((int) (6 * density), 0, (int) (6 * density), 0);
                 LinearLayout.LayoutParams lpCancel = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, (int) (28 * density));
                 lpCancel.leftMargin = (int) (4 * density);
@@ -647,7 +648,7 @@ public class StockTransfersActivity extends AppCompatActivity {
             } else {
                 TextView tvDone = new TextView(this);
                 tvDone.setText("—");
-                tvDone.setTextColor(0xFF94A3B8);
+                tvDone.setTextColor(ContextCompat.getColor(this, R.color.text_muted));
                 tvDone.setTextSize(12f);
                 colActions.addView(tvDone);
             }
@@ -658,7 +659,7 @@ public class StockTransfersActivity extends AppCompatActivity {
 
             View divider = new View(this);
             divider.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 1));
-            divider.setBackgroundColor(0xFFE2E8F0);
+            divider.setBackgroundColor(ContextCompat.getColor(this, R.color.card_border));
             llTransferRows.addView(divider);
         }
     }
@@ -724,7 +725,7 @@ public class StockTransfersActivity extends AppCompatActivity {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
         Intent intent = new Intent(this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
+        ScreenTransitions.open(StockTransfersActivity.this, intent);
+        ScreenTransitions.finish(StockTransfersActivity.this);
     }
 }

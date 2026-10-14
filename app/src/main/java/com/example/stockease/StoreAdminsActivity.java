@@ -30,6 +30,8 @@ import java.util.List;
 public class StoreAdminsActivity extends AppCompatActivity {
 
     private RecyclerView rvStoreAdmins;
+    private View emptyAdmins;
+    private View loadingAdmins;
     private Button btnAddAdmin;
     private StoreAdminAdapter adapter;
     private List<StoreAdminAdapter.AdminItem> adminList;
@@ -47,6 +49,11 @@ public class StoreAdminsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_store_admins);
 
         rvStoreAdmins = findViewById(R.id.rvStoreAdmins);
+        emptyAdmins = findViewById(R.id.emptyAdmins);
+        loadingAdmins = findViewById(R.id.loadingAdmins);
+        StateViews.bindEmpty(emptyAdmins,
+                getString(R.string.empty_admins_title),
+                getString(R.string.empty_admins_msg), null, null);
         btnAddAdmin = findViewById(R.id.btnAddAdmin);
 
         adminList = new ArrayList<>();
@@ -154,6 +161,7 @@ public class StoreAdminsActivity extends AppCompatActivity {
         JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.GET, FETCH_ADMINS_URL, null,
                 response -> {
+                    StateViews.hideLoading(loadingAdmins);
                     try {
                         if (response.getBoolean("success")) {
                             adminList.clear();
@@ -170,15 +178,30 @@ public class StoreAdminsActivity extends AppCompatActivity {
                             if (adapter != null) {
                                 adapter.notifyDataSetChanged();
                             }
+                            updateEmptyState();
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 },
-                error -> ApiSession.handleAuthError(StoreAdminsActivity.this, error)
+                error -> {
+                    StateViews.hideLoading(loadingAdmins);
+                    ApiSession.handleAuthError(StoreAdminsActivity.this, error);
+                }
         );
 
         queue.add(request);
+    }
+
+    /** Swaps list ↔ empty state so a branch with no assigned admins reads as intentional. */
+    private void updateEmptyState() {
+        boolean empty = adminList == null || adminList.isEmpty();
+        if (emptyAdmins != null) {
+            StateViews.setEmptyVisible(emptyAdmins, empty);
+        }
+        if (rvStoreAdmins != null) {
+            rvStoreAdmins.setVisibility(empty ? View.INVISIBLE : View.VISIBLE);
+        }
     }
 
     private void loadStoresForSpinner() {

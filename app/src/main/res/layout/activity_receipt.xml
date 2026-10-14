@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#EFEFEF"
+    android:background="@color/app_background"
     android:orientation="vertical"
     android:padding="16dp">
 
@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:background="#FFFFFF"
+        android:background="@color/card_background"
         android:elevation="4dp"
         android:orientation="vertical"
         android:padding="20dp">
@@ -23,9 +23,9 @@
             android:layout_height="wrap_content"
             android:fontFamily="monospace"
             android:gravity="center"
-            android:text="STOCKEASE POS SYSTEM\nStore #001 - Main Branch\n123 Retail Ave, Commercial Center\nTEL: (02) 8888-0000"
-            android:textColor="#000000"
-            android:textSize="12sp" />
+            android:text="@string/receipt_store_header"
+            android:textColor="@color/text_primary"
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
         <!-- Top Dashed Line -->
         <TextView
@@ -34,8 +34,8 @@
             android:fontFamily="monospace"
             android:gravity="center"
             android:text="------------------------------------------"
-            android:textColor="#000000"
-            android:textSize="12sp" />
+            android:textColor="@color/text_primary"
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
         <!-- Transaction Details -->
         <TextView
@@ -44,9 +44,8 @@
             android:layout_height="wrap_content"
             android:fontFamily="monospace"
             android:text="TRANS #: 000000"
-            android:textColor="#000000"
-            android:textSize="12sp"
-            android:textStyle="bold" />
+            android:textColor="@color/text_primary"
+            android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
         <TextView
             android:id="@+id/tvReceiptDate"
@@ -54,17 +53,17 @@
             android:layout_height="wrap_content"
             android:fontFamily="monospace"
             android:text="DATE   : 2026-09-23 08:43:00"
-            android:textColor="#000000"
-            android:textSize="12sp" />
+            android:textColor="@color/text_primary"
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
         <TextView
             android:id="@+id/tvCashier"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="monospace"
-            android:text="CASHIER: Staff #01"
-            android:textColor="#000000"
-            android:textSize="12sp" />
+            android:text="@string/receipt_cashier_unknown"
+            android:textColor="@color/text_primary"
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
         <!-- Middle Dashed Line -->
         <TextView
@@ -73,8 +72,8 @@
             android:fontFamily="monospace"
             android:gravity="center"
             android:text="------------------------------------------"
-            android:textColor="#000000"
-            android:textSize="12sp" />
+            android:textColor="@color/text_primary"
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
         <!-- Itemized List Header -->
         <TextView
@@ -82,9 +81,8 @@
             android:layout_height="wrap_content"
             android:fontFamily="monospace"
             android:text="QTY  ITEM DESCRIPTION             PRICE"
-            android:textColor="#000000"
-            android:textSize="11sp"
-            android:textStyle="bold" />
+            android:textColor="@color/text_primary"
+            android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
         <TextView
             android:layout_width="match_parent"
@@ -92,8 +90,8 @@
             android:fontFamily="monospace"
             android:gravity="center"
             android:text="- - - - - - - - - - - - - - - - - - - - -"
-            android:textColor="#000000"
-            android:textSize="12sp" />
+            android:textColor="@color/text_primary"
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
         <!-- Purchased Items List -->
         <ScrollView
@@ -108,9 +106,9 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="monospace"
                 android:lineSpacingExtra="3dp"
-                android:text="1x Colgate Toothpaste         ₱45.00\n1x Fresh Milk 1L              ₱95.00"
-                android:textColor="#000000"
-                android:textSize="12sp" />
+
+                android:textColor="@color/text_primary"
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
         </ScrollView>
 
         <!-- Bottom Dashed Line -->
@@ -120,8 +118,8 @@
             android:fontFamily="monospace"
             android:gravity="center"
             android:text="------------------------------------------"
-            android:textColor="#000000"
-            android:textSize="12sp" />
+            android:textColor="@color/text_primary"
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
         <!-- Total Breakdown -->
         <LinearLayout
@@ -135,19 +133,17 @@
                 android:layout_weight="1"
                 android:fontFamily="monospace"
                 android:text="TOTAL AMOUNT:"
-                android:textColor="#000000"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:textColor="@color/text_primary"
+                android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
             <TextView
                 android:id="@+id/tvReceiptTotal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="monospace"
-                android:text="₱140.00"
-                android:textColor="#000000"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+
+                android:textColor="@color/text_primary"
+                android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
         </LinearLayout>
 
         <LinearLayout
@@ -161,16 +157,16 @@
                 android:layout_weight="1"
                 android:fontFamily="monospace"
                 android:text="PAYMENT TYPE:"
-                android:textColor="#000000"
-                android:textSize="12sp" />
+                android:textColor="@color/text_primary"
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="monospace"
                 android:text="CASH"
-                android:textColor="#000000"
-                android:textSize="12sp" />
+                android:textColor="@color/text_primary"
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
         </LinearLayout>
 
         <!-- Receipt Footer / Barcode Visual -->
@@ -181,8 +177,8 @@
             android:fontFamily="monospace"
             android:gravity="center"
             android:text="=========================================="
-            android:textColor="#000000"
-            android:textSize="12sp" />
+            android:textColor="@color/text_primary"
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
         <TextView
             android:layout_width="match_parent"
@@ -191,9 +187,8 @@
             android:fontFamily="monospace"
             android:gravity="center"
             android:text="||| | |||| | |||||| || | |||| ||| ||"
-            android:textColor="#000000"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textColor="@color/text_primary"
+android:textAppearance="@style/TextAppearance.StockEase.Section" />
 
         <TextView
             android:layout_width="match_parent"
@@ -202,8 +197,8 @@
             android:fontFamily="monospace"
             android:gravity="center"
             android:text="THANK YOU FOR SHOPPING!\nPLEASE COME AGAIN"
-            android:textColor="#000000"
-            android:textSize="11sp" />
+            android:textColor="@color/text_primary"
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
     </LinearLayout>
 
@@ -214,25 +209,23 @@
         android:orientation="horizontal"
         android:layout_marginTop="12dp">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnVoidFromReceipt"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
-            android:layout_marginEnd="6dp"
-            android:backgroundTint="#DC2626"
+            android:layout_marginEnd="8dp"
             android:text="Void Transaction"
-            android:textColor="#FFFFFF" />
+            android:textColor="@color/white"  style="@style/Widget.StockEase.Button.Secondary" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnNewSale"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
-            android:layout_marginStart="6dp"
-            android:backgroundTint="#000000"
+            android:layout_marginStart="8dp"
             android:text="New Sale"
-            android:textColor="#FFFFFF" />
+            android:textColor="@color/white"  style="@style/Widget.StockEase.Button.Primary" />
     </LinearLayout>
 
 </LinearLayout>

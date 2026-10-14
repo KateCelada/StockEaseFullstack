@@ -20,20 +20,20 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Feature (Premium)"
-            android:textColor="#0F172A"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textColor="@color/text_primary"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Title" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_badge_blue"
-            android:paddingHorizontal="10dp"
+            android:paddingHorizontal="12dp"
             android:paddingVertical="4dp"
             android:text="Premium"
-            android:textColor="#2563EB"
-            android:textSize="11sp"
-            android:textStyle="bold" />
+            android:textColor="@color/primary"
+
+            android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
     </LinearLayout>
 
     <!-- Explanation -->
@@ -42,10 +42,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="This feature is available with StockEase Premium. Upgrade your plan to unlock multi-store inventory transfers, smart analytics, and advanced insights."
-        android:textColor="#64748B"
-        android:textSize="13sp"
+        android:textColor="@color/text_secondary"
+
         android:lineSpacingExtra="3dp"
-        android:layout_marginBottom="24dp" />
+        android:layout_marginBottom="24dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
     <!-- Action Buttons -->
     <LinearLayout
@@ -54,25 +54,24 @@
         android:orientation="horizontal"
         android:gravity="end">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCancelUpgrade"
             android:layout_width="wrap_content"
             android:layout_height="36dp"
             android:text="Cancel"
-            style="?attr/borderlessButtonStyle"
-            android:textColor="#64748B"
-            android:textSize="13sp"
-            android:layout_marginEnd="8dp" />
+            style="@style/Widget.StockEase.Button.Secondary"
+            android:textColor="@color/text_secondary"
 
-        <Button
+            android:layout_marginEnd="8dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnViewPremium"
             android:layout_width="wrap_content"
             android:layout_height="36dp"
             android:text="View Premium"
-            android:textSize="13sp"
-            android:textColor="#FFFFFF"
-            android:backgroundTint="@color/primary"
-            android:paddingHorizontal="16dp" />
+
+            android:textColor="@color/white"
+            android:paddingHorizontal="16dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" style="@style/Widget.StockEase.Button.Primary" />
     </LinearLayout>
 
 </LinearLayout>

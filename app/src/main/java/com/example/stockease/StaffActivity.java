@@ -27,6 +27,8 @@ import java.util.List;
 public class StaffActivity extends AppCompatActivity {
 
     private RecyclerView rvStaff;
+    private View emptyStaff;
+    private View loadingStaff;
     private Button btnAddStaff;
     private StaffAdapter adapter;
     private List<Staff> staffList;
@@ -52,6 +54,11 @@ public class StaffActivity extends AppCompatActivity {
         }
 
         rvStaff = findViewById(R.id.rvStaff);
+        emptyStaff = findViewById(R.id.emptyStaff);
+        loadingStaff = findViewById(R.id.loadingStaff);
+        StateViews.bindEmpty(emptyStaff,
+                getString(R.string.empty_staff_title),
+                getString(R.string.empty_staff_msg), null, null);
         btnAddStaff = findViewById(R.id.btnAddStaff);
 
         rvStaff.setLayoutManager(new LinearLayoutManager(this));
@@ -71,6 +78,7 @@ public class StaffActivity extends AppCompatActivity {
         JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.GET, GET_STAFF_URL + storeId, null,
                 response -> {
+                    StateViews.hideLoading(loadingStaff);
                     try {
                         if (response.getBoolean("success")) {
                             staffList.clear();
@@ -91,18 +99,31 @@ public class StaffActivity extends AppCompatActivity {
                                 ));
                             }
                             adapter.notifyDataSetChanged();
+                            updateEmptyState();
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 },
                 error -> {
+                    StateViews.hideLoading(loadingStaff);
                     if (ApiSession.handleAuthError(this, error)) return;
                     Toast.makeText(this, "Failed to fetch staff list", Toast.LENGTH_SHORT).show();
                 }
         );
 
         queue.add(request);
+    }
+
+    /** Swaps list ↔ empty state so a branch with no staff yet reads as intentional. */
+    private void updateEmptyState() {
+        boolean empty = staffList == null || staffList.isEmpty();
+        if (emptyStaff != null) {
+            StateViews.setEmptyVisible(emptyStaff, empty);
+        }
+        if (rvStaff != null) {
+            rvStaff.setVisibility(empty ? View.INVISIBLE : View.VISIBLE);
+        }
     }
 
     private void showAddStaffDialog() {
@@ -199,7 +220,7 @@ public class StaffActivity extends AppCompatActivity {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
         Intent intent = new Intent(this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
+        ScreenTransitions.open(StaffActivity.this, intent);
+        ScreenTransitions.finish(StaffActivity.this);
     }
 }

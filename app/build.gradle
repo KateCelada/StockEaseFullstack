@@ -44,3 +44,17 @@ dependencies {
     implementation 'androidx.cardview:cardview:1.0.0'
 
 }
+
+// StockEase UI design audit — deterministic, dependency-free (tools/ui-check).
+// Run: ./gradlew :app:checkStockEaseUi  (fails only on error-severity STOCK findings)
+def uiCheckPython = org.gradle.internal.os.OperatingSystem.current().isWindows() ? 'py' : 'python3'
+tasks.register('checkStockEaseUi', Exec) {
+    description = 'Runs StockEase UI audit (STOCK-001..010) and writes baseline reports.'
+    group = 'verification'
+    workingDir = rootDir
+    commandLine uiCheckPython, 'tools/ui-check/check_ui.py',
+            '--res', 'app/src/main/res',
+            '--config', 'tools/ui-check/ui-check-config.json',
+            '--json-out', 'tools/ui-check/baseline-report.json',
+            '--md-out', 'tools/ui-check/baseline-report.md'
+}

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import androidx.core.content.ContextCompat;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -21,6 +22,7 @@ import java.util.Locale;
 public class ReceiptActivity extends AppCompatActivity {
 
     private TextView tvReceiptTxId, tvReceiptDate, tvReceiptItems, tvReceiptTotal;
+    private TextView tvStoreHeader, tvCashier;
     private Button btnNewSale, btnVoidFromReceipt;
     private int transactionId = -1;
 
@@ -33,12 +35,16 @@ public class ReceiptActivity extends AppCompatActivity {
         tvReceiptDate = findViewById(R.id.tvReceiptDate);
         tvReceiptItems = findViewById(R.id.tvReceiptItems);
         tvReceiptTotal = findViewById(R.id.tvReceiptTotal);
+        tvStoreHeader = findViewById(R.id.tvStoreHeader);
+        tvCashier = findViewById(R.id.tvCashier);
         btnNewSale = findViewById(R.id.btnNewSale);
         btnVoidFromReceipt = findViewById(R.id.btnVoidFromReceipt);
 
         transactionId = getIntent().getIntExtra("transaction_id", -1);
         double total = getIntent().getDoubleExtra("total_amount", 0.0);
         String summary = getIntent().getStringExtra("items_summary");
+        String storeName = getIntent().getStringExtra("store_name");
+        String cashierName = getIntent().getStringExtra("cashier_name");
 
         if (summary == null || summary.isEmpty()) {
             summary = "No items recorded.";
@@ -50,6 +56,20 @@ public class ReceiptActivity extends AppCompatActivity {
         tvReceiptDate.setText("DATE   : " + currentDate);
         tvReceiptItems.setText(summary);
         tvReceiptTotal.setText(String.format("₱%.2f", total));
+
+        // Real identity only — no invented address or phone number. The POS
+        // forwards the signed-in store and cashier; fall back to a neutral
+        // line rather than fabricating receipt details.
+        if (tvStoreHeader != null) {
+            tvStoreHeader.setText(storeName == null || storeName.trim().isEmpty()
+                    ? getString(R.string.receipt_store_header)
+                    : getString(R.string.receipt_store_named, storeName.trim()));
+        }
+        if (tvCashier != null) {
+            tvCashier.setText(cashierName == null || cashierName.trim().isEmpty()
+                    ? getString(R.string.receipt_cashier_unknown)
+                    : getString(R.string.receipt_cashier, cashierName.trim()));
+        }
 
         btnNewSale.setOnClickListener(v -> finish());
 
@@ -102,7 +122,7 @@ public class ReceiptActivity extends AppCompatActivity {
                     Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
                     if (success) {
                         tvReceiptTxId.setText(String.format("TRANS #: %06d (VOIDED)", transactionId));
-                        tvReceiptTxId.setTextColor(0xFFDC2626);
+                        tvReceiptTxId.setTextColor(ContextCompat.getColor(this, R.color.danger_strong));
                         btnVoidFromReceipt.setEnabled(false);
                         btnVoidFromReceipt.setText("VOIDED");
                     } else {

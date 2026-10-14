@@ -19,17 +19,17 @@
             android:id="@+id/tvFullName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#0F172A"
-            android:textSize="15sp"
-            android:textStyle="bold" />
+            android:textColor="@color/text_primary"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Section" />
 
         <TextView
             android:id="@+id/tvUsername"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#64748B"
-            android:textSize="13sp"
-            android:layout_marginTop="2dp" />
+            android:textColor="@color/text_secondary"
+
+            android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
     </LinearLayout>
 
     <TextView
@@ -37,10 +37,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_badge_emerald"
-        android:paddingHorizontal="10dp"
+        android:paddingHorizontal="12dp"
         android:paddingVertical="4dp"
-        android:textColor="#059669"
-        android:textSize="11sp"
-        android:textStyle="bold" />
+        android:textColor="@color/success_strong"
+
+        android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
 </LinearLayout>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 4dp grid. Prefer these over ad-hoc values (STOCK-008). -->
+    <dimen name="space_4">4dp</dimen>
+    <dimen name="space_8">8dp</dimen>
+    <dimen name="space_12">12dp</dimen>
+    <dimen name="space_16">16dp</dimen>
+    <dimen name="space_20">20dp</dimen>
+    <dimen name="space_24">24dp</dimen>
+    <dimen name="space_32">32dp</dimen>
+
+    <dimen name="radius_s">8dp</dimen>
+    <dimen name="radius_m">12dp</dimen>
+    <dimen name="radius_l">16dp</dimen>
+
+    <dimen name="card_elevation">2dp</dimen>
+    <dimen name="input_height">52dp</dimen>
+    <dimen name="btn_height">48dp</dimen>
+</resources>

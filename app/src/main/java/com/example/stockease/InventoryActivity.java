@@ -32,6 +32,8 @@ public class InventoryActivity extends AppCompatActivity {
     private static final String ADD_CATEGORY_URL = ApiConfig.getUrl("add_category.php");
 
     private RecyclerView rvCategories, rvFilteredProducts;
+    private View emptyCategories;
+    private View loadingCategories;
     private LinearLayout layoutFilteredProducts;
     private TextView tvHeaderTitle, tvHeaderSubtitle;
     private Button btnBackToCategories, btnAddCategory;
@@ -57,6 +59,13 @@ public class InventoryActivity extends AppCompatActivity {
         tvHeaderTitle = findViewById(R.id.tvHeaderTitle);
         tvHeaderSubtitle = findViewById(R.id.tvHeaderSubtitle);
         rvCategories = findViewById(R.id.rvCategories);
+        emptyCategories = findViewById(R.id.emptyCategories);
+        loadingCategories = findViewById(R.id.loadingCategories);
+        StateViews.bindEmpty(emptyCategories,
+                getString(R.string.empty_categories_title),
+                getString(R.string.empty_categories_msg),
+                getString(R.string.inv_empty_action),
+                v -> showAddCategoryDialog());
         rvFilteredProducts = findViewById(R.id.rvFilteredProducts);
         layoutFilteredProducts = findViewById(R.id.layoutFilteredProducts);
         btnBackToCategories = findViewById(R.id.btnBackToCategories);
@@ -90,6 +99,7 @@ public class InventoryActivity extends AppCompatActivity {
                 GET_CATEGORIES_URL + storeId,
                 null,
                 response -> {
+                    StateViews.hideLoading(loadingCategories);
                     categoryList.clear();
                     try {
                         for (int i = 0; i < response.length(); i++) {
@@ -101,16 +111,35 @@ public class InventoryActivity extends AppCompatActivity {
                             ));
                         }
                         categoryAdapter.notifyDataSetChanged();
+                        updateCategoryEmptyState();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 },
                 error -> {
+                    StateViews.hideLoading(loadingCategories);
                     if (ApiSession.handleAuthError(this, error)) return;
                     Toast.makeText(this, "Failed to load categories", Toast.LENGTH_SHORT).show();
                 }
         );
         queue.add(request);
+    }
+
+    /**
+     * Empty state for the categories grid. Respects the drill-down: when a
+     * category is open the grid is intentionally hidden, and the empty state
+     * must not reappear over the filtered product list.
+     */
+    private void updateCategoryEmptyState() {
+        boolean categoriesVisible = layoutFilteredProducts == null
+                || layoutFilteredProducts.getVisibility() != View.VISIBLE;
+        boolean empty = categoryList == null || categoryList.isEmpty();
+        if (emptyCategories != null) {
+            StateViews.setEmptyVisible(emptyCategories, categoriesVisible && empty);
+        }
+        if (rvCategories != null && categoriesVisible) {
+            rvCategories.setVisibility(empty ? View.INVISIBLE : View.VISIBLE);
+        }
     }
 
     private void onCategorySelected(Category category) {
@@ -233,7 +262,7 @@ public class InventoryActivity extends AppCompatActivity {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
         Intent intent = new Intent(this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
+        ScreenTransitions.open(InventoryActivity.this, intent);
+        ScreenTransitions.finish(InventoryActivity.this);
     }
 }

@@ -1,93 +1,175 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#1E1E36"
-    android:gravity="center"
-    android:orientation="vertical"
-    android:padding="24dp">
+    android:background="@color/app_background"
+    android:fillViewport="true">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:text="StockEase"
-        android:textColor="#FFFFFF"
-        android:textSize="28sp"
-        android:textStyle="bold" />
+        android:orientation="vertical"
+        android:padding="@dimen/space_24">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
-        android:text="Create a new account"
-        android:textColor="#9CA3AF"
-        android:textSize="14sp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_32"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-    <EditText
-        android:id="@+id/etFullName"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginBottom="12dp"
-        android:background="#2A2A4A"
-        android:hint="Full Name"
-        android:inputType="textPersonName"
-        android:paddingHorizontal="16dp"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#6B7280" />
+            <TextView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/bg_btn_primary"
+                android:contentDescription="@string/cd_brand_mark"
+                android:gravity="center"
+                android:text="@string/brand_initial"
+                android:textAppearance="@style/TextAppearance.StockEase.Title"
+                android:textColor="@color/white" />
 
-    <EditText
-        android:id="@+id/etUsername"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginBottom="12dp"
-        android:background="#2A2A4A"
-        android:hint="Username"
-        android:inputType="text"
-        android:paddingHorizontal="16dp"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#6B7280" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_12"
+                android:layout_weight="1"
+                android:orientation="vertical">
 
-    <EditText
-        android:id="@+id/etEmail"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginBottom="12dp"
-        android:background="#2A2A4A"
-        android:hint="Email Address"
-        android:inputType="textEmailAddress"
-        android:paddingHorizontal="16dp"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#6B7280" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/login_brand"
+                    android:textAppearance="@style/TextAppearance.StockEase.Title" />
 
-    <EditText
-        android:id="@+id/etPassword"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginBottom="24dp"
-        android:background="#2A2A4A"
-        android:hint="Password"
-        android:inputType="textPassword"
-        android:paddingHorizontal="16dp"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#6B7280" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_4"
+                    android:text="@string/register_tagline"
+                    android:textAppearance="@style/TextAppearance.StockEase.Label" />
+            </LinearLayout>
+        </LinearLayout>
 
-    <Button
-        android:id="@+id/btnRegister"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:backgroundTint="#3B82F6"
-        android:text="Register"
-        android:textColor="#FFFFFF"
-        android:textSize="16sp" />
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_24"
+            app:cardBackgroundColor="@color/card_background"
+            app:cardCornerRadius="@dimen/radius_l"
+            app:cardElevation="@dimen/card_elevation"
+            app:strokeColor="@color/card_border"
+            app:strokeWidth="1dp">
 
-    <TextView
-        android:id="@+id/tvLoginLink"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Already have an account? Log In"
-        android:textColor="#9CA3AF"
-        android:textSize="14sp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/space_20">
 
-</LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/register_title"
+                    android:textAppearance="@style/TextAppearance.StockEase.Display" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_4"
+                    android:text="@string/register_subtitle"
+                    android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilFullName"
+                    style="@style/Widget.StockEase.Input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_20"
+                    android:hint="@string/register_full_name_hint">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etFullName"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/input_height"
+                        android:inputType="textPersonName"
+                        android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilUsername"
+                    style="@style/Widget.StockEase.Input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_12"
+                    android:hint="@string/register_username_hint">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etUsername"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/input_height"
+                        android:inputType="text"
+                        android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilEmail"
+                    style="@style/Widget.StockEase.Input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_12"
+                    android:hint="@string/register_email_hint">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etEmail"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/input_height"
+                        android:inputType="textEmailAddress"
+                        android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilPassword"
+                    style="@style/Widget.StockEase.Input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_12"
+                    android:hint="@string/register_password_hint"
+                    app:passwordToggleEnabled="true">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etPassword"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/input_height"
+                        android:inputType="textPassword"
+                        android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnRegister"
+                    style="@style/Widget.StockEase.Button.Primary"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/btn_height"
+                    android:layout_marginTop="@dimen/space_16"
+                    android:text="@string/register_action" />
+
+                <TextView
+                    android:id="@+id/tvLoginLink"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_16"
+                    android:text="@string/register_login_link"
+                    android:textAppearance="@style/TextAppearance.StockEase.Body"
+                    android:textColor="@color/text_secondary" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_16"
+            android:gravity="center"
+            android:text="@string/register_foot"
+            android:textAppearance="@style/TextAppearance.StockEase.Caption" />
+    </LinearLayout>
+</ScrollView>

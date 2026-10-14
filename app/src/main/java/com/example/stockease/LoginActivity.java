@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.google.android.material.textfield.TextInputLayout;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,7 +24,9 @@ import org.json.JSONObject;
 public class LoginActivity extends AppCompatActivity {
 
     private EditText etUsername, etPassword;
+    private TextInputLayout tilUsername, tilPassword;
     private Button btnLogin;
+    private String loginLabel;
 
     private static final String LOGIN_URL = ApiConfig.getUrl("login.php");
     private static final String UPDATE_PASSWORD_URL = ApiConfig.getUrl("update_password.php");
@@ -36,12 +39,36 @@ public class LoginActivity extends AppCompatActivity {
         // Bind Views
         etUsername = findViewById(R.id.etUsername);
         etPassword = findViewById(R.id.etPassword);
+        tilUsername = findViewById(R.id.tilUsername);
+        tilPassword = findViewById(R.id.tilPassword);
         btnLogin = findViewById(R.id.btnLogin);
+        loginLabel = getString(R.string.login_action);
 
         // Login Button Click Listener
         if (btnLogin != null) {
             btnLogin.setOnClickListener(v -> performLogin());
         }
+    }
+
+    /** Inline field error: shows under the field instead of the legacy popup. */
+    private void showFieldError(TextInputLayout layout, EditText field, int msgRes) {
+        if (layout != null) {
+            layout.setError(getString(msgRes));
+        } else if (field != null) {
+            field.setError(getString(msgRes));
+        }
+        if (field != null) field.requestFocus();
+    }
+
+    private void clearFieldError(TextInputLayout layout, EditText field) {
+        if (layout != null) layout.setError(null);
+        if (field != null) field.setError(null);
+    }
+
+    private void setSigningIn(boolean inFlight) {
+        if (btnLogin == null) return;
+        btnLogin.setEnabled(!inFlight);
+        btnLogin.setText(inFlight ? getString(R.string.action_signing_in) : loginLabel);
     }
 
     private void performLogin() {
@@ -50,17 +77,20 @@ public class LoginActivity extends AppCompatActivity {
         String username = etUsername.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
 
+        clearFieldError(tilUsername, etUsername);
+        clearFieldError(tilPassword, etPassword);
+
         if (TextUtils.isEmpty(username)) {
-            etUsername.setError("Username is required");
-            etUsername.requestFocus();
+            showFieldError(tilUsername, etUsername, R.string.err_username_required);
             return;
         }
 
         if (TextUtils.isEmpty(password)) {
-            etPassword.setError("Password is required");
-            etPassword.requestFocus();
+            showFieldError(tilPassword, etPassword, R.string.err_password_required);
             return;
         }
+
+        setSigningIn(true);
 
         RequestQueue queue = ApiSession.getRequestQueue(this);
 
@@ -78,6 +108,7 @@ public class LoginActivity extends AppCompatActivity {
                 LOGIN_URL,
                 postData,
                 response -> {
+                    setSigningIn(false);
                     try {
                         boolean success = response.getBoolean("success");
                         String message = response.optString("message", "Login response received");
@@ -115,7 +146,13 @@ public class LoginActivity extends AppCompatActivity {
                             proceedToDashboard(userId, role, fullName, storeId, authUsername, email, storeName);
 
                         } else {
-                            Toast.makeText(LoginActivity.this, message, Toast.LENGTH_SHORT).show();
+                            // Credentials rejected: show it under the field, not as a toast
+                            if (tilPassword != null) {
+                                tilPassword.setError(message);
+                                etPassword.requestFocus();
+                            } else {
+                                Toast.makeText(LoginActivity.this, message, Toast.LENGTH_SHORT).show();
+                            }
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -123,6 +160,7 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 },
                 error -> {
+                    setSigningIn(false);
                     String detail = "Connection failed";
                     if (error.networkResponse != null) {
                         detail = "HTTP Status: " + error.networkResponse.statusCode;
@@ -284,7 +322,7 @@ public class LoginActivity extends AppCompatActivity {
         intent.putExtra("store_name", storeName);
 
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
+        ScreenTransitions.open(LoginActivity.this, intent);
+        ScreenTransitions.finish(LoginActivity.this);
     }
 }

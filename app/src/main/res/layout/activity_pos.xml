@@ -1,94 +1,142 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/app_background"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="@dimen/space_16">
 
     <!-- Title Header -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Point of Sale"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/black"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginBottom="@dimen/space_4"
+        android:text="@string/pos_title"
+        android:textAppearance="@style/TextAppearance.StockEase.Title" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/space_12"
+        android:text="@string/pos_subtitle"
+        android:textAppearance="@style/TextAppearance.StockEase.Body"
+        android:textColor="@color/text_secondary" />
 
     <!-- Available Products Section -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Available Products"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/darker_gray" />
+        android:text="@string/pos_products_header"
+        android:textAppearance="@style/TextAppearance.StockEase.Section" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvPosProducts"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginTop="@dimen/space_8">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvPosProducts"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <include
+            android:id="@+id/emptyProducts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            layout="@layout/view_empty_state" />
+    </FrameLayout>
 
     <!-- Cart Section Header -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Current Cart"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/darker_gray" />
+        android:layout_marginTop="@dimen/space_12"
+        android:text="@string/pos_cart_header"
+        android:textAppearance="@style/TextAppearance.StockEase.Section" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvCart"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginTop="@dimen/space_8">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvCart"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <include
+            android:id="@+id/emptyCart"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            layout="@layout/view_empty_state" />
+    </FrameLayout>
 
     <!-- Checkout Summary Bar -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_marginTop="@dimen/space_12"
+        android:background="@drawable/bg_card_white"
         android:gravity="center_vertical"
-        android:paddingTop="8dp">
+        android:orientation="vertical"
+        android:padding="@dimen/space_16">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Total: "
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/tvCartTotal"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="₱0.00"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:textColor="#2E7D32" />
-
-        <Button
-            android:id="@+id/btnCheckout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Checkout" />
-
-        <Button
-            android:id="@+id/btnTransactionHistory"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:text="📜 View Transaction History"
-            android:textColor="#FFFFFF"
-            android:backgroundTint="#000000" />
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/pos_total_label"
+                android:textAppearance="@style/TextAppearance.StockEase.Label"
+                android:textColor="@color/text_secondary" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/tvCartTotal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₱0.00"
+                android:textAppearance="@style/TextAppearance.StockEase.Metric"
+                android:textColor="@color/success_text" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_12"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnTransactionHistory"
+                style="@style/Widget.StockEase.Button.Secondary"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/btn_height"
+                android:layout_marginEnd="@dimen/space_8"
+                android:layout_weight="1"
+                android:text="@string/pos_history_action" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCheckout"
+                style="@style/Widget.StockEase.Button.Primary"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/btn_height"
+                android:layout_weight="2"
+                android:text="@string/pos_checkout_action" />
+        </LinearLayout>
     </LinearLayout>
-
 </LinearLayout>

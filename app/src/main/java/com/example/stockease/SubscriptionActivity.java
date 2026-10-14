@@ -6,6 +6,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import androidx.core.content.ContextCompat;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -110,12 +111,12 @@ public class SubscriptionActivity extends AppCompatActivity {
             if (tvSubHeaderBadge != null) {
                 tvSubHeaderBadge.setText("PREMIUM ACTIVE");
                 tvSubHeaderBadge.setBackgroundResource(R.drawable.bg_badge_emerald);
-                tvSubHeaderBadge.setTextColor(0xFF059669);
+                tvSubHeaderBadge.setTextColor(ContextCompat.getColor(this, R.color.success_strong));
             }
             if (tvCurrentStatusBadge != null) {
                 tvCurrentStatusBadge.setText(status.toUpperCase(Locale.US));
                 tvCurrentStatusBadge.setBackgroundResource(R.drawable.bg_badge_emerald);
-                tvCurrentStatusBadge.setTextColor(0xFF059669);
+                tvCurrentStatusBadge.setTextColor(ContextCompat.getColor(this, R.color.success_strong));
             }
             if (tvBillingPeriod != null) {
                 tvBillingPeriod.setText("yearly".equalsIgnoreCase(period) ? "Yearly (₱6,990 / yr)" : "Monthly (₱699 / mo)");
@@ -155,12 +156,12 @@ public class SubscriptionActivity extends AppCompatActivity {
             if (tvSubHeaderBadge != null) {
                 tvSubHeaderBadge.setText("PENDING APPROVAL");
                 tvSubHeaderBadge.setBackgroundResource(R.drawable.bg_badge_amber);
-                tvSubHeaderBadge.setTextColor(0xFFD97706);
+                tvSubHeaderBadge.setTextColor(ContextCompat.getColor(this, R.color.warning));
             }
             if (tvCurrentStatusBadge != null) {
                 tvCurrentStatusBadge.setText("AWAITING APPROVAL");
                 tvCurrentStatusBadge.setBackgroundResource(R.drawable.bg_badge_amber);
-                tvCurrentStatusBadge.setTextColor(0xFFD97706);
+                tvCurrentStatusBadge.setTextColor(ContextCompat.getColor(this, R.color.warning));
             }
             if (tvBillingPeriod != null) {
                 tvBillingPeriod.setText(reqPeriod.toUpperCase(Locale.US) + " (₱" + (int)price + ")");
@@ -198,12 +199,12 @@ public class SubscriptionActivity extends AppCompatActivity {
             if (tvSubHeaderBadge != null) {
                 tvSubHeaderBadge.setText("APPLICATION DECLINED");
                 tvSubHeaderBadge.setBackgroundResource(R.drawable.bg_badge_amber);
-                tvSubHeaderBadge.setTextColor(0xFFDC2626);
+                tvSubHeaderBadge.setTextColor(ContextCompat.getColor(this, R.color.danger_strong));
             }
             if (tvCurrentStatusBadge != null) {
                 tvCurrentStatusBadge.setText("DECLINED");
                 tvCurrentStatusBadge.setBackgroundResource(R.drawable.bg_badge_amber);
-                tvCurrentStatusBadge.setTextColor(0xFFDC2626);
+                tvCurrentStatusBadge.setTextColor(ContextCompat.getColor(this, R.color.danger_strong));
             }
             if (tvBillingPeriod != null) {
                 tvBillingPeriod.setText("Free Tier");
@@ -228,17 +229,17 @@ public class SubscriptionActivity extends AppCompatActivity {
             if (tvSubHeaderBadge != null) {
                 tvSubHeaderBadge.setText("FREE TIER");
                 tvSubHeaderBadge.setBackgroundResource(R.drawable.bg_badge_gray);
-                tvSubHeaderBadge.setTextColor(0xFF64748B);
+                tvSubHeaderBadge.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             }
             if (tvCurrentStatusBadge != null) {
                 if ("expired".equalsIgnoreCase(status)) {
                     tvCurrentStatusBadge.setText("EXPIRED");
                     tvCurrentStatusBadge.setBackgroundResource(R.drawable.bg_badge_gray);
-                    tvCurrentStatusBadge.setTextColor(0xFFDC2626);
+                    tvCurrentStatusBadge.setTextColor(ContextCompat.getColor(this, R.color.danger_strong));
                 } else {
                     tvCurrentStatusBadge.setText("ACTIVE");
                     tvCurrentStatusBadge.setBackgroundResource(R.drawable.bg_badge_gray);
-                    tvCurrentStatusBadge.setTextColor(0xFF334155);
+                    tvCurrentStatusBadge.setTextColor(ContextCompat.getColor(this, R.color.slate_700));
                 }
             }
             if (tvBillingPeriod != null) {

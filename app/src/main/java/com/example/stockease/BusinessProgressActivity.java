@@ -3,7 +3,6 @@ package com.example.stockease;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -12,6 +11,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import androidx.core.content.ContextCompat;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -188,10 +188,10 @@ public class BusinessProgressActivity extends AppCompatActivity {
     }
 
     private void updatePeriodTabsUI() {
-        int activeBg = 0xFF2563EB;
-        int activeText = 0xFFFFFFFF;
-        int inactiveBg = 0xFFE2E8F0;
-        int inactiveText = 0xFF475569;
+        int activeBg = ContextCompat.getColor(this, R.color.primary);
+        int activeText = ContextCompat.getColor(this, R.color.white);
+        int inactiveBg = ContextCompat.getColor(this, R.color.card_border);
+        int inactiveText = ContextCompat.getColor(this, R.color.slate_600);
 
         setButtonTab(btnFilterToday, "today".equals(selectedPeriod), activeBg, activeText, inactiveBg, inactiveText);
         setButtonTab(btnFilterWeek, "this_week".equals(selectedPeriod), activeBg, activeText, inactiveBg, inactiveText);
@@ -203,7 +203,7 @@ public class BusinessProgressActivity extends AppCompatActivity {
             btnFilterCustom.setText(customStartDate + " - " + customEndDate);
             tvChartDateRange.setText(customStartDate + " to " + customEndDate);
         } else {
-            btnFilterCustom.setText("Custom 📅");
+            btnFilterCustom.setText("Custom");
             if ("today".equals(selectedPeriod)) tvChartDateRange.setText("Today");
             else if ("this_month".equals(selectedPeriod)) tvChartDateRange.setText("This Month");
             else tvChartDateRange.setText("This Week");
@@ -326,7 +326,7 @@ public class BusinessProgressActivity extends AppCompatActivity {
         if (branches == null || branches.length() == 0) {
             TextView empty = new TextView(this);
             empty.setText("No branches found for this business.");
-            empty.setTextColor(0xFF64748B);
+            empty.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             empty.setPadding(0, 16, 0, 16);
             llSectionOneRows.addView(empty);
             return;
@@ -357,14 +357,14 @@ public class BusinessProgressActivity extends AppCompatActivity {
             colInfo.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.4f));
 
             TextView tvName = new TextView(this);
-            tvName.setText("📍 " + bName);
-            tvName.setTextColor(0xFF0F172A);
+            tvName.setText(bName);
+            tvName.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
             tvName.setTextSize(14f);
-            tvName.setTypeface(null, Typeface.BOLD);
+            tvName.setTypeface(tvName.getTypeface(), Typeface.BOLD);
 
             TextView tvLoc = new TextView(this);
             tvLoc.setText(bLoc);
-            tvLoc.setTextColor(0xFF64748B);
+            tvLoc.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             tvLoc.setTextSize(11f);
 
             colInfo.addView(tvName);
@@ -377,15 +377,15 @@ public class BusinessProgressActivity extends AppCompatActivity {
 
             TextView tvSales = new TextView(this);
             tvSales.setText(String.format(Locale.US, "₱%.2f", bSales));
-            tvSales.setTextColor(0xFF0F172A);
+            tvSales.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
             tvSales.setTextSize(14f);
-            tvSales.setTypeface(null, Typeface.BOLD);
+            tvSales.setTypeface(tvSales.getTypeface(), Typeface.BOLD);
 
             TextView tvPct = new TextView(this);
             tvPct.setText(bPct + "% of total");
-            tvPct.setTextColor(0xFF2563EB);
+            tvPct.setTextColor(ContextCompat.getColor(this, R.color.primary));
             tvPct.setTextSize(11f);
-            tvPct.setTypeface(null, Typeface.BOLD);
+            tvPct.setTypeface(tvPct.getTypeface(), Typeface.BOLD);
 
             colMetrics.addView(tvSales);
             colMetrics.addView(tvPct);
@@ -404,7 +404,7 @@ public class BusinessProgressActivity extends AppCompatActivity {
                 drillIntent.putExtra(EXTRA_SUBTITLE, "Location: " + bLoc);
                 drillIntent.putExtra("user_id", userId);
                 drillIntent.putExtra("role", role);
-                startActivity(drillIntent);
+                ScreenTransitions.open(BusinessProgressActivity.this, drillIntent);
             });
 
             llSectionOneRows.addView(row);
@@ -415,7 +415,7 @@ public class BusinessProgressActivity extends AppCompatActivity {
         if (products == null || products.length() == 0) {
             TextView empty = new TextView(this);
             empty.setText("No products sold during this period.");
-            empty.setTextColor(0xFF64748B);
+            empty.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             empty.setPadding(0, 16, 0, 16);
             llSectionOneRows.addView(empty);
             return;
@@ -443,9 +443,9 @@ public class BusinessProgressActivity extends AppCompatActivity {
 
             TextView tvRank = new TextView(this);
             tvRank.setText("#" + (i + 1));
-            tvRank.setTextColor(0xFF2563EB);
+            tvRank.setTextColor(ContextCompat.getColor(this, R.color.primary));
             tvRank.setTextSize(13f);
-            tvRank.setTypeface(null, Typeface.BOLD);
+            tvRank.setTypeface(tvRank.getTypeface(), Typeface.BOLD);
             tvRank.setLayoutParams(new LinearLayout.LayoutParams(42, LinearLayout.LayoutParams.WRAP_CONTENT));
 
             LinearLayout colP = new LinearLayout(this);
@@ -454,13 +454,13 @@ public class BusinessProgressActivity extends AppCompatActivity {
 
             TextView tvName = new TextView(this);
             tvName.setText(pName);
-            tvName.setTextColor(0xFF0F172A);
+            tvName.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
             tvName.setTextSize(13f);
-            tvName.setTypeface(null, Typeface.BOLD);
+            tvName.setTypeface(tvName.getTypeface(), Typeface.BOLD);
 
             TextView tvCat = new TextView(this);
             tvCat.setText("Category: " + cat);
-            tvCat.setTextColor(0xFF64748B);
+            tvCat.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             tvCat.setTextSize(11f);
 
             colP.addView(tvName);
@@ -473,13 +473,13 @@ public class BusinessProgressActivity extends AppCompatActivity {
 
             TextView tvQty = new TextView(this);
             tvQty.setText(soldQty + " Sold (₱" + String.format(Locale.US, "%.2f", revenue) + ")");
-            tvQty.setTextColor(0xFF0F172A);
+            tvQty.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
             tvQty.setTextSize(12f);
-            tvQty.setTypeface(null, Typeface.BOLD);
+            tvQty.setTypeface(tvQty.getTypeface(), Typeface.BOLD);
 
             TextView tvProfit = new TextView(this);
             tvProfit.setText("Profit: ₱" + String.format(Locale.US, "%.2f", profit));
-            tvProfit.setTextColor(0xFF10B981);
+            tvProfit.setTextColor(ContextCompat.getColor(this, R.color.success));
             tvProfit.setTextSize(11f);
 
             colS.addView(tvQty);
@@ -534,7 +534,7 @@ public class BusinessProgressActivity extends AppCompatActivity {
             tvAccountsCountBadge.setText("0 Accounts");
             TextView empty = new TextView(this);
             empty.setText("No staff or admin accounts registered for this store branch.");
-            empty.setTextColor(0xFF64748B);
+            empty.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             empty.setPadding(0, 12, 0, 12);
             llSectionTwoRows.addView(empty);
             return;
@@ -566,13 +566,13 @@ public class BusinessProgressActivity extends AppCompatActivity {
 
             TextView tvN = new TextView(this);
             tvN.setText(name);
-            tvN.setTextColor(0xFF0F172A);
+            tvN.setTextColor(ContextCompat.getColor(this, R.color.text_primary));
             tvN.setTextSize(13f);
-            tvN.setTypeface(null, Typeface.BOLD);
+            tvN.setTypeface(tvN.getTypeface(), Typeface.BOLD);
 
             TextView tvUn = new TextView(this);
             tvUn.setText("@" + username);
-            tvUn.setTextColor(0xFF64748B);
+            tvUn.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             tvUn.setTextSize(11f);
 
             colU.addView(tvN);
@@ -580,27 +580,27 @@ public class BusinessProgressActivity extends AppCompatActivity {
 
             TextView tvR = new TextView(this);
             String displayRole = "Cashier (Staff)";
-            int badgeColor = 0xFF1E40AF;
+            int badgeColor = ContextCompat.getColor(this, R.color.primary_ink);
             int badgeBg = R.drawable.bg_badge_blue;
 
             if ("store_admin".equalsIgnoreCase(userRole)) {
                 displayRole = "Store Admin";
-                badgeColor = 0xFF059669;
+                badgeColor = ContextCompat.getColor(this, R.color.success_strong);
                 badgeBg = R.drawable.bg_badge_emerald;
             } else if ("inventory_checker".equalsIgnoreCase(userRole)) {
                 displayRole = "Inventory Checker";
-                badgeColor = 0xFF7C3AED;
+                badgeColor = ContextCompat.getColor(this, R.color.purple_text);
                 badgeBg = R.drawable.bg_badge_gray;
             } else if ("manager".equalsIgnoreCase(userRole)) {
                 displayRole = "Store Manager";
-                badgeColor = 0xFFD97706;
+                badgeColor = ContextCompat.getColor(this, R.color.warning);
                 badgeBg = R.drawable.bg_badge_gray;
             }
 
             tvR.setText(displayRole);
             tvR.setTextColor(badgeColor);
             tvR.setTextSize(11f);
-            tvR.setTypeface(null, Typeface.BOLD);
+            tvR.setTypeface(tvR.getTypeface(), Typeface.BOLD);
             tvR.setBackgroundResource(badgeBg);
             tvR.setPadding(12, 4, 12, 4);
 

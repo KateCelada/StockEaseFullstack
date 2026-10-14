@@ -3,24 +3,24 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#EFEFF6"
+    android:background="@color/app_background"
     android:padding="20dp">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Sales &amp; Transactions"
-        android:textColor="#1B1C30"
-        android:textSize="22sp"
-        android:textStyle="bold" />
+        android:textColor="@color/text_primary"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Title" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Branch transaction history"
-        android:textColor="#6E7191"
-        android:textSize="13sp"
-        android:layout_marginBottom="16dp" />
+        android:textColor="@color/text_secondary"
+
+        android:layout_marginBottom="16dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvTransactions"

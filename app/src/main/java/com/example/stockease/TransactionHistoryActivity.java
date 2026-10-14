@@ -17,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.Request;
@@ -45,6 +46,8 @@ public class TransactionHistoryActivity extends AppCompatActivity {
     private Button btnExportCsv, btnFilterAll, btnFilterToday, btnFilterMonth, btnFilterCustom;
 
     private TransactionAdapter adapter;
+    private View emptyTransactions;
+    private View loadingTransactions;
     private List<Transaction> allTransactions = new ArrayList<>();
     private List<Transaction> displayedTransactions = new ArrayList<>();
     private int storeId = -1;
@@ -66,6 +69,11 @@ public class TransactionHistoryActivity extends AppCompatActivity {
         }
 
         rvTransactions = findViewById(R.id.rvTransactions);
+        emptyTransactions = findViewById(R.id.emptyTransactions);
+        loadingTransactions = findViewById(R.id.loadingTransactions);
+        StateViews.bindEmpty(emptyTransactions,
+                getString(R.string.empty_transactions_title),
+                getString(R.string.empty_transactions_msg), null, null);
         tvTotalRevenue = findViewById(R.id.tvTotalRevenue);
         etSearchTransactions = findViewById(R.id.etSearchTransactions);
         spinnerFilterStatus = findViewById(R.id.spinnerFilterStatus);
@@ -168,15 +176,57 @@ public class TransactionHistoryActivity extends AppCompatActivity {
         if (adapter != null) {
             adapter.notifyDataSetChanged();
         }
+        updateEmptyState();
+    }
+
+    /**
+     * Two empty states: no transactions recorded yet, versus a search or status
+     * filter that matches nothing. The second offers a way out.
+     */
+    private void updateEmptyState() {
+        boolean nothingAtAll = allTransactions == null || allTransactions.isEmpty();
+        boolean nothingShown = displayedTransactions == null || displayedTransactions.isEmpty();
+        if (emptyTransactions == null) return;
+
+        if (nothingShown) {
+            if (nothingAtAll) {
+                StateViews.bindEmpty(emptyTransactions,
+                        getString(R.string.empty_transactions_title),
+                        getString(R.string.empty_transactions_msg), null, null);
+            } else {
+                StateViews.bindEmpty(emptyTransactions,
+                        getString(R.string.empty_products_no_match_title),
+                        getString(R.string.empty_tx_no_match_msg),
+                        getString(R.string.state_action_clear),
+                        v -> clearFilters());
+            }
+        }
+        StateViews.setEmptyVisible(emptyTransactions, nothingShown);
+        if (rvTransactions != null) {
+            rvTransactions.setVisibility(nothingShown ? View.INVISIBLE : View.VISIBLE);
+        }
+    }
+
+    /** Drops the active search and status filter so the full history returns. */
+    private void clearFilters() {
+        currentSearchQuery = "";
+        currentStatusFilter = "All Statuses";
+        if (etSearchTransactions != null) {
+            etSearchTransactions.setText("");
+        }
+        if (spinnerFilterStatus != null) {
+            spinnerFilterStatus.setSelection(0);
+        }
+        applyFilters();
     }
 
     private void highlightActiveFilter(Button activeBtn) {
-        btnFilterAll.setBackgroundColor(0xFF555555);
-        btnFilterToday.setBackgroundColor(0xFF555555);
-        btnFilterMonth.setBackgroundColor(0xFF555555);
-        btnFilterCustom.setBackgroundColor(0xFF555555);
+        btnFilterAll.setBackgroundColor(ContextCompat.getColor(this, R.color.slate_600));
+        btnFilterToday.setBackgroundColor(ContextCompat.getColor(this, R.color.slate_600));
+        btnFilterMonth.setBackgroundColor(ContextCompat.getColor(this, R.color.slate_600));
+        btnFilterCustom.setBackgroundColor(ContextCompat.getColor(this, R.color.slate_600));
 
-        activeBtn.setBackgroundColor(0xFF0F172A);
+        activeBtn.setBackgroundColor(ContextCompat.getColor(this, R.color.text_primary));
     }
 
     private void filterToday() {
@@ -232,6 +282,7 @@ public class TransactionHistoryActivity extends AppCompatActivity {
         JsonArrayRequest request = new JsonArrayRequest(
                 Request.Method.GET, url, null,
                 response -> {
+                    StateViews.hideLoading(loadingTransactions);
                     allTransactions.clear();
                     try {
                         for (int i = 0; i < response.length(); i++) {
@@ -259,6 +310,7 @@ public class TransactionHistoryActivity extends AppCompatActivity {
                     }
                 },
                 error -> {
+                    StateViews.hideLoading(loadingTransactions);
                     if (ApiSession.handleAuthError(this, error)) return;
                     Toast.makeText(this, "Failed to load transaction history", Toast.LENGTH_SHORT).show();
                 }
@@ -375,7 +427,7 @@ public class TransactionHistoryActivity extends AppCompatActivity {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
         Intent intent = new Intent(this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
+        ScreenTransitions.open(TransactionHistoryActivity.this, intent);
+        ScreenTransitions.finish(TransactionHistoryActivity.this);
     }
 }

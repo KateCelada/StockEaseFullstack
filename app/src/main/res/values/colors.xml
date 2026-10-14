@@ -9,7 +9,6 @@
     <color name="sidebar_bg">#0F172A</color>
     <color name="sidebar_item_active">#1E293B</color>
     <color name="sidebar_text">#94A3B8</color>
-    <color name="sidebar_text_active">#FFFFFF</color>
     
     <!-- Backgrounds & Surfaces -->
     <color name="app_background">#F8FAFC</color>
@@ -35,10 +34,25 @@
     <color name="warning_bg">#FFFBEB</color>
     <color name="warning_text">#B45309</color>
     
-    <color name="purple">#8B5CF6</color>
     <color name="purple_bg">#F5F3FF</color>
     <color name="purple_text">#6D28D9</color>
 
-    <color name="black">#FF000000</color>
+    <!-- Extended StockEase tokens (consolidate legacy hardcoded hex here) -->
+    <color name="slate_700">#334155</color>
+    <color name="slate_600">#475569</color>
+    <color name="input_border">#CBD5E1</color>
+    <color name="success_strong">#059669</color>
+    <color name="profit">#16A34A</color>
+    <color name="danger_strong">#DC2626</color>
+    <color name="brand_accent">#7C4DFF</color>
+    <color name="primary_ink">#1E40AF</color>
+    <color name="badge_amber_bg">#FEF3C7</color>
+    <color name="overlay_scrim">#44000000</color>
+    <color name="transparent">#00000000</color>
+
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Phase 0 tokens: surfaces, strokes and sidebar detail -->
+    <color name="card_ripple">#140F172A</color>
+    <color name="sidebar_divider">#1E293B</color>
 </resources>

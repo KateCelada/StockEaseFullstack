@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import androidx.core.content.ContextCompat;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -126,7 +127,7 @@ public class SettingsActivity extends AppCompatActivity {
                 intent.putExtra("full_name", fullName);
                 intent.putExtra("store_id", getIntent().getIntExtra("store_id", -1));
                 intent.putExtra("store_name", getIntent().getStringExtra("store_name"));
-                startActivity(intent);
+                ScreenTransitions.open(SettingsActivity.this, intent);
             });
         }
 
@@ -203,7 +204,7 @@ public class SettingsActivity extends AppCompatActivity {
                             }
                             if (tvSettingsStatus != null) {
                                 tvSettingsStatus.setText(active ? "Active" : "Inactive");
-                                tvSettingsStatus.setTextColor(active ? 0xFF16A34A : 0xFFDC2626);
+                                tvSettingsStatus.setTextColor(active ? ContextCompat.getColor(this, R.color.profit) : ContextCompat.getColor(this, R.color.danger_strong));
                             }
                             if ("store_admin".equals(urole)) {
                                 if (tvSettingsRole != null) {

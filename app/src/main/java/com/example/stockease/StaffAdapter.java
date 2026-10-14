@@ -1,12 +1,12 @@
 package com.example.stockease;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
@@ -37,9 +37,9 @@ public class StaffAdapter extends RecyclerView.Adapter<StaffAdapter.StaffViewHol
         if (holder.tvStaffRole != null) {
             holder.tvStaffRole.setText(staff.getRoleDisplay());
             if ("inventory_checker".equalsIgnoreCase(staff.getRole())) {
-                holder.tvStaffRole.setTextColor(Color.parseColor("#7C3AED")); // Purple for inventory checker
+                holder.tvStaffRole.setTextColor(ContextCompat.getColor(context, R.color.purple_text)); // Purple for inventory checker
             } else {
-                holder.tvStaffRole.setTextColor(Color.parseColor("#2563EB")); // Blue for cashier
+                holder.tvStaffRole.setTextColor(ContextCompat.getColor(context, R.color.primary)); // Blue for cashier
             }
         }
 
@@ -47,9 +47,9 @@ public class StaffAdapter extends RecyclerView.Adapter<StaffAdapter.StaffViewHol
         holder.tvStaffStatus.setText(statusText);
 
         if (staff.isActive()) {
-            holder.tvStaffStatus.setTextColor(Color.parseColor("#10B981")); // Emerald
+            holder.tvStaffStatus.setTextColor(ContextCompat.getColor(context, R.color.success)); // Emerald
         } else {
-            holder.tvStaffStatus.setTextColor(Color.parseColor("#EF4444")); // Red
+            holder.tvStaffStatus.setTextColor(ContextCompat.getColor(context, R.color.danger)); // Red
         }
     }
 

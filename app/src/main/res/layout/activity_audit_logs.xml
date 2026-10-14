@@ -3,13 +3,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
-    android:background="#F8FAFC">
+    android:background="@color/app_background">
 
     <!-- Left Enterprise Navigation Sidebar -->
     <LinearLayout
         android:layout_width="230dp"
         android:layout_height="match_parent"
-        android:background="#0F172A"
+        android:background="@color/sidebar_bg"
         android:orientation="vertical"
         android:paddingHorizontal="16dp"
         android:paddingTop="20dp"
@@ -28,31 +28,61 @@
                 android:layout_height="28dp"
                 android:background="@drawable/bg_btn_primary"
                 android:text="S"
-                android:textColor="#FFFFFF"
-                android:textSize="15sp"
-                android:textStyle="bold"
+                android:textColor="@color/white"
+
+
                 android:gravity="center"
-                android:layout_marginEnd="10dp" />
+                android:layout_marginEnd="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Section" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="StockEase"
-                android:textColor="#FFFFFF"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:textColor="@color/white"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Title" />
         </LinearLayout>
 
-        <!-- SECTION: OVERVIEW -->
-        <TextView
-            android:layout_width="wrap_content"
+        <!-- SECTION HEADER: OVERVIEW -->
+        <LinearLayout
+            android:id="@+id/navHeaderOverview"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="OVERVIEW"
-            android:textColor="#64748B"
-            android:textSize="11sp"
-            android:textStyle="bold"
-            android:layout_marginStart="8dp"
-            android:layout_marginBottom="6dp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="OVERVIEW"
+                android:letterSpacing="0.08"
+                android:textColor="@color/sidebar_text"
+
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+            <TextView
+                android:id="@+id/navArrowOverview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/sidebar_text"
+
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navSectionOverviewItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="4dp">
 
         <LinearLayout
             android:id="@+id/navAuditDashboard"
@@ -63,32 +93,65 @@
             android:paddingHorizontal="12dp"
             android:clickable="true"
             android:focusable="true"
-            android:layout_marginBottom="14dp">
+            android:layout_marginBottom="16dp"
+            android:background="?attr/selectableItemBackground">
 
             <ImageView
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 android:src="@drawable/ic_nav_dashboard"
-                android:layout_marginEnd="10dp" />
+                android:layout_marginEnd="12dp"  android:contentDescription="@string/cd_nav_icon" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Dashboard"
-                android:textColor="#94A3B8"
-                android:textSize="13sp" />
+                android:textColor="@color/sidebar_text"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
         </LinearLayout>
 
-        <!-- SECTION: MANAGEMENT -->
-        <TextView
-            android:layout_width="wrap_content"
+        </LinearLayout>
+
+        <!-- SECTION HEADER: MANAGEMENT -->
+        <LinearLayout
+            android:id="@+id/navHeaderManagement"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="MANAGEMENT"
-            android:textColor="#64748B"
-            android:textSize="11sp"
-            android:textStyle="bold"
-            android:layout_marginStart="8dp"
-            android:layout_marginBottom="6dp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="MANAGEMENT"
+                android:letterSpacing="0.08"
+                android:textColor="@color/sidebar_text"
+
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+            <TextView
+                android:id="@+id/navArrowManagement"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/sidebar_text"
+
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navSectionManagementItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="4dp">
 
         <LinearLayout
             android:id="@+id/navAuditStores"
@@ -99,20 +162,21 @@
             android:paddingHorizontal="12dp"
             android:clickable="true"
             android:focusable="true"
-            android:layout_marginBottom="2dp">
+            android:layout_marginBottom="4dp"
+            android:background="?attr/selectableItemBackground">
 
             <ImageView
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 android:src="@drawable/ic_nav_stores"
-                android:layout_marginEnd="10dp" />
+                android:layout_marginEnd="12dp"  android:contentDescription="@string/cd_nav_icon" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Stores"
-                android:textColor="#94A3B8"
-                android:textSize="13sp" />
+                android:textColor="@color/sidebar_text"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
         </LinearLayout>
 
         <LinearLayout
@@ -124,20 +188,21 @@
             android:paddingHorizontal="12dp"
             android:clickable="true"
             android:focusable="true"
-            android:layout_marginBottom="2dp">
+            android:layout_marginBottom="4dp"
+            android:background="?attr/selectableItemBackground">
 
             <ImageView
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 android:src="@drawable/ic_nav_users"
-                android:layout_marginEnd="10dp" />
+                android:layout_marginEnd="12dp"  android:contentDescription="@string/cd_nav_icon" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Users"
-                android:textColor="#94A3B8"
-                android:textSize="13sp" />
+                android:textColor="@color/sidebar_text"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
         </LinearLayout>
 
         <LinearLayout
@@ -149,32 +214,65 @@
             android:paddingHorizontal="12dp"
             android:clickable="true"
             android:focusable="true"
-            android:layout_marginBottom="14dp">
+            android:layout_marginBottom="16dp"
+            android:background="?attr/selectableItemBackground">
 
             <ImageView
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 android:src="@drawable/ic_nav_admins"
-                android:layout_marginEnd="10dp" />
+                android:layout_marginEnd="12dp"  android:contentDescription="@string/cd_nav_icon" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Store Admins"
-                android:textColor="#94A3B8"
-                android:textSize="13sp" />
+                android:textColor="@color/sidebar_text"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
         </LinearLayout>
 
-        <!-- SECTION: ANALYTICS -->
-        <TextView
-            android:layout_width="wrap_content"
+        </LinearLayout>
+
+        <!-- SECTION HEADER: ANALYTICS -->
+        <LinearLayout
+            android:id="@+id/navHeaderAnalytics"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="ANALYTICS"
-            android:textColor="#64748B"
-            android:textSize="11sp"
-            android:textStyle="bold"
-            android:layout_marginStart="8dp"
-            android:layout_marginBottom="6dp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="ANALYTICS"
+                android:letterSpacing="0.08"
+                android:textColor="@color/sidebar_text"
+
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+            <TextView
+                android:id="@+id/navArrowAnalytics"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/sidebar_text"
+
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navSectionAnalyticsItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="4dp">
 
         <LinearLayout
             android:id="@+id/navAuditReports"
@@ -185,20 +283,21 @@
             android:paddingHorizontal="12dp"
             android:clickable="true"
             android:focusable="true"
-            android:layout_marginBottom="2dp">
+            android:layout_marginBottom="4dp"
+            android:background="?attr/selectableItemBackground">
 
             <ImageView
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 android:src="@drawable/ic_nav_reports"
-                android:layout_marginEnd="10dp" />
+                android:layout_marginEnd="12dp"  android:contentDescription="@string/cd_nav_icon" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Reports"
-                android:textColor="#94A3B8"
-                android:textSize="13sp" />
+                android:textColor="@color/sidebar_text"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
         </LinearLayout>
 
         <!-- Active Menu Item: Audit Logs -->
@@ -206,37 +305,69 @@
             android:id="@+id/navAuditAuditLogs"
             android:layout_width="match_parent"
             android:layout_height="38dp"
-            android:background="#1E293B"
+            android:background="@drawable/bg_nav_item_active"
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:paddingHorizontal="12dp"
-            android:layout_marginBottom="14dp">
+            android:layout_marginBottom="16dp">
 
             <ImageView
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 android:src="@drawable/ic_nav_inventory"
-                android:layout_marginEnd="10dp" />
+                android:layout_marginEnd="12dp"  android:contentDescription="@string/cd_nav_icon" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Audit Logs"
-                android:textColor="#FFFFFF"
-                android:textSize="13sp"
-                android:textStyle="bold" />
+                android:textColor="@color/white"
+
+                android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
         </LinearLayout>
 
-        <!-- SECTION: SYSTEM -->
-        <TextView
-            android:layout_width="wrap_content"
+        </LinearLayout>
+
+        <!-- SECTION HEADER: SYSTEM -->
+        <LinearLayout
+            android:id="@+id/navHeaderSystem"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="SYSTEM"
-            android:textColor="#64748B"
-            android:textSize="11sp"
-            android:textStyle="bold"
-            android:layout_marginStart="8dp"
-            android:layout_marginBottom="6dp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="SYSTEM"
+                android:letterSpacing="0.08"
+                android:textColor="@color/sidebar_text"
+
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+            <TextView
+                android:id="@+id/navArrowSystem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/sidebar_text"
+
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navSectionSystemItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="4dp">
 
         <LinearLayout
             android:id="@+id/navAuditSettings"
@@ -246,20 +377,23 @@
             android:gravity="center_vertical"
             android:paddingHorizontal="12dp"
             android:clickable="true"
-            android:focusable="true">
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground">
 
             <ImageView
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 android:src="@drawable/ic_nav_settings"
-                android:layout_marginEnd="10dp" />
+                android:layout_marginEnd="12dp"  android:contentDescription="@string/cd_nav_icon" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Settings"
-                android:textColor="#94A3B8"
-                android:textSize="13sp" />
+                android:textColor="@color/sidebar_text"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+        </LinearLayout>
+
         </LinearLayout>
 
         <View
@@ -273,9 +407,9 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingVertical="10dp"
-            android:background="#1E293B"
-            android:paddingHorizontal="10dp"
+            android:paddingVertical="12dp"
+            android:background="@drawable/bg_nav_item_active"
+            android:paddingHorizontal="12dp"
             android:layout_marginBottom="8dp">
 
             <TextView
@@ -285,10 +419,10 @@
                 android:background="@drawable/bg_avatar_circle"
                 android:gravity="center"
                 android:text="SA"
-                android:textColor="#FFFFFF"
-                android:textSize="12sp"
+                android:textColor="@color/white"
+
                 android:textStyle="bold"
-                android:layout_marginEnd="10dp" />
+                android:layout_marginEnd="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -301,19 +435,26 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="System Super Admin"
-                    android:textColor="#FFFFFF"
-                    android:textSize="12sp"
+                    android:textColor="@color/white"
+
                     android:textStyle="bold"
-                    android:singleLine="true" />
+                    android:singleLine="true"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Super Administrator"
-                    android:textColor="#94A3B8"
-                    android:textSize="10sp" />
+                    android:textColor="@color/sidebar_text"
+  android:textAppearance="@style/TextAppearance.StockEase.Caption" />
             </LinearLayout>
         </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="@color/sidebar_divider" />
 
         <LinearLayout
             android:id="@+id/navAuditLogout"
@@ -321,23 +462,24 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingHorizontal="10dp"
+            android:paddingHorizontal="12dp"
             android:paddingVertical="8dp"
             android:clickable="true"
-            android:focusable="true">
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground">
 
             <ImageView
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 android:src="@drawable/ic_nav_logout"
-                android:layout_marginEnd="10dp" />
+                android:layout_marginEnd="12dp"  android:contentDescription="@string/cd_nav_icon" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Log out"
-                android:textColor="#94A3B8"
-                android:textSize="13sp" />
+                android:textColor="@color/sidebar_text"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
         </LinearLayout>
 
     </LinearLayout>
@@ -373,33 +515,33 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Audit Logs"
-                        android:textColor="#0F172A"
-                        android:textSize="22sp"
-                        android:textStyle="bold" />
+                        android:textColor="@color/text_primary"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Title" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Review administrative events, security actions, and operational audit trail"
-                        android:textColor="#64748B"
-                        android:textSize="13sp"
-                        android:layout_marginTop="2dp" />
+                        android:textColor="@color/text_secondary"
+
+                        android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
                 </LinearLayout>
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnAuditRefresh"
                     android:layout_width="wrap_content"
                     android:layout_height="36dp"
                     android:text="Refresh"
-                    android:textSize="12sp"
-                    android:textColor="#FFFFFF"
-                    android:backgroundTint="@color/primary"
+
+                    android:textColor="@color/white"
                     android:paddingHorizontal="16dp"
-                    android:paddingVertical="0dp" />
+                    android:paddingVertical="0dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" style="@style/Widget.StockEase.Button.Primary" />
             </LinearLayout>
 
             <!-- Filters & Search Toolbar -->
             <LinearLayout
+                android:id="@+id/cardAuditFilters"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_card_white"
@@ -416,14 +558,14 @@
                     android:background="@drawable/bg_input_field"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
-                    android:paddingHorizontal="10dp"
+                    android:paddingHorizontal="12dp"
                     android:layout_marginEnd="12dp">
 
                     <ImageView
                         android:layout_width="16dp"
                         android:layout_height="16dp"
                         android:src="@drawable/ic_search"
-                        android:layout_marginEnd="8dp" />
+                        android:layout_marginEnd="8dp"  android:contentDescription="@string/cd_nav_icon" />
 
                     <EditText
                         android:id="@+id/etAuditSearch"
@@ -431,11 +573,11 @@
                         android:layout_height="match_parent"
                         android:background="@null"
                         android:hint="Search by user, action, target, or store..."
-                        android:textColor="#0F172A"
-                        android:textColorHint="#94A3B8"
-                        android:textSize="13sp"
+                        android:textColor="@color/text_primary"
+                        android:textColorHint="@color/text_muted"
+
                         android:singleLine="true"
-                        android:imeOptions="actionSearch" />
+                        android:imeOptions="actionSearch"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
                 </LinearLayout>
 
                 <!-- Filter Spinner -->
@@ -453,79 +595,75 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="14dp">
+                android:layout_marginBottom="16dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Date Filter:"
-                    android:textColor="#64748B"
-                    android:textSize="12sp"
-                    android:textStyle="bold"
-                    android:layout_marginEnd="10dp" />
+                    android:textColor="@color/text_secondary"
 
-                <Button
+                    android:textStyle="bold"
+                    android:layout_marginEnd="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnAuditFilterAll"
                     android:layout_width="wrap_content"
                     android:layout_height="32dp"
                     android:text="All"
-                    android:textSize="11sp"
-                    android:textColor="#FFFFFF"
-                    android:backgroundTint="#2563EB"
+
+                    android:textColor="@color/white"
                     android:paddingHorizontal="12dp"
                     android:paddingVertical="0dp"
-                    android:layout_marginEnd="6dp" />
+                    android:layout_marginEnd="8dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" style="@style/Widget.StockEase.Button.Primary" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnAuditFilterToday"
                     android:layout_width="wrap_content"
                     android:layout_height="32dp"
                     android:text="Today"
-                    android:textSize="11sp"
-                    android:textColor="#475569"
-                    android:backgroundTint="#E2E8F0"
+
+                    android:textColor="@color/slate_600"
                     android:paddingHorizontal="12dp"
                     android:paddingVertical="0dp"
-                    android:layout_marginEnd="6dp" />
+                    android:layout_marginEnd="8dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" style="@style/Widget.StockEase.Button.Secondary" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnAuditFilterWeek"
                     android:layout_width="wrap_content"
                     android:layout_height="32dp"
                     android:text="This Week"
-                    android:textSize="11sp"
-                    android:textColor="#475569"
-                    android:backgroundTint="#E2E8F0"
+
+                    android:textColor="@color/slate_600"
                     android:paddingHorizontal="12dp"
                     android:paddingVertical="0dp"
-                    android:layout_marginEnd="6dp" />
+                    android:layout_marginEnd="8dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" style="@style/Widget.StockEase.Button.Secondary" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnAuditFilterMonth"
                     android:layout_width="wrap_content"
                     android:layout_height="32dp"
                     android:text="This Month"
-                    android:textSize="11sp"
-                    android:textColor="#475569"
-                    android:backgroundTint="#E2E8F0"
+
+                    android:textColor="@color/slate_600"
                     android:paddingHorizontal="12dp"
                     android:paddingVertical="0dp"
-                    android:layout_marginEnd="6dp" />
+                    android:layout_marginEnd="8dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" style="@style/Widget.StockEase.Button.Secondary" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnAuditFilterCustom"
                     android:layout_width="wrap_content"
                     android:layout_height="32dp"
-                    android:text="Custom 📅"
-                    android:textSize="11sp"
-                    android:textColor="#475569"
-                    android:backgroundTint="#E2E8F0"
+                    android:text="Custom"
+
+                    android:textColor="@color/slate_600"
                     android:paddingHorizontal="12dp"
-                    android:paddingVertical="0dp" />
+                    android:paddingVertical="0dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" style="@style/Widget.StockEase.Button.Secondary" />
             </LinearLayout>
 
             <!-- Audit Logs Data Table Card -->
             <LinearLayout
+                android:id="@+id/cardAuditTable"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_card_white"
@@ -536,70 +674,70 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="44dp"
-                    android:paddingHorizontal="14dp"
+                    android:paddingHorizontal="16dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:background="#F8FAFC">
+                    android:background="@color/app_background">
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1.4"
                         android:text="DATE &amp; TIME"
-                        android:textColor="#64748B"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
+                        android:textColor="@color/text_secondary"
+
+                        android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1.4"
                         android:text="USER"
-                        android:textColor="#64748B"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
+                        android:textColor="@color/text_secondary"
+
+                        android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1.0"
                         android:text="ROLE"
-                        android:textColor="#64748B"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
+                        android:textColor="@color/text_secondary"
+
+                        android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1.4"
                         android:text="ACTION"
-                        android:textColor="#64748B"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
+                        android:textColor="@color/text_secondary"
+
+                        android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1.2"
                         android:text="STORE / SCOPE"
-                        android:textColor="#64748B"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
+                        android:textColor="@color/text_secondary"
+
+                        android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="2.6"
                         android:text="DETAILS"
-                        android:textColor="#64748B"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
+                        android:textColor="@color/text_secondary"
+
+                        android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
                 </LinearLayout>
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="#E2E8F0" />
+                    android:background="@color/card_border" />
 
                 <!-- Status / Empty Indicator -->
                 <TextView
@@ -607,11 +745,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Loading audit logs..."
-                    android:textColor="#64748B"
-                    android:textSize="13sp"
+                    android:textColor="@color/text_secondary"
+
                     android:gravity="center"
                     android:padding="32dp"
-                    android:visibility="gone" />
+                    android:visibility="gone"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
                 <!-- Dynamic Audit Rows -->
                 <LinearLayout

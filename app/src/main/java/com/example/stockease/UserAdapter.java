@@ -1,11 +1,11 @@
 package com.example.stockease;
 
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
@@ -40,11 +40,11 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         holder.tvStore.setText("Store: " + user.getStoreName());
         if (user.isActive()) {
             holder.tvActive.setText("Active");
-            holder.tvActive.setTextColor(Color.parseColor("#059669"));
+            holder.tvActive.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.success_strong));
             holder.tvActive.setBackgroundResource(R.drawable.bg_badge_emerald);
         } else {
             holder.tvActive.setText("Inactive");
-            holder.tvActive.setTextColor(Color.parseColor("#64748B"));
+            holder.tvActive.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.text_secondary));
             holder.tvActive.setBackgroundResource(R.drawable.bg_badge_gray);
         }
 

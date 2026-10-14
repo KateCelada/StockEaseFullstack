@@ -52,6 +52,8 @@ public class ProductsActivity extends AppCompatActivity {
 
     private ProductAdapter productAdapter;
     private RecyclerView rvProducts;
+    private View emptyProducts;
+    private View loadingProducts;
     private EditText etSearchProduct;
     private Spinner spinnerFilterCategory;
     private TextView tvProductCountSubtitle;
@@ -76,6 +78,11 @@ public class ProductsActivity extends AppCompatActivity {
         etSearchProduct = findViewById(R.id.etSearchProduct);
         spinnerFilterCategory = findViewById(R.id.spinnerFilterCategory);
         rvProducts = findViewById(R.id.rvProducts);
+        emptyProducts = findViewById(R.id.emptyProducts);
+        loadingProducts = findViewById(R.id.loadingProducts);
+        StateViews.bindEmpty(emptyProducts,
+                getString(R.string.empty_products_title),
+                getString(R.string.empty_products_msg), null, null);
 
         if (rvProducts != null) {
             rvProducts.setLayoutManager(new LinearLayoutManager(this));
@@ -146,6 +153,48 @@ public class ProductsActivity extends AppCompatActivity {
         if (productAdapter != null) {
             productAdapter.notifyDataSetChanged();
         }
+        updateEmptyState();
+    }
+
+    /**
+     * Two different empty states: no products at all, versus a filter or search
+     * that matches nothing. The second offers a way out (clear the filter).
+     */
+    private void updateEmptyState() {
+        boolean nothingAtAll = allProducts == null || allProducts.isEmpty();
+        boolean nothingShown = displayedProducts == null || displayedProducts.isEmpty();
+        if (emptyProducts == null) return;
+
+        if (nothingShown) {
+            if (nothingAtAll) {
+                StateViews.bindEmpty(emptyProducts,
+                        getString(R.string.empty_products_title),
+                        getString(R.string.empty_products_msg), null, null);
+            } else {
+                StateViews.bindEmpty(emptyProducts,
+                        getString(R.string.empty_products_no_match_title),
+                        getString(R.string.empty_products_no_match_msg),
+                        getString(R.string.state_action_clear),
+                        v -> clearFilters());
+            }
+        }
+        StateViews.setEmptyVisible(emptyProducts, nothingShown);
+        if (rvProducts != null) {
+            rvProducts.setVisibility(nothingShown ? View.INVISIBLE : View.VISIBLE);
+        }
+    }
+
+    /** Drops the active search and category filter so the full catalog returns. */
+    private void clearFilters() {
+        currentSearchQuery = "";
+        currentCategoryFilter = "All Categories";
+        if (etSearchProduct != null) {
+            etSearchProduct.setText("");
+        }
+        if (spinnerFilterCategory != null) {
+            spinnerFilterCategory.setSelection(0);
+        }
+        applyFilters();
     }
 
     private void fetchCategories() {
@@ -196,6 +245,7 @@ public class ProductsActivity extends AppCompatActivity {
                 GET_PRODUCTS_URL + storeId,
                 null,
                 response -> {
+                    StateViews.hideLoading(loadingProducts);
                     allProducts.clear();
                     try {
                         if (!response.optBoolean("success", false)) {
@@ -228,6 +278,7 @@ public class ProductsActivity extends AppCompatActivity {
                     }
                 },
                 error -> {
+                    StateViews.hideLoading(loadingProducts);
                     if (ApiSession.handleAuthError(this, error)) return;
                     Log.e("FetchProducts", "Failed to load product list");
                 }
@@ -351,7 +402,7 @@ public class ProductsActivity extends AppCompatActivity {
                                             subIntent.putExtra("store_id", storeId);
                                             subIntent.putExtra("user_id", userId);
                                             subIntent.putExtra("role", role);
-                                            startActivity(subIntent);
+                                            ScreenTransitions.open(ProductsActivity.this, subIntent);
                                         })
                                         .setNegativeButton("Maybe Later", null)
                                         .show();
@@ -599,7 +650,7 @@ public class ProductsActivity extends AppCompatActivity {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
         Intent intent = new Intent(this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
+        ScreenTransitions.open(ProductsActivity.this, intent);
+        ScreenTransitions.finish(ProductsActivity.this);
     }
 }

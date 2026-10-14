@@ -2,6 +2,7 @@ package com.example.stockease;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,6 +30,7 @@ public class POSActivity extends AppCompatActivity {
     private RecyclerView rvPosProducts, rvCart;
     private TextView tvCartTotal;
     private Button btnCheckout, btnTransactionHistory; // Added button variable
+    private View emptyProducts, emptyCart;
 
     private List<Product> productList = new ArrayList<>();
     private List<CartItem> cartItemList = new ArrayList<>();
@@ -60,6 +62,16 @@ public class POSActivity extends AppCompatActivity {
         // Find the Transaction History button from your activity_pos.xml layout
         btnTransactionHistory = findViewById(R.id.btnTransactionHistory);
 
+        emptyProducts = findViewById(R.id.emptyProducts);
+        emptyCart = findViewById(R.id.emptyCart);
+        StateViews.bindEmpty(emptyProducts,
+                getString(R.string.pos_empty_products),
+                getString(R.string.pos_empty_products_msg), null, null);
+        StateViews.bindEmpty(emptyCart,
+                getString(R.string.pos_empty_cart),
+                getString(R.string.pos_empty_cart_msg), null, null);
+        updateEmptyStates();
+
         rvPosProducts.setLayoutManager(new LinearLayoutManager(this));
         productAdapter = new POSProductAdapter(this, productList, this::addToCart);
         rvPosProducts.setAdapter(productAdapter);
@@ -76,7 +88,7 @@ public class POSActivity extends AppCompatActivity {
                 Intent intent = new Intent(POSActivity.this, TransactionHistoryActivity.class);
                 intent.putExtra("store_id", storeId);
                 intent.putExtra("user_id", userId);
-                startActivity(intent);
+                ScreenTransitions.open(POSActivity.this, intent);
             });
         }
 
@@ -114,14 +126,30 @@ public class POSActivity extends AppCompatActivity {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+                    updateEmptyStates();
                 },
                 error -> {
                     if (ApiSession.handleAuthError(this, error)) return;
                     Toast.makeText(this, "Network Error: Could not load products", Toast.LENGTH_SHORT).show();
+                    updateEmptyStates();
                 }
         );
 
         queue.add(request);
+    }
+
+    /** Swaps list ↔ empty state so a quiet store or empty cart reads as intentional. */
+    private void updateEmptyStates() {
+        if (emptyProducts != null) {
+            boolean noProducts = productList.isEmpty();
+            emptyProducts.setVisibility(noProducts ? View.VISIBLE : View.GONE);
+            rvPosProducts.setVisibility(noProducts ? View.INVISIBLE : View.VISIBLE);
+        }
+        if (emptyCart != null) {
+            boolean noCart = cartItemList.isEmpty();
+            emptyCart.setVisibility(noCart ? View.VISIBLE : View.GONE);
+            rvCart.setVisibility(noCart ? View.INVISIBLE : View.VISIBLE);
+        }
     }
 
     private void addToCart(Product product) {
@@ -146,6 +174,7 @@ public class POSActivity extends AppCompatActivity {
         cartItemList.add(new CartItem(product, 1));
         cartAdapter.notifyDataSetChanged();
         calculateTotal();
+        updateEmptyStates();
     }
 
     private void calculateTotal() {
@@ -154,6 +183,7 @@ public class POSActivity extends AppCompatActivity {
             total += item.getTotalPrice();
         }
         tvCartTotal.setText(String.format("₱%.2f", total));
+        updateEmptyStates();
     }
 
     private void processCheckout() {
@@ -210,9 +240,14 @@ public class POSActivity extends AppCompatActivity {
             requestData.put("items", itemsArray);
 
             RequestQueue queue = ApiSession.getRequestQueue(this);
+            if (btnCheckout != null) {
+                btnCheckout.setEnabled(false);
+                btnCheckout.setText(R.string.action_processing);
+            }
             JsonObjectRequest request = new JsonObjectRequest(
                     Request.Method.POST, PROCESS_TRANSACTION_URL, requestData,
                     response -> {
+                        setCheckoutInFlight(false);
                         try {
                             if (response.getBoolean("success")) {
                                 int transactionId = response.optInt("transaction_id", -1);
@@ -248,7 +283,11 @@ public class POSActivity extends AppCompatActivity {
                                 intent.putExtra("transaction_id", transactionId);
                                 intent.putExtra("total_amount", serverTotal);
                                 intent.putExtra("items_summary", itemsSummary);
-                                startActivity(intent);
+                                // Real store/cashier identity for the receipt header —
+                                // forwarded from the dashboard that launched POS.
+                                intent.putExtra("store_name", getIntent().getStringExtra("store_name"));
+                                intent.putExtra("cashier_name", getIntent().getStringExtra("full_name"));
+                                ScreenTransitions.open(POSActivity.this, intent);
 
                                 cartItemList.clear();
                                 cartAdapter.notifyDataSetChanged();
@@ -264,6 +303,7 @@ public class POSActivity extends AppCompatActivity {
                         }
                     },
                     error -> {
+                        setCheckoutInFlight(false);
                         if (ApiSession.handleAuthError(this, error)) return;
                         String errDetails = "Checkout Failed";
                         if (error.networkResponse != null && error.networkResponse.data != null) {
@@ -280,6 +320,13 @@ public class POSActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    /** Checkout button in-flight state: disabled + "Processing…" while the POST runs. */
+    private void setCheckoutInFlight(boolean inFlight) {
+        if (btnCheckout == null) return;
+        btnCheckout.setEnabled(!inFlight);
+        btnCheckout.setText(inFlight ? R.string.action_processing : R.string.pos_checkout_action);
     }
 
     private final android.os.Handler syncHandler = new android.os.Handler(android.os.Looper.getMainLooper());
@@ -308,7 +355,7 @@ public class POSActivity extends AppCompatActivity {
         Toast.makeText(this, message, Toast.LENGTH_LONG).show();
         Intent intent = new Intent(this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
+        ScreenTransitions.open(POSActivity.this, intent);
+        ScreenTransitions.finish(POSActivity.this);
     }
 }

@@ -26,3 +26,9 @@ local.properties
 # Windows
 Thumbs.db
 Desktop.ini
+
+# ui-check: keep the tooling, drop the generated/transient output
+tools/ui-check/migration-backup/
+tools/ui-check/__pycache__/
+tools/ui-check/baseline-report.json
+tools/ui-check/baseline-report.md

@@ -26,17 +26,17 @@
                 android:id="@+id/tvFullName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#0F172A"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                android:textColor="@color/text_primary"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Section" />
 
             <TextView
                 android:id="@+id/tvUsername"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#64748B"
-                android:textSize="13sp"
-                android:layout_marginTop="2dp" />
+                android:textColor="@color/text_secondary"
+
+                android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
         </LinearLayout>
 
         <TextView
@@ -44,17 +44,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_badge_emerald"
-            android:paddingHorizontal="10dp"
+            android:paddingHorizontal="12dp"
             android:paddingVertical="4dp"
-            android:textColor="#059669"
-            android:textSize="11sp"
-            android:textStyle="bold" />
+            android:textColor="@color/success_strong"
+
+            android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
     </LinearLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#F1F5F9"
+        android:background="@color/card_subtle_bg"
         android:layout_marginBottom="8dp" />
 
     <!-- Details Row: Role, Store, and Email -->
@@ -68,28 +68,28 @@
             android:id="@+id/tvRole"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#2563EB"
-            android:textSize="12sp"
+            android:textColor="@color/primary"
+
             android:textStyle="bold"
-            android:layout_marginEnd="16dp" />
+            android:layout_marginEnd="16dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
         <TextView
             android:id="@+id/tvStore"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#64748B"
-            android:textSize="12sp"
-            android:layout_marginEnd="16dp" />
+            android:textColor="@color/text_secondary"
+
+            android:layout_marginEnd="16dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
         <TextView
             android:id="@+id/tvEmail"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textColor="#64748B"
-            android:textSize="12sp"
+            android:textColor="@color/text_secondary"
+
             android:gravity="end"
-            android:singleLine="true" />
+            android:singleLine="true"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
     </LinearLayout>
 
 </LinearLayout>

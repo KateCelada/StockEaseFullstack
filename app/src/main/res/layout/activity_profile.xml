@@ -2,14 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#EAEFF2"
+    android:background="@color/app_background"
     android:orientation="horizontal">
 
     <!-- Left Navigation Sidebar -->
     <LinearLayout
         android:layout_width="200dp"
         android:layout_height="match_parent"
-        android:background="#1E1E36"
+        android:background="@color/sidebar_bg"
         android:orientation="vertical"
         android:padding="16dp">
 
@@ -17,10 +17,48 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
-            android:text="● StockEase"
-            android:textColor="#FFFFFF"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:text="StockEase"
+            android:textColor="@color/white"
+android:textAppearance="@style/TextAppearance.StockEase.Title" />
+
+        <!-- SECTION HEADER: OVERVIEW -->
+        <LinearLayout
+            android:id="@+id/navHeaderOverview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="OVERVIEW"
+                android:letterSpacing="0.08"
+                android:textColor="@color/sidebar_text"
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+            <TextView
+                android:id="@+id/navArrowOverview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/sidebar_text"
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navSectionOverviewItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="4dp">
 
         <TextView
             android:id="@+id/navDashboard"
@@ -28,40 +66,189 @@
             android:layout_height="wrap_content"
             android:padding="12dp"
             android:text="⊞ Dashboard"
-            android:textColor="#9CA3AF"
-            android:textSize="14sp" />
+            android:textColor="@color/sidebar_text"
+android:textAppearance="@style/TextAppearance.StockEase.Body" />
+        </LinearLayout>
+
+        <!-- SECTION HEADER: MANAGEMENT -->
+        <LinearLayout
+            android:id="@+id/navHeaderManagement"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="MANAGEMENT"
+                android:letterSpacing="0.08"
+                android:textColor="@color/sidebar_text"
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+            <TextView
+                android:id="@+id/navArrowManagement"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/sidebar_text"
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navSectionManagementItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="4dp">
 
         <TextView
             android:id="@+id/navPos"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="12dp"
-            android:text="🛒 POS/Sales"
-            android:textColor="#9CA3AF"
-            android:textSize="14sp" />
+            android:text="POS/Sales"
+            android:textColor="@color/sidebar_text"
+android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
         <TextView
             android:id="@+id/navInventory"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="12dp"
-            android:text="📦 Inventory"
-            android:textColor="#9CA3AF"
-            android:textSize="14sp" />
+            android:text="Inventory"
+            android:textColor="@color/sidebar_text"
+android:textAppearance="@style/TextAppearance.StockEase.Body" />
+        </LinearLayout>
+
+        <!-- SECTION HEADER: ANALYTICS -->
+        <LinearLayout
+            android:id="@+id/navHeaderAnalytics"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="ANALYTICS"
+                android:letterSpacing="0.08"
+                android:textColor="@color/sidebar_text"
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+            <TextView
+                android:id="@+id/navArrowAnalytics"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/sidebar_text"
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navSectionAnalyticsItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:id="@+id/navTransactions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:text="Transactions"
+                android:textColor="@color/sidebar_text"
+android:textAppearance="@style/TextAppearance.StockEase.Body" />
+        </LinearLayout>
+
+        <!-- SECTION HEADER: SYSTEM -->
+        <LinearLayout
+            android:id="@+id/navHeaderSystem"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="SYSTEM"
+                android:letterSpacing="0.08"
+                android:textColor="@color/sidebar_text"
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+            <TextView
+                android:id="@+id/navArrowSystem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/sidebar_text"
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navSectionSystemItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:id="@+id/navSettings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:text="Settings"
+                android:textColor="@color/sidebar_text"
+android:textAppearance="@style/TextAppearance.StockEase.Body" />
+        </LinearLayout>
 
         <View
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1" />
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="@color/sidebar_divider" />
+
         <TextView
             android:id="@+id/navLogout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="12dp"
-            android:text="↪ Log out"
-            android:textColor="#9CA3AF"
-            android:textSize="14sp" />
+            android:text="Log out"
+            android:textColor="@color/sidebar_text"
+android:textAppearance="@style/TextAppearance.StockEase.Body"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true" />
     </LinearLayout>
 
     <!-- Main Content Container -->
@@ -87,16 +274,15 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Profile"
-                    android:textColor="#000000"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                    android:textColor="@color/text_primary"
+android:textAppearance="@style/TextAppearance.StockEase.Title" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Check your personal information."
-                    android:textColor="#6B7280"
-                    android:textSize="12sp" />
+                    android:textColor="@color/text_secondary"
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
             </LinearLayout>
 
             <LinearLayout
@@ -111,20 +297,19 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="12dp"
-                    android:text="🔔"
-                    android:textSize="16sp" />
+                    android:text=""
+android:textAppearance="@style/TextAppearance.StockEase.Section" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnReturn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:minWidth="48dp"
                     android:minHeight="48dp"
-                    android:backgroundTint="#60A5FA"
                     android:paddingHorizontal="16dp"
                     android:text="Return"
-                    android:textColor="#FFFFFF"
-                    android:textSize="12sp" />
+                    android:textColor="@color/white"
+android:textAppearance="@style/TextAppearance.StockEase.Label" style="@style/Widget.StockEase.Button.Secondary" />
             </LinearLayout>
         </RelativeLayout>
 
@@ -139,10 +324,11 @@
                 android:layout_width="260dp"
                 android:layout_height="match_parent"
                 android:layout_marginEnd="16dp"
-                android:background="#FFFFFF"
+                android:background="@color/card_background"
                 android:padding="16dp">
 
                 <LinearLayout
+                    android:id="@+id/cardProfileDetails"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
@@ -154,9 +340,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
-                        android:text="📝 Edit"
-                        android:textColor="#6B7280"
-                        android:textSize="11sp" />
+                        android:text="Edit"
+                        android:textColor="@color/text_secondary"
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                     <!-- Avatar Circle -->
                     <TextView
@@ -165,21 +351,19 @@
                         android:layout_height="72dp"
                         android:layout_marginTop="8dp"
                         android:layout_marginBottom="12dp"
-                        android:background="#3B82F6"
+                        android:background="@color/primary"
                         android:gravity="center"
                         android:text="H"
-                        android:textColor="#FFFFFF"
-                        android:textSize="28sp"
-                        android:textStyle="bold" />
+                        android:textColor="@color/white"
+android:textAppearance="@style/TextAppearance.StockEase.Display" />
 
                     <TextView
                         android:id="@+id/tvName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Hilbert Cage"
-                        android:textColor="#000000"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
+                        android:textColor="@color/text_primary"
+android:textAppearance="@style/TextAppearance.StockEase.Section" />
 
                     <TextView
                         android:id="@+id/tvRole"
@@ -187,14 +371,14 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
                         android:text="Staff"
-                        android:textColor="#9CA3AF"
-                        android:textSize="11sp" />
+                        android:textColor="@color/text_muted"
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
                         android:layout_marginBottom="16dp"
-                        android:background="#F3F4F6" />
+                        android:background="@color/card_subtle_bg" />
 
                     <!-- Contact Details Section -->
                     <LinearLayout
@@ -207,17 +391,16 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="8dp"
-                            android:text="📍"
-                            android:textSize="12sp" />
+                            android:text=""
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                         <TextView
                             android:id="@+id/tvAddress"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="123 Main Sreet, Cebu"
-                            android:textColor="#000000"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
+                            android:textColor="@color/text_primary"
+                            android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -230,17 +413,16 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="8dp"
-                            android:text="✉"
-                            android:textSize="12sp" />
+                            android:text=""
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                         <TextView
                             android:id="@+id/tvEmail"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="person@gmail.com"
-                            android:textColor="#000000"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
+                            android:textColor="@color/text_primary"
+                            android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -253,26 +435,24 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="8dp"
-                            android:text="📞"
-                            android:textSize="12sp" />
+                            android:text=""
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                         <TextView
                             android:id="@+id/tvPhone"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="09607420192"
-                            android:textColor="#000000"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
+                            android:textColor="@color/text_primary"
+                            android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
                     </LinearLayout>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="OCCUPATION"
-                        android:textColor="#9CA3AF"
-                        android:textSize="10sp"
-                        android:textStyle="bold" />
+                        android:textColor="@color/text_muted"
+                        android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Caption" />
 
                     <TextView
                         android:id="@+id/tvOccupation"
@@ -280,37 +460,36 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
                         android:text="Cashier"
-                        android:textColor="#000000"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
+                        android:textColor="@color/text_primary"
+                        android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
                         android:layout_marginBottom="16dp"
-                        android:background="#F3F4F6" />
+                        android:background="@color/card_subtle_bg" />
 
                     <!-- Additional Details -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
+                        android:layout_marginBottom="12dp"
                         android:orientation="horizontal">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="8dp"
-                            android:text="👤"
-                            android:textSize="12sp" />
+                            android:text=""
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                         <TextView
                             android:id="@+id/tvSex"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Sex: Male"
-                            android:textColor="#6B7280"
-                            android:textSize="12sp" />
+                            android:textColor="@color/text_secondary"
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -323,16 +502,16 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="8dp"
-                            android:text="🏠"
-                            android:textSize="12sp" />
+                            android:text=""
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
                         <TextView
                             android:id="@+id/tvBranch"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Southern Branch"
-                            android:textColor="#6B7280"
-                            android:textSize="12sp" />
+                            android:textColor="@color/text_secondary"
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
                     </LinearLayout>
 
                     <TextView
@@ -340,8 +519,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="ID: 25-2532-3445"
-                        android:textColor="#6B7280"
-                        android:textSize="12sp" />
+                        android:textColor="@color/text_secondary"
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
                 </LinearLayout>
             </ScrollView>
 
@@ -350,7 +529,7 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:background="#FFFFFF"
+                android:background="@color/card_background"
                 android:orientation="vertical" />
         </LinearLayout>
     </LinearLayout>

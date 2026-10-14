@@ -4,37 +4,37 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="24dp"
-    android:background="#FFFFFF">
+    android:background="@color/card_background">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="📋 My Shift Summary"
-        android:textColor="#1B1C30"
-        android:textSize="20sp"
-        android:textStyle="bold" />
+        android:text="My Shift Summary"
+        android:textColor="@color/text_primary"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Title" />
 
     <TextView
         android:id="@+id/tvDialogStaffStore"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Staff: — • Store: —"
-        android:textColor="#6E7191"
-        android:textSize="12sp"
-        android:layout_marginTop="2dp"
-        android:layout_marginBottom="16dp" />
+        android:textColor="@color/text_secondary"
+
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="16dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#EFEFF6"
+        android:background="@color/app_background"
         android:layout_marginBottom="16dp" />
 
     <!-- Total Sales Box -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#F5F6FA"
+        android:background="@color/app_background"
         android:padding="16dp"
         android:orientation="vertical"
         android:layout_marginBottom="16dp">
@@ -43,27 +43,27 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Total Shift Sales"
-            android:textColor="#6E7191"
-            android:textSize="12sp" />
+            android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
         <TextView
             android:id="@+id/tvDialogTotalSales"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="₱0.00"
-            android:textColor="#2E7D32"
-            android:textSize="26sp"
-            android:textStyle="bold"
-            android:layout_marginTop="4dp" />
+            android:textColor="@color/success_text"
+
+
+            android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Display" />
 
         <TextView
             android:id="@+id/tvDialogTxCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="0 transactions processed"
-            android:textColor="#6E7191"
-            android:textSize="12sp"
-            android:layout_marginTop="2dp" />
+            android:textColor="@color/text_secondary"
+
+            android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
     </LinearLayout>
 
     <!-- Cash Breakdown -->
@@ -77,19 +77,19 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="💵 Cash in Drawer"
-            android:textColor="#1B1C30"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:text="Cash in Drawer"
+            android:textColor="@color/text_primary"
+
+            android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
         <TextView
             android:id="@+id/tvDialogCashSales"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="₱0.00"
-            android:textColor="#1B1C30"
-            android:textSize="15sp"
-            android:textStyle="bold" />
+            android:textColor="@color/text_primary"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Section" />
     </LinearLayout>
 
     <!-- GCash Breakdown -->
@@ -103,25 +103,25 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="📱 GCash / Digital"
-            android:textColor="#1B1C30"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:text="GCash / Digital"
+            android:textColor="@color/text_primary"
+
+            android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
         <TextView
             android:id="@+id/tvDialogGcashSales"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="₱0.00"
-            android:textColor="#1B1C30"
-            android:textSize="15sp"
-            android:textStyle="bold" />
+            android:textColor="@color/text_primary"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Section" />
     </LinearLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#EFEFF6"
+        android:background="@color/app_background"
         android:layout_marginBottom="12dp" />
 
     <!-- First & Last Sale Times -->
@@ -129,23 +129,23 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="6dp">
+        android:layout_marginBottom="8dp">
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="First Sale Today"
-            android:textColor="#6E7191"
-            android:textSize="12sp" />
+            android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
         <TextView
             android:id="@+id/tvDialogFirstSale"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="—"
-            android:textColor="#1B1C30"
-            android:textSize="12sp" />
+            android:textColor="@color/text_primary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
     </LinearLayout>
 
     <LinearLayout
@@ -159,24 +159,23 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Last Sale Today"
-            android:textColor="#6E7191"
-            android:textSize="12sp" />
+            android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
         <TextView
             android:id="@+id/tvDialogLastSale"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="—"
-            android:textColor="#1B1C30"
-            android:textSize="12sp" />
+            android:textColor="@color/text_primary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
     </LinearLayout>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnDialogClose"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Done"
-        android:textColor="#FFFFFF"
-        android:backgroundTint="#7C4DFF" />
+        android:textColor="@color/white"  style="@style/Widget.StockEase.Button.Primary" />
 
 </LinearLayout>

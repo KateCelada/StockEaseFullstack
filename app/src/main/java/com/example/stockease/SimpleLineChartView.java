@@ -2,12 +2,14 @@ package com.example.stockease;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.view.View;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,25 +40,32 @@ public class SimpleLineChartView extends View {
 
     private void init() {
         linePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        linePaint.setColor(Color.parseColor("#2563EB"));
+        linePaint.setColor(ContextCompat.getColor(getContext(), R.color.primary));
         linePaint.setStrokeWidth(6f);
         linePaint.setStyle(Paint.Style.STROKE);
+        linePaint.setStrokeCap(Paint.Cap.ROUND);
+        linePaint.setStrokeJoin(Paint.Join.ROUND);
 
+        int primary = ContextCompat.getColor(getContext(), R.color.primary);
         fillPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        fillPaint.setColor(Color.parseColor("#1A2563EB"));
+        fillPaint.setColor((primary & 0x00FFFFFF) | 0x1A000000);
         fillPaint.setStyle(Paint.Style.FILL);
 
         pointPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        pointPaint.setColor(Color.parseColor("#1D4ED8"));
+        pointPaint.setColor(ContextCompat.getColor(getContext(), R.color.primary_dark));
         pointPaint.setStyle(Paint.Style.FILL);
 
         textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        textPaint.setColor(Color.parseColor("#64748B"));
+        textPaint.setColor(ContextCompat.getColor(getContext(), R.color.text_secondary));
         textPaint.setTextSize(26f);
         textPaint.setTextAlign(Paint.Align.CENTER);
+        Typeface labelTypeface = ResourcesCompat.getFont(getContext(), R.font.inter_text);
+        if (labelTypeface != null) {
+            textPaint.setTypeface(labelTypeface);
+        }
 
         gridPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        gridPaint.setColor(Color.parseColor("#E2E8F0"));
+        gridPaint.setColor(ContextCompat.getColor(getContext(), R.color.card_border));
         gridPaint.setStrokeWidth(2f);
     }
 
