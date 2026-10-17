@@ -24,9 +24,12 @@ if ($target !== false && strpos($target, $root) !== 0) {
     $target = false;
 }
 
-// Panel entry point
-if ($uri === '/' || $uri === '') {
-    require __DIR__ . '/stockease_admin/index.php';
+// Panel entry point. Redirect (not internal require) so the browser's URL
+// becomes /stockease_admin/ - the panel's relative "Location: login.php"
+// then resolves to /stockease_admin/login.php instead of a dead /login.php.
+if ($uri === '/' || $uri === '' || $uri === '/stockease_admin') {
+    http_response_code(302);
+    header('Location: /stockease_admin/');
     return true;
 }
 
