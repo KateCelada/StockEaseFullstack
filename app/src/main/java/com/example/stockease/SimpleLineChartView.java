@@ -1,7 +1,9 @@
 package com.example.stockease;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Typeface;
@@ -73,6 +75,23 @@ public class SimpleLineChartView extends View {
         this.dataPoints = points != null ? points : new ArrayList<>();
         this.labels = pointLabels != null ? pointLabels : new ArrayList<>();
         invalidate();
+    }
+
+    /**
+     * Renders this chart into a standalone Bitmap (on a white background) so it
+     * can be downloaded as a PNG picture.
+     */
+    public Bitmap toBitmap() {
+        int width = getWidth() > 0 ? getWidth() : getMeasuredWidth();
+        int height = getHeight() > 0 ? getHeight() : getMeasuredHeight();
+        if (width <= 0) width = 1080;
+        if (height <= 0) height = 640;
+
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        canvas.drawColor(Color.WHITE);
+        draw(canvas);
+        return bitmap;
     }
 
     @Override

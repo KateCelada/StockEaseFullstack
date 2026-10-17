@@ -1,12 +1,17 @@
 package com.example.stockease;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,28 +31,37 @@ public class POSActivity extends AppCompatActivity {
 
     private static final String GET_PRODUCTS_URL = ApiConfig.getUrl("get_products.php?store_id=");
     private static final String PROCESS_TRANSACTION_URL = ApiConfig.getUrl("process_transaction.php");
+    private static final String ADD_CATEGORY_URL = ApiConfig.getUrl("add_category.php");
 
     private RecyclerView rvPosProducts, rvCart;
     private TextView tvCartTotal;
     private Button btnCheckout, btnTransactionHistory; // Added button variable
     private View emptyProducts, emptyCart;
+    private LinearLayout llCategoryChips;
 
+    /** Full catalog as loaded from the API; productList is the filtered view. */
+    private List<Product> allProducts = new ArrayList<>();
     private List<Product> productList = new ArrayList<>();
     private List<CartItem> cartItemList = new ArrayList<>();
+    private final List<String> categoryList = new ArrayList<>();
+    private String selectedCategory = null;
 
     private POSProductAdapter productAdapter;
     private CartAdapter cartAdapter;
 
     private int storeId = -1;
     private int userId = -1;
+    private String role = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pos);
+        SidebarNav.attach(this, "pos");
 
         storeId = getIntent().getIntExtra("store_id", -1);
         userId = getIntent().getIntExtra("user_id", -1);
+        role = getIntent().getStringExtra("role") != null ? getIntent().getStringExtra("role") : "";
 
         if (storeId <= 0 || userId <= 0) {
             returnToLogin("Missing account or store identity. Please sign in again.");
@@ -64,6 +78,7 @@ public class POSActivity extends AppCompatActivity {
 
         emptyProducts = findViewById(R.id.emptyProducts);
         emptyCart = findViewById(R.id.emptyCart);
+        llCategoryChips = findViewById(R.id.llCategoryChips);
         StateViews.bindEmpty(emptyProducts,
                 getString(R.string.pos_empty_products),
                 getString(R.string.pos_empty_products_msg), null, null);
@@ -102,7 +117,7 @@ public class POSActivity extends AppCompatActivity {
         JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.GET, url, null,
                 response -> {
-                    productList.clear();
+                    allProducts.clear();
                     try {
                         if (response.optBoolean("success", false)) {
                             JSONArray array = response.getJSONArray("products");
@@ -117,9 +132,10 @@ public class POSActivity extends AppCompatActivity {
                                         obj.getDouble("price"),
                                         obj.getInt("stock")
                                 );
-                                productList.add(product);
+                                allProducts.add(product);
                             }
-                            productAdapter.notifyDataSetChanged();
+                            renderCategoryChips();
+                            applyCategoryFilter();
                         } else {
                             Toast.makeText(this, "Failed to load catalog", Toast.LENGTH_SHORT).show();
                         }
@@ -132,6 +148,149 @@ public class POSActivity extends AppCompatActivity {
                     if (ApiSession.handleAuthError(this, error)) return;
                     Toast.makeText(this, "Network Error: Could not load products", Toast.LENGTH_SHORT).show();
                     updateEmptyStates();
+                }
+        );
+
+        queue.add(request);
+    }
+
+    // ---- Category filter + in-POS category creation (panelist request) ----
+
+    /** True when this account may create categories (the API enforces the same roles). */
+    private boolean canCreateCategory() {
+        return role.isEmpty() || "store_admin".equals(role) || "super_admin".equals(role);
+    }
+
+    /** Rebuilds the chip row: All + every catalog category + "+ New" for permitted roles. */
+    private void renderCategoryChips() {
+        if (llCategoryChips == null) return;
+        llCategoryChips.removeAllViews();
+
+        // Distinct categories in catalog order; a just-created (still empty)
+        // category is kept visible so the selection never silently vanishes.
+        categoryList.clear();
+        for (Product p : allProducts) {
+            String c = (p.getCategory() == null || p.getCategory().trim().isEmpty()) ? "General" : p.getCategory();
+            if (!categoryList.contains(c)) categoryList.add(c);
+        }
+        if (selectedCategory != null && !categoryList.contains(selectedCategory)) {
+            categoryList.add(selectedCategory);
+        }
+
+        llCategoryChips.addView(makeChip("All", selectedCategory == null, v -> {
+            selectedCategory = null;
+            renderCategoryChips();
+            applyCategoryFilter();
+        }));
+
+        for (final String cat : categoryList) {
+            llCategoryChips.addView(makeChip(cat, cat.equals(selectedCategory), v -> {
+                selectedCategory = cat;
+                renderCategoryChips();
+                applyCategoryFilter();
+            }));
+        }
+
+        if (canCreateCategory()) {
+            TextView addChip = makeChip("+ New", false, v -> showCreateCategoryDialog());
+            addChip.setTextColor(ContextCompat.getColor(this, R.color.primary));
+            llCategoryChips.addView(addChip);
+        }
+    }
+
+    /** Builds one filter chip. Selected chips use the filled (blue) badge style. */
+    private TextView makeChip(String label, boolean selected, View.OnClickListener onClick) {
+        float density = getResources().getDisplayMetrics().density;
+        TextView chip = new TextView(this);
+        chip.setText(label);
+        chip.setTextSize(12f);
+        chip.setPadding((int) (12 * density), (int) (6 * density), (int) (12 * density), (int) (6 * density));
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.rightMargin = (int) (8 * density);
+        chip.setLayoutParams(lp);
+        chip.setClickable(true);
+        chip.setFocusable(true);
+        if (selected) {
+            chip.setTypeface(chip.getTypeface(), Typeface.BOLD);
+            chip.setTextColor(ContextCompat.getColor(this, R.color.white));
+            chip.setBackgroundResource(R.drawable.bg_badge_blue);
+        } else {
+            chip.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
+            chip.setBackgroundResource(R.drawable.bg_input_field);
+        }
+        chip.setOnClickListener(onClick);
+        return chip;
+    }
+
+    /** Applies the selected category to the visible product list. */
+    private void applyCategoryFilter() {
+        productList.clear();
+        for (Product p : allProducts) {
+            String c = (p.getCategory() == null || p.getCategory().trim().isEmpty()) ? "General" : p.getCategory();
+            if (selectedCategory == null || c.equals(selectedCategory)) {
+                productList.add(p);
+            }
+        }
+        if (productAdapter != null) productAdapter.notifyDataSetChanged();
+        updateEmptyStates();
+    }
+
+    /** Small dialog to create a category without leaving the POS screen. */
+    private void showCreateCategoryDialog() {
+        final EditText input = new EditText(this);
+        input.setHint("Category name (e.g. Beverages)");
+        input.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+
+        LinearLayout wrap = new LinearLayout(this);
+        float density = getResources().getDisplayMetrics().density;
+        wrap.setPadding((int) (24 * density), 0, (int) (24 * density), 0);
+        wrap.addView(input, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        new AlertDialog.Builder(this)
+                .setTitle("New category")
+                .setView(wrap)
+                .setPositiveButton("Create", (dialog, which) -> {
+                    String name = input.getText() != null ? input.getText().toString().trim() : "";
+                    if (name.isEmpty()) {
+                        Toast.makeText(this, "Category name cannot be empty", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    createCategory(name);
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void createCategory(String name) {
+        JSONObject payload = new JSONObject();
+        try {
+            payload.put("store_id", storeId);
+            payload.put("name", name);
+        } catch (JSONException ignored) {}
+
+        RequestQueue queue = ApiSession.getRequestQueue(this);
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.POST, ADD_CATEGORY_URL, payload,
+                response -> {
+                    // opt* accessors never throw, so no parse try/catch is needed
+                    if (response.optBoolean("success", false)) {
+                        Toast.makeText(this, response.optString("message", "Category created"),
+                                Toast.LENGTH_SHORT).show();
+                        JSONObject cat = response.optJSONObject("category");
+                        // Select the new category so the cashier can add items to it right away
+                        selectedCategory = cat != null ? cat.optString("name", name) : name;
+                        renderCategoryChips();
+                        applyCategoryFilter();
+                    } else {
+                        Toast.makeText(this, response.optString("message", "Could not create category"),
+                                Toast.LENGTH_LONG).show();
+                    }
+                },
+                error -> {
+                    if (ApiSession.handleAuthError(this, error)) return;
+                    Toast.makeText(this, "Network error creating category", Toast.LENGTH_SHORT).show();
                 }
         );
 

@@ -61,6 +61,21 @@
                 android:text="@string/product_stock_fallback"
                 android:textAppearance="@style/TextAppearance.StockEase.Label"
                 android:textColor="@color/text_primary" />
+
+            <TextView
+                android:id="@+id/tvProductLowStock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_badge_amber"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"
+                android:text="LOW STOCK"
+                android:textAllCaps="false"
+                android:textColor="@color/warning_text"
+                android:textStyle="bold"
+                android:visibility="gone"
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
         </LinearLayout>
 
         <LinearLayout

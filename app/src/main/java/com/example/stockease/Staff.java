@@ -23,7 +23,8 @@ public class Staff {
     public String getEmail() { return email; }
     public String getRole() { return role; }
     public String getRoleDisplay() {
-        if ("inventory_checker".equalsIgnoreCase(role)) return "Inventory Checker";
+        if ("inventory_checker".equalsIgnoreCase(role)) return "Inventory Staff";
+        if ("staff".equalsIgnoreCase(role)) return "Cashier";
         if ("store_admin".equalsIgnoreCase(role)) return "Store Admin";
         if ("manager".equalsIgnoreCase(role)) return "Manager";
         return "Cashier";

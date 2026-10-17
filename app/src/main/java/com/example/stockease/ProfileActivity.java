@@ -331,6 +331,13 @@ public class ProfileActivity extends AppCompatActivity {
         });
 
         dialog.show();
+
+        // Present the editor as a full-width modal instead of a tiny popup
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setLayout(
+                    android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
     }
 
     private boolean isValidPhone(String phone) {
@@ -366,9 +373,9 @@ public class ProfileActivity extends AppCompatActivity {
             case "manager":
                 return "Manager";
             case "inventory_checker":
-                return "Inventory Checker";
+                return "Inventory Staff";
             case "staff":
-                return "Staff";
+                return "Staff – Cashier";
             default:
                 return role.replace('_', ' ');
         }

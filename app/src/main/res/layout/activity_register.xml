@@ -145,6 +145,13 @@
                         android:textAppearance="@style/TextAppearance.StockEase.Body" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <include
+                    android:id="@+id/pwStrengthMeter"
+                    layout="@layout/view_password_strength"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/space_8" />
+
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnRegister"
                     style="@style/Widget.StockEase.Button.Primary"

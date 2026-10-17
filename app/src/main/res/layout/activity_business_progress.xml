@@ -2,8 +2,17 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:background="@color/app_background">
+
+    <!-- Persistent navigation (shared across all main screens) -->
+    <include layout="@layout/view_sidebar" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical">
 
     <!-- Top Navigation Bar -->
     <LinearLayout
@@ -313,6 +322,20 @@
                     android:layout_height="220dp"
                     android:clickable="true"
                     android:focusable="true" />
+
+                <TextView
+                    android:id="@+id/btnDownloadProgressChart"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/card_subtle_bg"
+                    android:gravity="center"
+                    android:padding="6dp"
+                    android:text="⤓ Save Chart as PNG"
+                    android:textColor="@color/primary"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:layout_marginTop="8dp"
+                    android:textAppearance="@style/TextAppearance.StockEase.Label" />
             </LinearLayout>
 
             <!-- Section 1: Branch Contribution / Top Selling Products -->
@@ -410,5 +433,6 @@
 
         </LinearLayout>
     </ScrollView>
+    </LinearLayout>
 
 </LinearLayout>

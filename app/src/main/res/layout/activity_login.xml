@@ -102,7 +102,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/space_12"
                     android:hint="@string/login_password_hint"
-                    app:passwordToggleEnabled="true"
+                    app:endIconMode="password_toggle"
+                    app:endIconTint="#64748B"
                     style="@style/Widget.StockEase.Input">
 
                     <com.google.android.material.textfield.TextInputEditText

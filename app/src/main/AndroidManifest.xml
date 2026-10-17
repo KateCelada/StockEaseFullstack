@@ -78,6 +78,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".InventoryDashboardActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".TransactionHistoryActivity"
             android:exported="false" />
 

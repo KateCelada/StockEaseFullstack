@@ -264,69 +264,7 @@ android:textAppearance="@style/TextAppearance.StockEase.Body" />
 
         </LinearLayout>
 
-        <!-- SECTION HEADER: SYSTEM -->
-        <LinearLayout
-            android:id="@+id/navHeaderSystem"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true"
-            android:paddingHorizontal="12dp"
-            android:paddingVertical="4dp"
-            android:layout_marginBottom="4dp">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="SYSTEM"
-                android:letterSpacing="0.08"
-                android:textColor="@color/sidebar_text"
-                android:textStyle="bold"
-                android:textAppearance="@style/TextAppearance.StockEase.Label" />
-
-            <TextView
-                android:id="@+id/navArrowSystem"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/sidebar_text"
-                android:textAppearance="@style/TextAppearance.StockEase.Label" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/navSectionSystemItems"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginBottom="4dp">
-
-            <LinearLayout
-                android:id="@+id/navStaffSettings"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingHorizontal="16dp"
-                android:paddingVertical="12dp"
-            android:background="?attr/selectableItemBackground">
-
-                <ImageView
-                    android:layout_width="18dp"
-                    android:layout_height="18dp"
-                    android:src="@drawable/ic_nav_settings"
-                    android:layout_marginEnd="12dp"  android:contentDescription="@string/cd_nav_icon" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Settings"
-                    android:textColor="@color/sidebar_text"
-android:textAppearance="@style/TextAppearance.StockEase.Body" />
-            </LinearLayout>
-        </LinearLayout>
+        <!-- SYSTEM section removed for staff accounts (Settings is admin-only) -->
 
         <!-- Bottom User Profile & Logout -->
         <View
@@ -649,6 +587,38 @@ android:textAppearance="@style/TextAppearance.StockEase.Section" />
                         android:textStyle="bold"
                         android:clickable="true"
                         android:focusable="true"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+                </LinearLayout>
+
+                <!-- Shift control: status badge + auto-start notice (no Start button) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:id="@+id/tvShiftStatusBadge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_badge_gray"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="4dp"
+                        android:text="OFF DUTY"
+                        android:textColor="@color/slate_700"
+                        android:textStyle="bold"
+                        android:layout_marginEnd="12dp"
+                        android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+                    <TextView
+                        android:id="@+id/tvShiftAutoNote"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:text="Your shift starts automatically the first time you log in for the day."
+                        android:textColor="@color/text_secondary"
+                        android:textAppearance="@style/TextAppearance.StockEase.Caption" />
                 </LinearLayout>
 
                 <LinearLayout

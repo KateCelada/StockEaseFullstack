@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Shared persistent sidebar (panelist fix: the sidebar used to exist only on
+     the 7 dashboard-style layouts, so opening e.g. POS or Reports from the
+     sidebar stranded the user on a screen with no navigation).
+
+     Every main screen includes this file and calls
+     SidebarNav.attach(activity, "current-screen") which:
+       * wires all nav buttons (identity extras are copied from the intent),
+       * hides items the signed-in role may not use,
+       * highlights the active item,
+       * expands the accordion section that owns the current screen. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="232dp"
+    android:layout_height="match_parent"
+    android:background="@color/sidebar_bg"
+    android:orientation="vertical"
+    android:padding="@dimen/space_16">
+
+    <!-- Brand -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/space_24"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:background="@drawable/bg_btn_primary"
+            android:gravity="center"
+            android:text="@string/brand_initial"
+            android:textAppearance="@style/TextAppearance.StockEase.Section"
+            android:textColor="@color/white" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/space_8"
+            android:text="@string/login_brand"
+            android:textAppearance="@style/TextAppearance.StockEase.Section"
+            android:textColor="@color/white" />
+    </LinearLayout>
+
+    <!-- SECTION HEADER: OVERVIEW -->
+    <LinearLayout
+        android:id="@+id/navHeaderOverview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="4dp"
+        android:layout_marginBottom="4dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="OVERVIEW"
+            android:letterSpacing="0.08"
+            android:textColor="@color/sidebar_text"
+            android:textStyle="bold"
+            android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+        <TextView
+            android:id="@+id/navArrowOverview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/sidebar_text"
+            android:textAppearance="@style/TextAppearance.StockEase.Label" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/navSectionOverviewItems"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="4dp">
+
+        <TextView
+            android:id="@+id/btnNavDashboard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_nav_dashboard"
+            android:drawablePadding="@dimen/space_8"
+            android:drawableTint="@color/text_muted"
+            android:padding="@dimen/space_12"
+            android:text="@string/nav_dashboard"
+            android:textAppearance="@style/TextAppearance.StockEase.Body"
+            android:textColor="@color/sidebar_text"
+            android:background="?attr/selectableItemBackground" />
+    </LinearLayout>
+
+    <!-- SECTION HEADER: MANAGEMENT -->
+    <LinearLayout
+        android:id="@+id/navHeaderManagement"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="4dp"
+        android:layout_marginBottom="4dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="MANAGEMENT"
+            android:letterSpacing="0.08"
+            android:textColor="@color/sidebar_text"
+            android:textStyle="bold"
+            android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+        <TextView
+            android:id="@+id/navArrowManagement"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/sidebar_text"
+            android:textAppearance="@style/TextAppearance.StockEase.Label" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/navSectionManagementItems"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="4dp">
+
+        <TextView
+            android:id="@+id/btnNavPos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_nav_sales"
+            android:drawablePadding="@dimen/space_8"
+            android:drawableTint="@color/text_muted"
+            android:padding="@dimen/space_12"
+            android:text="@string/nav_pos"
+            android:textAppearance="@style/TextAppearance.StockEase.Body"
+            android:textColor="@color/sidebar_text"
+            android:background="?attr/selectableItemBackground" />
+
+        <TextView
+            android:id="@+id/btnNavInventory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_nav_inventory"
+            android:drawablePadding="@dimen/space_8"
+            android:drawableTint="@color/text_muted"
+            android:padding="@dimen/space_12"
+            android:text="@string/nav_inventory"
+            android:textAppearance="@style/TextAppearance.StockEase.Body"
+            android:textColor="@color/sidebar_text"
+            android:background="?attr/selectableItemBackground" />
+
+        <TextView
+            android:id="@+id/btnNavProducts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_nav_products"
+            android:drawablePadding="@dimen/space_8"
+            android:drawableTint="@color/text_muted"
+            android:padding="@dimen/space_12"
+            android:text="Products"
+            android:textAppearance="@style/TextAppearance.StockEase.Body"
+            android:textColor="@color/sidebar_text"
+            android:background="?attr/selectableItemBackground" />
+
+        <TextView
+            android:id="@+id/btnNavTransactions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_nav_sales"
+            android:drawablePadding="@dimen/space_8"
+            android:drawableTint="@color/text_muted"
+            android:padding="@dimen/space_12"
+            android:text="Transactions"
+            android:textAppearance="@style/TextAppearance.StockEase.Body"
+            android:textColor="@color/sidebar_text"
+            android:background="?attr/selectableItemBackground" />
+
+        <TextView
+            android:id="@+id/btnNavReports"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_nav_reports"
+            android:drawablePadding="@dimen/space_8"
+            android:drawableTint="@color/text_muted"
+            android:padding="@dimen/space_12"
+            android:text="Reports"
+            android:textAppearance="@style/TextAppearance.StockEase.Body"
+            android:textColor="@color/sidebar_text"
+            android:background="?attr/selectableItemBackground" />
+
+        <TextView
+            android:id="@+id/btnNavTransfers"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_nav_stores"
+            android:drawablePadding="@dimen/space_8"
+            android:drawableTint="@color/text_muted"
+            android:padding="@dimen/space_12"
+            android:text="Stock Transfers"
+            android:textAppearance="@style/TextAppearance.StockEase.Body"
+            android:textColor="@color/sidebar_text"
+            android:background="?attr/selectableItemBackground" />
+
+        <TextView
+            android:id="@+id/btnNavStaff"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_nav_users"
+            android:drawablePadding="@dimen/space_8"
+            android:drawableTint="@color/text_muted"
+            android:padding="@dimen/space_12"
+            android:text="Staff"
+            android:textAppearance="@style/TextAppearance.StockEase.Body"
+            android:textColor="@color/sidebar_text"
+            android:background="?attr/selectableItemBackground" />
+
+        <TextView
+            android:id="@+id/btnNavStoreAdmins"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_nav_admins"
+            android:drawablePadding="@dimen/space_8"
+            android:drawableTint="@color/text_muted"
+            android:padding="@dimen/space_12"
+            android:text="Store Admins"
+            android:textAppearance="@style/TextAppearance.StockEase.Body"
+            android:textColor="@color/sidebar_text"
+            android:background="?attr/selectableItemBackground" />
+
+        <TextView
+            android:id="@+id/btnNavStores"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_nav_stores"
+            android:drawablePadding="@dimen/space_8"
+            android:drawableTint="@color/text_muted"
+            android:padding="@dimen/space_12"
+            android:text="Branches"
+            android:textAppearance="@style/TextAppearance.StockEase.Body"
+            android:textColor="@color/sidebar_text"
+            android:background="?attr/selectableItemBackground" />
+    </LinearLayout>
+
+    <!-- SECTION HEADER: ANALYTICS -->
+    <LinearLayout
+        android:id="@+id/navHeaderAnalytics"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="4dp"
+        android:layout_marginBottom="4dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="ANALYTICS"
+            android:letterSpacing="0.08"
+            android:textColor="@color/sidebar_text"
+            android:textStyle="bold"
+            android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+        <TextView
+            android:id="@+id/navArrowAnalytics"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/sidebar_text"
+            android:textAppearance="@style/TextAppearance.StockEase.Label" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/navSectionAnalyticsItems"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="4dp">
+
+        <TextView
+            android:id="@+id/btnNavInsights"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_nav_reports"
+            android:drawablePadding="@dimen/space_8"
+            android:drawableTint="@color/text_muted"
+            android:padding="@dimen/space_12"
+            android:text="StockEase Insights"
+            android:textAppearance="@style/TextAppearance.StockEase.Body"
+            android:textColor="@color/sidebar_text"
+            android:background="?attr/selectableItemBackground" />
+
+        <TextView
+            android:id="@+id/btnNavBusinessProgress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_nav_reports"
+            android:drawablePadding="@dimen/space_8"
+            android:drawableTint="@color/text_muted"
+            android:padding="@dimen/space_12"
+            android:text="Business Progress"
+            android:textAppearance="@style/TextAppearance.StockEase.Body"
+            android:textColor="@color/sidebar_text"
+            android:background="?attr/selectableItemBackground" />
+    </LinearLayout>
+
+    <!-- SECTION HEADER: SYSTEM -->
+    <LinearLayout
+        android:id="@+id/navHeaderSystem"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="4dp"
+        android:layout_marginBottom="4dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="SYSTEM"
+            android:letterSpacing="0.08"
+            android:textColor="@color/sidebar_text"
+            android:textStyle="bold"
+            android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+        <TextView
+            android:id="@+id/navArrowSystem"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/sidebar_text"
+            android:textAppearance="@style/TextAppearance.StockEase.Label" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/navSectionSystemItems"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="4dp">
+
+        <TextView
+            android:id="@+id/btnNavProfile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_nav_users"
+            android:drawablePadding="@dimen/space_8"
+            android:drawableTint="@color/text_muted"
+            android:padding="@dimen/space_12"
+            android:text="Profile"
+            android:textAppearance="@style/TextAppearance.StockEase.Body"
+            android:textColor="@color/sidebar_text"
+            android:background="?attr/selectableItemBackground" />
+
+        <TextView
+            android:id="@+id/btnNavSubscription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_nav_stores"
+            android:drawablePadding="@dimen/space_8"
+            android:drawableTint="@color/text_muted"
+            android:padding="@dimen/space_12"
+            android:text="Subscription"
+            android:textAppearance="@style/TextAppearance.StockEase.Body"
+            android:textColor="@color/sidebar_text"
+            android:background="?attr/selectableItemBackground" />
+
+        <TextView
+            android:id="@+id/btnNavSettings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_nav_settings"
+            android:drawablePadding="@dimen/space_8"
+            android:drawableTint="@color/text_muted"
+            android:padding="@dimen/space_12"
+            android:text="Settings"
+            android:textAppearance="@style/TextAppearance.StockEase.Body"
+            android:textColor="@color/sidebar_text"
+            android:background="?attr/selectableItemBackground" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="@color/sidebar_divider" />
+
+    <TextView
+        android:id="@+id/btnNavLogout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/ic_nav_logout"
+        android:drawablePadding="@dimen/space_8"
+        android:drawableTint="@color/text_muted"
+        android:padding="@dimen/space_12"
+        android:text="@string/nav_logout"
+        android:textAppearance="@style/TextAppearance.StockEase.Body"
+        android:textColor="@color/sidebar_text"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true" />
+</LinearLayout>

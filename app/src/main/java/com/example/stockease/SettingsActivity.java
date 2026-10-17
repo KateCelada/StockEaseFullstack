@@ -46,6 +46,7 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+        SidebarNav.attach(this, "settings");
 
         userId = getIntent().getIntExtra("user_id", -1);
         role = getIntent().getStringExtra("role");
@@ -287,6 +288,9 @@ public class SettingsActivity extends AppCompatActivity {
         Button btnCancel = dialogView.findViewById(R.id.btnCancelPassword);
         Button btnSubmit = dialogView.findViewById(R.id.btnSubmitPassword);
 
+        // Live strength meter (same verdict as the API policy)
+        PasswordStrength.bind(dialogView.findViewById(R.id.pwStrengthMeter), etNew);
+
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setView(dialogView)
                 .setCancelable(true)
@@ -304,8 +308,9 @@ public class SettingsActivity extends AppCompatActivity {
                 return;
             }
 
-            if (newPass.length() < 6) {
-                Toast.makeText(this, "New password must be at least 6 characters.", Toast.LENGTH_SHORT).show();
+            // Same rule the API enforces (8+ chars, a letter and a number)
+            if (!PasswordStrength.isAcceptable(newPass)) {
+                Toast.makeText(this, PasswordStrength.requirementText(), Toast.LENGTH_SHORT).show();
                 return;
             }
 

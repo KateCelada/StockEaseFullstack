@@ -70,6 +70,7 @@ public class BusinessProgressActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_business_progress);
+        SidebarNav.attach(this, "business_progress");
 
         mode = getIntent().getStringExtra(EXTRA_MODE);
         if (mode == null || mode.isEmpty()) mode = "business";
@@ -111,6 +112,12 @@ public class BusinessProgressActivity extends AppCompatActivity {
         tvChartHint = findViewById(R.id.tvChartHint);
         tvChartDateRange = findViewById(R.id.tvChartDateRange);
         progressLineChart = findViewById(R.id.progressLineChart);
+
+        View btnDownloadProgressChart = findViewById(R.id.btnDownloadProgressChart);
+        if (btnDownloadProgressChart != null && progressLineChart != null) {
+            btnDownloadProgressChart.setOnClickListener(v -> ExportUtil.saveChartPng(
+                    this, progressLineChart, "stockease_business_progress_" + System.currentTimeMillis()));
+        }
         cardLineChartContainer = findViewById(R.id.cardLineChartContainer);
 
         tvSectionOneTitle = findViewById(R.id.tvSectionOneTitle);
@@ -588,7 +595,7 @@ public class BusinessProgressActivity extends AppCompatActivity {
                 badgeColor = ContextCompat.getColor(this, R.color.success_strong);
                 badgeBg = R.drawable.bg_badge_emerald;
             } else if ("inventory_checker".equalsIgnoreCase(userRole)) {
-                displayRole = "Inventory Checker";
+                displayRole = "Inventory Staff";
                 badgeColor = ContextCompat.getColor(this, R.color.purple_text);
                 badgeBg = R.drawable.bg_badge_gray;
             } else if ("manager".equalsIgnoreCase(userRole)) {

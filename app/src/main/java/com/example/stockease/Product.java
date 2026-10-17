@@ -9,12 +9,21 @@ public class Product {
     private double price;
     private double costPrice;
     private int stock;
+    private int minStock;
     private int totalSoldUnits;
     private double progressiveGross;
     private double progressiveNet;
 
+    /** Default low stock threshold used when a product has none stored yet. */
+    public static final int DEFAULT_MIN_STOCK = 10;
+
     // Full Constructor with Progressive Earnings (Used in ProductsActivity)
     public Product(int id, int storeId, int categoryId, String categoryName, String name, double price, double costPrice, int stock, int totalSoldUnits, double progressiveGross, double progressiveNet) {
+        this(id, storeId, categoryId, categoryName, name, price, costPrice, stock, totalSoldUnits, progressiveGross, progressiveNet, DEFAULT_MIN_STOCK);
+    }
+
+    // Full Constructor incl. the low stock threshold (Used in ProductsActivity)
+    public Product(int id, int storeId, int categoryId, String categoryName, String name, double price, double costPrice, int stock, int totalSoldUnits, double progressiveGross, double progressiveNet, int minStock) {
         this.id = id;
         this.storeId = storeId;
         this.categoryId = categoryId;
@@ -23,6 +32,7 @@ public class Product {
         this.price = price;
         this.costPrice = costPrice;
         this.stock = stock;
+        this.minStock = minStock > 0 ? minStock : DEFAULT_MIN_STOCK;
         this.totalSoldUnits = totalSoldUnits;
         this.progressiveGross = progressiveGross;
         this.progressiveNet = progressiveNet;
@@ -53,6 +63,9 @@ public class Product {
     public double getPrice() { return price; }
     public double getCostPrice() { return costPrice; }
     public int getStock() { return stock; }
+    public int getMinStock() { return minStock; }
+    /** True when on-hand stock has reached the minimum threshold for low stock alerts. */
+    public boolean isLowStock() { return stock <= minStock; }
     public double getGrossProfit() { return price - costPrice; }
     public int getTotalSoldUnits() { return totalSoldUnits; }
     public double getProgressiveGross() { return progressiveGross; }

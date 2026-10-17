@@ -23,6 +23,11 @@ import com.google.android.material.button.MaterialButton;
  *   View empty = findViewById(R.id.emptyHost);        // an &lt;include&gt; of view_empty_state
  *   StateViews.bindEmpty(empty, "No sales today",
  *       "Transactions you record today will appear here.", null, null);
+ *
+ *   // error (a failed load -- never reuse the empty state for this)
+ *   View error = findViewById(R.id.errorHost);        // an &lt;include&gt; of view_error_state
+ *   StateViews.bindError(error, null, null, v -> retry());
+ *   StateViews.setErrorVisible(error, true);
  * </pre>
  */
 public final class StateViews {
@@ -101,9 +106,56 @@ public final class StateViews {
         }
     }
 
+    /**
+     * Fades an error state in (or hides it at once).
+     *
+     * <p>Deliberately separate from {@link #setEmptyVisible}: a failed load
+     * must not be able to render the empty state, which would tell the user
+     * their data is gone when it was never fetched.
+     */
+    public static void setErrorVisible(View errorRoot, boolean visible) {
+        if (errorRoot == null) return;
+        if (!visible) {
+            errorRoot.clearAnimation();
+            errorRoot.setVisibility(View.GONE);
+            return;
+        }
+        errorRoot.clearAnimation();
+        errorRoot.setAlpha(1f);
+        errorRoot.setVisibility(View.VISIBLE);
+        if (animationsEnabled(errorRoot)) {
+            errorRoot.startAnimation(
+                    AnimationUtils.loadAnimation(errorRoot.getContext(), R.anim.fade_in));
+        }
+    }
+
+    /**
+     * Fills an included view_error_state with a real sentence for the screen.
+     *
+     * <p>Passing null for any text keeps that view's XML default, so a screen
+     * can show the generic error without restating it.
+     */
+    public static void bindError(View errorRoot, String title, String message,
+                                 View.OnClickListener retryListener) {
+        if (errorRoot == null) return;
+
+        TextView tvTitle = errorRoot.findViewById(R.id.tvErrorTitle);
+        TextView tvMessage = errorRoot.findViewById(R.id.tvErrorMessage);
+        MaterialButton btnRetry = errorRoot.findViewById(R.id.btnErrorRetry);
+
+        if (tvTitle != null && title != null) {
+            tvTitle.setText(title);
+        }
+        if (tvMessage != null && message != null) {
+            tvMessage.setText(message);
+        }
+        if (btnRetry != null && retryListener != null) {
+            btnRetry.setOnClickListener(retryListener);
+        }
+    }
+
     /** Respects the system animator duration scale, same rule as ScreenTransitions. */
-    private static boolean animationsEnabled(View view) {
-        try {
+    private static boolean animationsEnabled(View view) {        try {
             float scale = Settings.Global.getFloat(
                     view.getContext().getContentResolver(),
                     Settings.Global.ANIMATOR_DURATION_SCALE, 1f);

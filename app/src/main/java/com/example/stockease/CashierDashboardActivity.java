@@ -38,13 +38,18 @@ public class CashierDashboardActivity extends AppCompatActivity {
     private String storeName = "";
 
     private static final String TRANSACTIONS_URL = ApiConfig.getUrl("get_transactions.php");
+    private static final String SHIFTS_URL = ApiConfig.getUrl("manage_shifts.php");
 
     private TextView tvCashierStaffName, tvCashierHeaderStorePill, tvCashierHeaderDate;
     private TextView tvStaffAvatarInitials, tvStaffProfileName;
     private TextView tvCashierShiftSales, tvCashierShiftTxCount, tvCashierEmptySales;
     private TextView tvCashierShiftSalesTrend;
     private TextView tvShiftStartTime, tvShiftLastTime, tvShiftTotalSalesSummary;
-    private View navStaffDashboard, navStaffPOS, navStaffTransactions, navStaffShift, navStaffSettings, navStaffLogout;
+    private View navStaffDashboard, navStaffPOS, navStaffTransactions, navStaffShift, navStaffLogout;
+    private TextView tvShiftAutoNote;
+    private TextView tvShiftStatusBadge;
+    private boolean shiftActive = false;
+    private int activeShiftId = -1;
     private RecyclerView rvCashierRecentSales;
     private TransactionAdapter adapter;
     private final List<Transaction> shiftTransactions = new ArrayList<>();
@@ -98,6 +103,8 @@ public class CashierDashboardActivity extends AppCompatActivity {
 
         View btnOpenPOS = findViewById(R.id.btnOpenPOS);
         View btnCashierShiftSummary = findViewById(R.id.btnCashierShiftSummary);
+        tvShiftAutoNote = findViewById(R.id.tvShiftAutoNote);
+        tvShiftStatusBadge = findViewById(R.id.tvShiftStatusBadge);
         TextView tvCashierRefresh = findViewById(R.id.tvCashierRefresh);
 
         if (btnOpenPOS != null) {
@@ -118,7 +125,6 @@ public class CashierDashboardActivity extends AppCompatActivity {
         navStaffTransactions = findViewById(R.id.navStaffTransactions);
         navStaffShift = findViewById(R.id.navStaffShift);
         navStaffLogout = findViewById(R.id.navStaffLogout);
-        navStaffSettings = findViewById(R.id.navStaffSettings);
 
         if (navStaffPOS != null) {
             navStaffPOS.setOnClickListener(v -> openPOS());
@@ -129,12 +135,6 @@ public class CashierDashboardActivity extends AppCompatActivity {
         if (navStaffShift != null) {
             navStaffShift.setOnClickListener(v -> showShiftSummaryDialog());
         }
-        if (navStaffSettings != null) {
-            // Settings is admin/manager-only and bounces other roles back to
-            // login, so staff get an explanatory toast instead of a session wipe.
-            navStaffSettings.setOnClickListener(v ->
-                    Toast.makeText(this, "Settings is only available to administrator accounts.", Toast.LENGTH_SHORT).show());
-        }
         if (navStaffLogout != null) {
             navStaffLogout.setOnClickListener(v -> ApiSession.logout(this));
         }
@@ -143,7 +143,6 @@ public class CashierDashboardActivity extends AppCompatActivity {
         SidebarSection.attach(this, R.id.navHeaderOverview, R.id.navArrowOverview, R.id.navSectionOverviewItems, true);
         SidebarSection.attach(this, R.id.navHeaderManagement, R.id.navArrowManagement, R.id.navSectionManagementItems, false);
         SidebarSection.attach(this, R.id.navHeaderAnalytics, R.id.navArrowAnalytics, R.id.navSectionAnalyticsItems, false);
-        SidebarSection.attach(this, R.id.navHeaderSystem, R.id.navArrowSystem, R.id.navSectionSystemItems, false);
 
         // Tapping the profile name or avatar opens the profile screen
         View.OnClickListener openProfile = v -> {
@@ -249,6 +248,7 @@ public class CashierDashboardActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        fetchShiftStatus();
         loadShiftTransactions();
         syncHandler.postDelayed(syncRunnable, 10000);
     }
@@ -260,9 +260,96 @@ public class CashierDashboardActivity extends AppCompatActivity {
     }
 
     private void openPOS() {
+        if (!shiftActive) {
+            // Shifts open on the first login of the day; recover here if one is missing
+            Toast.makeText(this, "Opening your shift…", Toast.LENGTH_SHORT).show();
+            autoStartShift();
+            return;
+        }
         Intent intent = new Intent(this, POSActivity.class);
         addIdentityExtras(intent);
         ScreenTransitions.open(CashierDashboardActivity.this, intent);
+    }
+
+    /** Loads the cashier's active shift and updates the shift control card. */
+    private void fetchShiftStatus() {
+        com.android.volley.RequestQueue queue = ApiSession.getRequestQueue(this);
+        com.android.volley.toolbox.JsonObjectRequest request = new com.android.volley.toolbox.JsonObjectRequest(
+                Request.Method.GET,
+                SHIFTS_URL + "?action=current",
+                null,
+                response -> {
+                    try {
+                        shiftActive = response.optBoolean("active", false);
+                        JSONObject shift = response.optJSONObject("shift");
+                        activeShiftId = shift != null ? shift.optInt("id", -1) : -1;
+                        updateShiftControlUi(shift);
+                        if (!shiftActive) {
+                            autoStartShift();
+                        }
+                    } catch (Exception ignored) {}
+                },
+                error -> {
+                    if (ApiSession.handleAuthError(this, error)) return;
+                }
+        );
+        queue.add(request);
+    }
+
+    private void updateShiftControlUi(JSONObject shift) {
+        if (tvShiftStatusBadge != null) {
+            if (shiftActive) {
+                tvShiftStatusBadge.setText("ON DUTY");
+                tvShiftStatusBadge.setBackgroundResource(R.drawable.bg_badge_emerald);
+                tvShiftStatusBadge.setTextColor(ContextCompat.getColor(this, R.color.success_strong));
+            } else {
+                tvShiftStatusBadge.setText("OFF DUTY");
+                tvShiftStatusBadge.setBackgroundResource(R.drawable.bg_badge_gray);
+                tvShiftStatusBadge.setTextColor(ContextCompat.getColor(this, R.color.slate_700));
+            }
+        }
+        String startedAt = shift != null ? shift.optString("started_at", "") : "";
+        if (tvShiftAutoNote != null) {
+            if (shiftActive && !startedAt.isEmpty()) {
+                firstSaleTime = startedAt.length() >= 16 ? startedAt.substring(11, 16) : startedAt;
+                tvShiftAutoNote.setText("Shift started automatically at " + firstSaleTime
+                        + " (your first login today). It closes when you log out.");
+            } else {
+                tvShiftAutoNote.setText("Your shift starts automatically the first time you log in for the day.");
+            }
+        }
+        if (shiftActive && !startedAt.isEmpty() && tvShiftStartTime != null) {
+            tvShiftStartTime.setText(firstSaleTime);
+        }
+    }
+
+    /**
+     * There is no Start Shift button: the shift is opened by login.php on the
+     * first login of the day. This call only recovers a missing shift (for
+     * example after the app stayed open overnight) and is idempotent.
+     */
+    private void autoStartShift() {
+        if (shiftActive) return;
+
+        com.android.volley.RequestQueue queue = ApiSession.getRequestQueue(this);
+        com.android.volley.toolbox.JsonObjectRequest request = new com.android.volley.toolbox.JsonObjectRequest(
+                Request.Method.POST,
+                SHIFTS_URL + "?action=start",
+                new JSONObject(),
+                response -> {
+                    try {
+                        shiftActive = response.optBoolean("active", false) || response.optBoolean("success", false);
+                        JSONObject shift = response.optJSONObject("shift");
+                        activeShiftId = shift != null ? shift.optInt("id", -1) : -1;
+                        updateShiftControlUi(shift);
+                        loadShiftTransactions();
+                    } catch (Exception ignored) {}
+                },
+                error -> {
+                    if (ApiSession.handleAuthError(this, error)) return;
+                }
+        );
+        queue.add(request);
     }
 
     private void addIdentityExtras(Intent intent) {

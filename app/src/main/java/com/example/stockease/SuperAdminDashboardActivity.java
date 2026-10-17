@@ -99,7 +99,7 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
         email = getIntent().getStringExtra("email");
 
         if (!isAuthorized()) {
-            returnToLogin("This dashboard is available only to Super Admin accounts.");
+            returnToLogin("This dashboard is available only to Super Admin and Store Owner accounts.");
             return;
         }
 
@@ -152,6 +152,21 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
 
         if (navSuperUsers != null) {
             navSuperUsers.setOnClickListener(v -> openSuperAdminDestination(UsersActivity.class));
+        }
+
+        View navSuperStoreAdmins = findViewById(R.id.navSuperStoreAdmins);
+        if (navSuperStoreAdmins != null) {
+            // Store owners create manager accounts here; super admins may also create store admins
+            navSuperStoreAdmins.setOnClickListener(v -> openSuperAdminDestination(StoreAdminsActivity.class));
+        }
+        if ("store_owner".equals(role)) {
+            // Users/role management and audit logs stay super-admin only
+            if (navSuperUsers != null) navSuperUsers.setVisibility(View.GONE);
+            if (navSuperAuditLogs != null) navSuperAuditLogs.setVisibility(View.GONE);
+            // The Users KPI tile links to UsersActivity, so it goes too —
+            // it would otherwise bounce the owner with a super-admin message.
+            View kpiUsersTile = findViewById(R.id.kpiColUsers);
+            if (kpiUsersTile != null) kpiUsersTile.setVisibility(View.GONE);
         }
 
         if (navSuperAdmins != null) {
@@ -257,7 +272,7 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
         }
 
         if (tvSuperHeaderUserPill != null) {
-            tvSuperHeaderUserPill.setText("Super Admin");
+            tvSuperHeaderUserPill.setText("store_owner".equals(role) ? "Store Owner" : "Super Admin");
         }
 
         if (tvSuperProfileName != null) {
@@ -293,7 +308,11 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
         RequestQueue queue = ApiSession.getRequestQueue(this);
 
         loadStoresAndSalesMetrics(queue);
-        loadUserMetrics(queue);
+        // get_users.php is super-admin only; skip it for store owners instead
+        // of firing a request that is guaranteed to 403.
+        if (!"store_owner".equals(role)) {
+            loadUserMetrics(queue);
+        }
         loadStoreOwnersCards(queue);
     }
 
@@ -1000,6 +1019,8 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
         chart.setFocusable(true);
         chart.setOnClickListener(v -> showTopPurchasedProductsDialog(branchName, topProducts));
         content.addView(chart);
+        content.addView(ExportUtil.createChartDownloadButton(
+                this, chart, "stockease_branch_sales_" + (branchName != null ? branchName : "branch").replaceAll("\\s+", "_")));
 
         // Top products quick button
         Button btnTopProds = new Button(this);
@@ -1155,7 +1176,8 @@ public class SuperAdminDashboardActivity extends AppCompatActivity {
     }
 
     private boolean isAuthorized() {
-        return userId > 0 && "super_admin".equals(role);
+        // Store Owners get the same portfolio dashboard, scoped to their own businesses
+        return userId > 0 && ("super_admin".equals(role) || "store_owner".equals(role));
     }
 
     private void openSuperAdminDestination(Class<?> destination) {

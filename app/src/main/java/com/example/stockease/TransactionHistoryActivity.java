@@ -47,6 +47,7 @@ public class TransactionHistoryActivity extends AppCompatActivity {
 
     private TransactionAdapter adapter;
     private View emptyTransactions;
+    private View errorTransactions;
     private View loadingTransactions;
     private List<Transaction> allTransactions = new ArrayList<>();
     private List<Transaction> displayedTransactions = new ArrayList<>();
@@ -61,6 +62,7 @@ public class TransactionHistoryActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_transaction_history);
+        SidebarNav.attach(this, "transactions");
 
         storeId = getIntent().getIntExtra("store_id", -1);
         if (storeId <= 0) {
@@ -69,8 +71,10 @@ public class TransactionHistoryActivity extends AppCompatActivity {
         }
 
         rvTransactions = findViewById(R.id.rvTransactions);
-        emptyTransactions = findViewById(R.id.emptyTransactions);
         loadingTransactions = findViewById(R.id.loadingTransactions);
+        emptyTransactions = findViewById(R.id.emptyTransactions);
+        errorTransactions = findViewById(R.id.errorTransactions);
+        StateViews.bindError(errorTransactions, null, null, v -> loadTransactions());
         StateViews.bindEmpty(emptyTransactions,
                 getString(R.string.empty_transactions_title),
                 getString(R.string.empty_transactions_msg), null, null);
@@ -283,6 +287,7 @@ public class TransactionHistoryActivity extends AppCompatActivity {
                 Request.Method.GET, url, null,
                 response -> {
                     StateViews.hideLoading(loadingTransactions);
+                    StateViews.setErrorVisible(errorTransactions, false);
                     allTransactions.clear();
                     try {
                         for (int i = 0; i < response.length(); i++) {
@@ -313,6 +318,7 @@ public class TransactionHistoryActivity extends AppCompatActivity {
                     StateViews.hideLoading(loadingTransactions);
                     if (ApiSession.handleAuthError(this, error)) return;
                     Toast.makeText(this, "Failed to load transaction history", Toast.LENGTH_SHORT).show();
+                    showTransactionsError();
                 }
         );
 
@@ -430,4 +436,17 @@ public class TransactionHistoryActivity extends AppCompatActivity {
         ScreenTransitions.open(TransactionHistoryActivity.this, intent);
         ScreenTransitions.finish(TransactionHistoryActivity.this);
     }
+
+    /**
+     * A load failed. Shows the error state with a working retry instead of
+     * leaving a blank screen, which a user cannot tell apart from an empty
+     * list or a broken app.
+     */
+    private void showTransactionsError() {
+        if (emptyTransactions != null) {
+            StateViews.setEmptyVisible(emptyTransactions, false);
+        }
+        StateViews.setErrorVisible(errorTransactions, true);
+    }
+
 }

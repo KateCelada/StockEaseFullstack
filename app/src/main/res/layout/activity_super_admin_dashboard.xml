@@ -197,6 +197,32 @@ android:textAppearance="@style/TextAppearance.StockEase.Body" />
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/navSuperStoreAdmins"
+            android:layout_width="match_parent"
+            android:layout_height="38dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginBottom="4dp"
+            android:background="?attr/selectableItemBackground">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_nav_users"
+                android:layout_marginEnd="12dp"  android:contentDescription="@string/cd_nav_icon" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Store Admins"
+                android:textColor="@color/sidebar_text"
+android:textAppearance="@style/TextAppearance.StockEase.Body" />
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/navSuperAdmins"
             android:layout_width="match_parent"
             android:layout_height="38dp"

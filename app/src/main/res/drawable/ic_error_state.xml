@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Error state: an outlined ring with an exclamation, drawn in the same
+     outline idiom as ic_empty_state (no emoji, no glyph, same stroke). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:pathData="M12,4a8,8 0 1,0 0,16a8,8 0 1,0 0,-16"
+        android:strokeColor="@color/text_muted"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000" />
+    <path
+        android:pathData="M12,8v4.5"
+        android:strokeColor="@color/text_muted"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+    <path
+        android:pathData="M12,15.8h0"
+        android:strokeColor="@color/text_muted"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000" />
+</vector>

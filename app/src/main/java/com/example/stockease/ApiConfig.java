@@ -14,7 +14,15 @@ public final class ApiConfig {
         // Prevent instantiation
     }
 
-    public static final String BASE_URL = "http://10.0.2.2/stockease_api/";
+    /**
+     * Points at the live repo API (htdocs junction copy), not the stale flat
+     * htdocs\stockease_api directory — that flat copy no longer receives fixes.
+     *
+     * - Android Emulator: "http://10.0.2.2/StockEaseFullstack/stockease_api/"
+     * - Local Wi-Fi (Physical Devices): "http://<YOUR_LOCAL_IP>/StockEaseFullstack/stockease_api/"
+     * - Production Server: "https://yourdomain.com/stockease_api/"
+     */
+    public static final String BASE_URL = "http://10.0.2.2/stockease_api/StockEaseFullstack/stockease_api/";
 
     /**
      * Builds a full URL for the specified endpoint or relative path.

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/card_background"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="DECLINE TRANSFER REQUEST"
+        android:textColor="@color/text_secondary"
+        android:textStyle="bold"
+        android:layout_marginBottom="12dp"
+        android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Optionally provide a reason for declining this request:"
+        android:textColor="@color/text_primary"
+        android:layout_marginBottom="8dp"
+        android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+    <EditText
+        android:id="@+id/etDeclineReason"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Reason (e.g. insufficient stock at all branches)"
+        android:inputType="textMultiLine"
+        android:minLines="2"
+        android:gravity="top"
+        android:background="@drawable/bg_input_field"
+        android:padding="10dp"
+        android:textColor="@color/text_primary" />
+</LinearLayout>

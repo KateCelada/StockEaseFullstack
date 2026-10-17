@@ -4,14 +4,19 @@ import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import androidx.core.content.ContextCompat;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.Request;
@@ -23,7 +28,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
 public class ReportsActivity extends AppCompatActivity {
@@ -35,20 +42,35 @@ public class ReportsActivity extends AppCompatActivity {
     private String storeName = "";
 
     private static final String REPORTS_URL = ApiConfig.getUrl("get_store_reports.php");
+    private static final String MANUAL_SALES_URL = ApiConfig.getUrl("manage_manual_sales.php");
+    private static final String PRODUCTS_URL = ApiConfig.getUrl("get_products.php");
 
     private TextView tvReportsTitle, tvReportsSubtitle, tvActiveDateRange;
     private TextView tvReportTotalSales, tvReportTotalTransactions, tvReportAvgTransaction, tvReportProductsSold;
     private LinearLayout llPaymentMethodsList, llTopProductsList, llDailySalesList;
     private Button btnFilterToday, btnFilterThisWeek, btnFilterThisMonth, btnFilterCustom;
 
+    // Other Sales (manual, non-POS) section
+    private TextView tvOtherSalesTotal, tvOtherSalesCount, tvVoidedTotal, tvVoidedCount;
+    private LinearLayout llOtherSalesEntries;
+    private Button btnRecordManualSale;
+    private JSONArray cachedOtherSales = new JSONArray();
+
     private String startDateFilter = null;
     private String endDateFilter = null;
     private String activeFilterLabel = "Today";
+
+    // Cached report tables so they can be exported as a CSV spreadsheet
+    private JSONObject cachedSummary = null;
+    private JSONArray cachedPaymentMethods = new JSONArray();
+    private JSONArray cachedTopProducts = new JSONArray();
+    private JSONArray cachedDailySales = new JSONArray();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reports);
+        SidebarNav.attach(this, "reports");
 
         if (getIntent() != null) {
             storeId = getIntent().getIntExtra("store_id", -1);
@@ -76,6 +98,23 @@ public class ReportsActivity extends AppCompatActivity {
         llPaymentMethodsList = findViewById(R.id.llPaymentMethodsList);
         llTopProductsList = findViewById(R.id.llTopProductsList);
         llDailySalesList = findViewById(R.id.llDailySalesList);
+
+        tvOtherSalesTotal = findViewById(R.id.tvOtherSalesTotal);
+        tvOtherSalesCount = findViewById(R.id.tvOtherSalesCount);
+        tvVoidedTotal = findViewById(R.id.tvVoidedTotal);
+        tvVoidedCount = findViewById(R.id.tvVoidedCount);
+        llOtherSalesEntries = findViewById(R.id.llOtherSalesEntries);
+        btnRecordManualSale = findViewById(R.id.btnRecordManualSale);
+
+        // Recording a manual sale mirrors the API's manager-level permission
+        if (btnRecordManualSale != null) {
+            if ("store_admin".equals(role) || "manager".equals(role) || "super_admin".equals(role)) {
+                btnRecordManualSale.setVisibility(View.VISIBLE);
+                btnRecordManualSale.setOnClickListener(v -> showManualSaleDialog());
+            } else {
+                btnRecordManualSale.setVisibility(View.GONE);
+            }
+        }
 
         btnFilterToday = findViewById(R.id.btnFilterToday);
         btnFilterThisWeek = findViewById(R.id.btnFilterThisWeek);
@@ -116,6 +155,11 @@ public class ReportsActivity extends AppCompatActivity {
         });
 
         btnFilterCustom.setOnClickListener(v -> showCustomDateRangePicker());
+
+        Button btnExportReportsCsv = findViewById(R.id.btnExportReportsCsv);
+        if (btnExportReportsCsv != null) {
+            btnExportReportsCsv.setOnClickListener(v -> exportReportsToCsv());
+        }
     }
 
     private void highlightFilterButton(Button activeButton) {
@@ -211,6 +255,7 @@ public class ReportsActivity extends AppCompatActivity {
 
                             // 1. Summary
                             JSONObject summary = response.optJSONObject("summary");
+                            cachedSummary = summary;
                             if (summary != null) {
                                 double totalSales = summary.optDouble("total_sales", 0.0);
                                 int txCount = summary.optInt("transaction_count", 0);
@@ -225,15 +270,23 @@ public class ReportsActivity extends AppCompatActivity {
 
                             // 2. Payment Methods
                             JSONArray paymentMethods = response.optJSONArray("payment_methods");
+                            cachedPaymentMethods = paymentMethods != null ? paymentMethods : new JSONArray();
                             renderPaymentMethods(paymentMethods);
 
                             // 3. Top Products
                             JSONArray topProducts = response.optJSONArray("top_products");
+                            cachedTopProducts = topProducts != null ? topProducts : new JSONArray();
                             renderTopProducts(topProducts);
 
                             // 4. Daily Sales
                             JSONArray dailySales = response.optJSONArray("daily_sales");
+                            cachedDailySales = dailySales != null ? dailySales : new JSONArray();
                             renderDailySales(dailySales);
+
+                            // 5. Other Sales (manual, non-POS + voided/refunded)
+                            JSONObject otherSales = response.optJSONObject("other_sales");
+                            cachedOtherSales = otherSales != null ? otherSales.optJSONArray("entries") : null;
+                            renderOtherSales(otherSales);
 
                         } else {
                             Toast.makeText(this, response.optString("message", "Unable to load reports"), Toast.LENGTH_SHORT).show();
@@ -431,6 +484,273 @@ public class ReportsActivity extends AppCompatActivity {
         tvReportTotalTransactions.setText("—");
         tvReportAvgTransaction.setText("—");
         tvReportProductsSold.setText("—");
+    }
+
+    // ---- Other Sales: manual (non-POS) sales + voided/refunded transactions ----
+
+    private void renderOtherSales(JSONObject other) {
+        if (other == null) {
+            other = new JSONObject();
+        }
+        JSONArray entries = other.optJSONArray("entries");
+        cachedOtherSales = entries != null ? entries : new JSONArray();
+
+        if (tvOtherSalesTotal != null) {
+            tvOtherSalesTotal.setText(String.format(Locale.US, "₱%.2f", other.optDouble("manual_sales_total", 0.0)));
+        }
+        if (tvOtherSalesCount != null) {
+            tvOtherSalesCount.setText(other.optInt("manual_sales_count", 0) + " manual transaction(s)");
+        }
+        if (tvVoidedTotal != null) {
+            tvVoidedTotal.setText(String.format(Locale.US, "₱%.2f", other.optDouble("voided_total", 0.0)));
+        }
+        if (tvVoidedCount != null) {
+            tvVoidedCount.setText(other.optInt("voided_count", 0) + " voided / refunded transaction(s)");
+        }
+        if (llOtherSalesEntries == null) return;
+
+        llOtherSalesEntries.removeAllViews();
+        float density = getResources().getDisplayMetrics().density;
+
+        if (cachedOtherSales.length() == 0) {
+            TextView tvEmpty = new TextView(this);
+            tvEmpty.setText("No manual sales or voided transactions in this period.");
+            tvEmpty.setTextColor(ContextCompat.getColor(this, R.color.text_muted));
+            tvEmpty.setTextSize(12f);
+            llOtherSalesEntries.addView(tvEmpty);
+            return;
+        }
+
+        for (int i = 0; i < cachedOtherSales.length(); i++) {
+            JSONObject e = cachedOtherSales.optJSONObject(i);
+            if (e == null) continue;
+
+            boolean isVoided = "voided".equalsIgnoreCase(e.optString("status", ""));
+            String when = e.optString("created_at", "");
+            if (when.length() >= 16) {
+                when = when.substring(5, 10).replace('-', '/') + " " + when.substring(11, 16);
+            }
+
+            LinearLayout row = new LinearLayout(this);
+            row.setOrientation(LinearLayout.VERTICAL);
+            row.setPadding(0, (int) (6 * density), 0, (int) (6 * density));
+
+            TextView tvHead = new TextView(this);
+            tvHead.setText((isVoided ? "✖ Voided" : "● Completed")
+                    + "  •  " + e.optString("payment_type", "—")
+                    + "  •  ₱" + String.format(Locale.US, "%.2f", e.optDouble("total_amount", 0.0))
+                    + "  •  " + when);
+            tvHead.setTextSize(12f);
+            tvHead.setTypeface(tvHead.getTypeface(), Typeface.BOLD);
+            tvHead.setTextColor(ContextCompat.getColor(this,
+                    isVoided ? R.color.danger_strong : R.color.text_primary));
+            row.addView(tvHead);
+
+            TextView tvDetail = new TextView(this);
+            String items = e.optString("items_summary", "").replace("\n", "\n    ");
+            tvDetail.setText("    " + (items.isEmpty() ? "—" : items)
+                    + "\n    Recorded by " + e.optString("recorded_by", "—"));
+            tvDetail.setTextSize(11f);
+            tvDetail.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
+            row.addView(tvDetail);
+
+            llOtherSalesEntries.addView(row);
+        }
+    }
+
+    /** Dialog to record a sale made outside the POS (phone, bulk, delivery). */
+    private void showManualSaleDialog() {
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        float density = getResources().getDisplayMetrics().density;
+        layout.setPadding((int) (24 * density), 0, (int) (24 * density), 0);
+
+        Spinner spProduct = new Spinner(this);
+        spProduct.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item,
+                new String[]{"Loading products..."}));
+        layout.addView(spProduct);
+
+        final EditText etQty = new EditText(this);
+        etQty.setHint("Quantity");
+        etQty.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        layout.addView(etQty);
+
+        final EditText etPrice = new EditText(this);
+        etPrice.setHint("Unit price (defaults to shelf price)");
+        etPrice.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        layout.addView(etPrice);
+
+        Spinner spPayment = new Spinner(this);
+        spPayment.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item,
+                new String[]{"Cash", "GCash", "Bank Transfer", "Other"}));
+        layout.addView(spPayment);
+
+        final EditText etNotes = new EditText(this);
+        etNotes.setHint("Notes (optional)");
+        layout.addView(etNotes);
+
+        final int[] productId = {-1};
+        final double[] shelfPrice = {0.0};
+
+        // Load the branch catalog into the picker
+        RequestQueue queue = ApiSession.getRequestQueue(this);
+        queue.add(new JsonObjectRequest(Request.Method.GET, PRODUCTS_URL + "?store_id=" + storeId, null,
+                response -> {
+                    JSONArray arr = response.optJSONArray("products");
+                    List<String> names = new ArrayList<>();
+                    List<Integer> ids = new ArrayList<>();
+                    List<Double> prices = new ArrayList<>();
+                    if (arr != null) {
+                        for (int i = 0; i < arr.length(); i++) {
+                            JSONObject p = arr.optJSONObject(i);
+                            if (p == null) continue;
+                            ids.add(p.optInt("id", 0));
+                            prices.add(p.optDouble("price", 0.0));
+                            names.add(p.optString("product_name", "Product")
+                                    + " (stock: " + p.optInt("stock", 0) + ")");
+                        }
+                    }
+                    final List<Integer> finalIds = ids;
+                    final List<Double> finalPrices = prices;
+                    spProduct.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, names));
+                    spProduct.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+                        @Override
+                        public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                            if (position >= 0 && position < finalIds.size()) {
+                                productId[0] = finalIds.get(position);
+                                shelfPrice[0] = finalPrices.get(position);
+                                if (etPrice.getText().toString().trim().isEmpty()) {
+                                    etPrice.setText(String.format(Locale.US, "%.2f", shelfPrice[0]));
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onNothingSelected(android.widget.AdapterView<?> parent) {}
+                    });
+                },
+                error -> Toast.makeText(this, "Could not load products", Toast.LENGTH_SHORT).show()));
+
+        new AlertDialog.Builder(this)
+                .setTitle("Record Manual Sale")
+                .setView(layout)
+                .setPositiveButton("Record", (dialog, which) -> {
+                    String qtyStr = etQty.getText() != null ? etQty.getText().toString().trim() : "";
+                    String priceStr = etPrice.getText() != null ? etPrice.getText().toString().trim() : "";
+                    if (productId[0] <= 0 || TextUtils.isEmpty(qtyStr)) {
+                        Toast.makeText(this, "Select a product and enter the quantity", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    int qty;
+                    try {
+                        qty = Integer.parseInt(qtyStr);
+                    } catch (NumberFormatException e) {
+                        Toast.makeText(this, "Invalid quantity", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    double price = TextUtils.isEmpty(priceStr) ? shelfPrice[0] : Double.parseDouble(priceStr);
+                    recordManualSale(productId[0], qty, price,
+                            spPayment.getSelectedItem().toString(),
+                            etNotes.getText() != null ? etNotes.getText().toString().trim() : "");
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void recordManualSale(int productId, int quantity, double unitPrice, String paymentType, String notes) {
+        JSONObject payload = new JSONObject();
+        try {
+            payload.put("store_id", storeId);
+            payload.put("payment_type", paymentType);
+            payload.put("notes", notes);
+            JSONArray items = new JSONArray();
+            JSONObject line = new JSONObject();
+            line.put("product_id", productId);
+            line.put("quantity", quantity);
+            line.put("unit_price", unitPrice);
+            items.put(line);
+            payload.put("items", items);
+        } catch (JSONException ignored) {}
+
+        RequestQueue queue = ApiSession.getRequestQueue(this);
+        queue.add(new JsonObjectRequest(Request.Method.POST,
+                MANUAL_SALES_URL + "?action=create", payload,
+                response -> {
+                    // opt* accessors never throw, so no parse try/catch is needed
+                    if (response.optBoolean("success", false)) {
+                        Toast.makeText(this, response.optString("message", "Manual sale recorded"),
+                                Toast.LENGTH_LONG).show();
+                        loadReportsData();
+                    } else {
+                        Toast.makeText(this, response.optString("message", "Could not record the sale"),
+                                Toast.LENGTH_LONG).show();
+                    }
+                },
+                error -> {
+                    if (ApiSession.handleAuthError(this, error)) return;
+                    Toast.makeText(this, "Network error recording the manual sale", Toast.LENGTH_SHORT).show();
+                }));
+    }
+
+    /** Exports the loaded summary + tables as a single CSV spreadsheet. */
+    private void exportReportsToCsv() {
+        List<String[]> rows = new ArrayList<>();
+
+        rows.add(new String[]{"StockEase Store Report", storeName, "Period", activeFilterLabel});
+        rows.add(new String[]{});
+
+        rows.add(new String[]{"Summary"});
+        rows.add(new String[]{"Metric", "Value"});
+        if (cachedSummary != null) {
+            rows.add(new String[]{"Total Sales", String.valueOf(cachedSummary.optDouble("total_sales", 0.0))});
+            rows.add(new String[]{"Transactions", String.valueOf(cachedSummary.optInt("transaction_count", 0))});
+            rows.add(new String[]{"Average Transaction", String.valueOf(cachedSummary.optDouble("average_transaction", 0.0))});
+            rows.add(new String[]{"Products Sold", String.valueOf(cachedSummary.optInt("products_sold", 0))});
+        }
+        rows.add(new String[]{});
+
+        rows.add(new String[]{"Payment Methods"});
+        rows.add(new String[]{"Payment Type", "Transactions", "Total Amount"});
+        for (int i = 0; i < cachedPaymentMethods.length(); i++) {
+            JSONObject obj = cachedPaymentMethods.optJSONObject(i);
+            if (obj == null) continue;
+            rows.add(new String[]{
+                    obj.optString("payment_type", "Unknown"),
+                    String.valueOf(obj.optInt("count", 0)),
+                    String.valueOf(obj.optDouble("total_amount", 0.0))
+            });
+        }
+        rows.add(new String[]{});
+
+        rows.add(new String[]{"Top Products"});
+        rows.add(new String[]{"Rank", "Product", "Units Sold", "Revenue"});
+        for (int i = 0; i < cachedTopProducts.length(); i++) {
+            JSONObject obj = cachedTopProducts.optJSONObject(i);
+            if (obj == null) continue;
+            rows.add(new String[]{
+                    String.valueOf(i + 1),
+                    obj.optString("product_name", "Product"),
+                    String.valueOf(obj.optInt("total_sold", 0)),
+                    String.valueOf(obj.optDouble("total_revenue", 0.0))
+            });
+        }
+        rows.add(new String[]{});
+
+        rows.add(new String[]{"Daily Sales"});
+        rows.add(new String[]{"Date", "Sales", "Transactions"});
+        for (int i = 0; i < cachedDailySales.length(); i++) {
+            JSONObject obj = cachedDailySales.optJSONObject(i);
+            if (obj == null) continue;
+            rows.add(new String[]{
+                    obj.optString("sale_date", ""),
+                    String.valueOf(obj.optDouble("daily_sales", 0.0)),
+                    String.valueOf(obj.optInt("transaction_count", 0))
+            });
+        }
+
+        String fileName = "stockease_report_" + (storeName != null && !storeName.isEmpty()
+                ? storeName.replaceAll("\\s+", "_") : "store_" + storeId) + "_" + activeFilterLabel.replaceAll("\\s+", "_");
+        ExportUtil.saveCsv(this, fileName, ExportUtil.rowsToCsv(rows));
     }
 
     private void returnToLogin(String message) {

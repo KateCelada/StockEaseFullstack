@@ -46,7 +46,23 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         holder.tvName.setText(product.getName());
         holder.tvPrice.setText(String.format(Locale.getDefault(), "₱%.2f", product.getPrice()));
         holder.tvCategory.setText("Category: " + product.getCategoryName());
-        holder.tvQty.setText("Stock: " + product.getStock());
+
+        // Low stock indicator: flag anything at or under its minimum threshold
+        boolean lowStock = product.isLowStock();
+        if (lowStock) {
+            holder.tvQty.setText("Stock: " + product.getStock() + " (min " + product.getMinStock() + ")");
+            holder.tvQty.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.warning_text));
+        } else {
+            holder.tvQty.setText("Stock: " + product.getStock());
+            holder.tvQty.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.text_primary));
+        }
+
+        if (holder.tvLowStock != null) {
+            holder.tvLowStock.setVisibility(lowStock ? View.VISIBLE : View.GONE);
+            holder.tvLowStock.setText(lowStock
+                    ? "LOW STOCK • min " + product.getMinStock()
+                    : "LOW STOCK");
+        }
 
         if (holder.tvCost != null) {
             holder.tvCost.setText(String.format(Locale.getDefault(), "Cost: ₱%.2f", product.getCostPrice()));
@@ -76,7 +92,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     }
 
     public static class ProductViewHolder extends RecyclerView.ViewHolder {
-        TextView tvName, tvPrice, tvCategory, tvQty, tvCost, tvProfit, tvBarcode;
+        TextView tvName, tvPrice, tvCategory, tvQty, tvCost, tvProfit, tvBarcode, tvLowStock;
 
         public ProductViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -87,6 +103,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             tvCost = itemView.findViewById(R.id.tvProductCost);
             tvProfit = itemView.findViewById(R.id.tvProductProfit);
             tvBarcode = itemView.findViewById(R.id.tvProductBarcode);
+            tvLowStock = itemView.findViewById(R.id.tvProductLowStock);
         }
     }
 }

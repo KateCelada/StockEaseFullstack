@@ -31,11 +31,13 @@ public class SubscriptionActivity extends AppCompatActivity {
     private TextView tvCurrentPlanTitle, tvCurrentStatusBadge;
     private TextView tvBillingPeriod, tvExpirationDate, tvPlanAccessSummary;
     private Button btnApplyMonthly, btnApplyYearly;
+    private boolean isPremium = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_subscription);
+        SidebarNav.attach(this, "subscription");
 
         userId = getIntent().getIntExtra("user_id", -1);
         role = getIntent().getStringExtra("role");
@@ -66,7 +68,36 @@ public class SubscriptionActivity extends AppCompatActivity {
             btnApplyYearly.setOnClickListener(v -> submitSubscriptionApplication("yearly"));
         }
 
+        // Clickable tier cards: tapping a plan card applies that tier (with confirmation)
+        View cardTierFree = findViewById(R.id.cardTierFree);
+        View cardTierMonthly = findViewById(R.id.cardTierMonthly);
+        View cardTierYearly = findViewById(R.id.cardTierYearly);
+
+        if (cardTierFree != null) {
+            cardTierFree.setOnClickListener(v -> Toast.makeText(this,
+                    "You are on the Free tier. Choose a Premium plan to unlock multi-branch features.",
+                    Toast.LENGTH_SHORT).show());
+        }
+        if (cardTierMonthly != null) {
+            cardTierMonthly.setOnClickListener(v -> confirmPlanChange("monthly", "₱699 / mo"));
+        }
+        if (cardTierYearly != null) {
+            cardTierYearly.setOnClickListener(v -> confirmPlanChange("yearly", "₱6,990 / yr"));
+        }
+
         fetchSubscriptionDetails();
+    }
+
+    /** Confirmation dialog used when a tier card or plan button is clicked. */
+    private void confirmPlanChange(String period, String priceLabel) {
+        String actionWord = isPremium ? "Switch your subscription" : "Apply for";
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("StockEase Premium")
+                .setMessage(actionWord + " the " + period.toUpperCase(Locale.US)
+                        + " plan (" + priceLabel + ")?\n\nYour Super Admin will review the request before it activates.")
+                .setPositiveButton("Continue", (dialog, which) -> submitSubscriptionApplication(period))
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private void fetchSubscriptionDetails() {
@@ -104,6 +135,7 @@ public class SubscriptionActivity extends AppCompatActivity {
         String period = sub.optString("billing_period", "");
         String status = sub.optString("status", "active");
         boolean isPremium = sub.optBoolean("is_premium", false);
+        SubscriptionActivity.this.isPremium = isPremium;
         String expiresAt = sub.optString("expires_at", "");
 
         if (isPremium) {

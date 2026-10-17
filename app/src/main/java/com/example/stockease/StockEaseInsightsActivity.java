@@ -45,6 +45,7 @@ public class StockEaseInsightsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stockease_insights);
+        SidebarNav.attach(this, "insights");
 
         if (getIntent() != null) {
             userId = getIntent().getIntExtra("user_id", -1);

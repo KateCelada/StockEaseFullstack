@@ -191,6 +191,9 @@ public class LoginActivity extends AppCompatActivity {
             etCurrent.setText(currentPassword);
         }
 
+        // Live strength meter (same verdict as the API policy)
+        PasswordStrength.bind(dialogView.findViewById(R.id.pwStrengthMeter), etNew);
+
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle("First-Time Login Security")
                 .setMessage("Your administrator requires you to set a new personal password before accessing the system.")
@@ -215,8 +218,8 @@ public class LoginActivity extends AppCompatActivity {
                     return;
                 }
 
-                if (newPass.length() < 6) {
-                    Toast.makeText(this, "New password must be at least 6 characters.", Toast.LENGTH_SHORT).show();
+                if (!PasswordStrength.isAcceptable(newPass)) {
+                    Toast.makeText(this, PasswordStrength.requirementText(), Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -285,8 +288,10 @@ public class LoginActivity extends AppCompatActivity {
                 break;
             case "manager":
             case "store_admin":
-                if (storeId <= 0) {
-                    Toast.makeText(LoginActivity.this, "Store administrator/manager has no valid store assignment", Toast.LENGTH_SHORT).show();
+                // A manager may sign in before their first branch exists: the
+                // dashboard opens in "no branch yet" mode with the Add Branch button.
+                if (storeId <= 0 && !"manager".equals(role)) {
+                    Toast.makeText(LoginActivity.this, "Store administrator has no valid store assignment", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 intent = new Intent(LoginActivity.this, StoreAdminDashboardActivity.class);
@@ -296,10 +301,10 @@ public class LoginActivity extends AppCompatActivity {
                 break;
             case "inventory_checker":
                 if (storeId <= 0) {
-                    Toast.makeText(LoginActivity.this, "Inventory Checker account has no valid store assignment", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, "Inventory staff account has no valid store assignment", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                intent = new Intent(LoginActivity.this, ProductsActivity.class);
+                intent = new Intent(LoginActivity.this, InventoryDashboardActivity.class);
                 break;
             case "staff":
                 if (storeId <= 0) {

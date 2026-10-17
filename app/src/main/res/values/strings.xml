@@ -65,12 +65,15 @@
     <string name="cd_brand_mark">StockEase brand mark</string>
     <string name="cd_nav_icon">Navigation icon</string>
     <string name="cd_empty_state">Empty tray</string>
+  <string name="cd_error_state">Connection problem</string>
 
     <!-- Shared loading / empty states -->
     <string name="state_empty_title">Nothing to show yet</string>
     <string name="state_empty_message">When there\'s activity here, it will show up in this list.</string>
     <string name="state_action_retry">Try again</string>
     <string name="state_action_clear">Clear filter</string>
+    <string name="state_error_title">Couldn\'t load this screen</string>
+    <string name="state_error_message">StockEase couldn\'t reach the server. Check your connection, then try again.</string>
 
     <!-- Register -->
     <string name="register_tagline">New accounts are tied to your store</string>

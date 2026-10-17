@@ -49,12 +49,19 @@ public class RegisterActivity extends AppCompatActivity {
 
         btnRegister.setOnClickListener(v -> handleRegistration());
         tvLoginLink.setOnClickListener(v -> finish());
+
+        // Live strength meter below the password field (same verdict as the API)
+        PasswordStrength.bind(findViewById(R.id.pwStrengthMeter), etPassword);
     }
 
     /** Inline field error: shows under the field instead of a toast. */
     private void fieldError(TextInputLayout layout, EditText field, int msgRes) {
-        if (layout != null) layout.setError(getString(msgRes));
-        else if (field != null) field.setError(getString(msgRes));
+        fieldError(layout, field, getString(msgRes));
+    }
+
+    private void fieldError(TextInputLayout layout, EditText field, String message) {
+        if (layout != null) layout.setError(message);
+        else if (field != null) field.setError(message);
         if (field != null) field.requestFocus();
     }
 
@@ -102,8 +109,9 @@ public class RegisterActivity extends AppCompatActivity {
             fieldError(tilPassword, etPassword, R.string.err_password_required);
             return;
         }
-        if (password.length() < 6) {
-            fieldError(tilPassword, etPassword, R.string.err_password_short);
+        // Same rule the API enforces (8+ chars, a letter and a number)
+        if (!PasswordStrength.isAcceptable(password)) {
+            fieldError(tilPassword, etPassword, PasswordStrength.requirementText());
             return;
         }
 

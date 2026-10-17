@@ -46,6 +46,7 @@ public class LowStockActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_low_stock);
+        SidebarNav.attach(this, "inventory");
 
         storeId = getIntent().getIntExtra("store_id", -1);
         if (storeId <= 0) {

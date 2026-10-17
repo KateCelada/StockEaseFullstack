@@ -147,7 +147,7 @@ android:textAppearance="@style/TextAppearance.StockEase.Title" />
             android:layout_marginBottom="4dp">
 
         <LinearLayout
-            android:id="@+id/navProducts"
+            android:id="@+id/navStoreAdmins"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -160,13 +160,13 @@ android:textAppearance="@style/TextAppearance.StockEase.Title" />
             <ImageView
                 android:layout_width="18dp"
                 android:layout_height="18dp"
-                android:src="@drawable/ic_nav_products"
+                android:src="@drawable/ic_nav_users"
                 android:layout_marginEnd="12dp"  android:contentDescription="@string/cd_nav_icon" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Inventory &amp; Products"
+                android:text="Store Admins"
                 android:textColor="@color/sidebar_text"
 android:textAppearance="@style/TextAppearance.StockEase.Body" />
         </LinearLayout>
@@ -1037,6 +1037,19 @@ android:textAppearance="@style/TextAppearance.StockEase.Section" />
                     android:layout_width="match_parent"
                     android:layout_height="140dp"
                     android:background="@color/app_background" />
+
+                <TextView
+                    android:id="@+id/btnDownloadEarningsChart"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/card_subtle_bg"
+                    android:gravity="center"
+                    android:padding="6dp"
+                    android:text="⤓ Save Chart as PNG"
+                    android:textColor="@color/primary"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:textAppearance="@style/TextAppearance.StockEase.Label" />
             </LinearLayout>
 
             <!-- Quick Actions Grid -->
@@ -1053,39 +1066,7 @@ android:textAppearance="@style/TextAppearance.StockEase.Section" />
                 android:orientation="horizontal"
                 android:layout_marginBottom="24dp">
 
-                <!-- Inventory & Products -->
-                <LinearLayout
-                    android:id="@+id/cardActionProducts"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@drawable/bg_card_white"
-                    android:padding="16dp"
-                    android:orientation="vertical"
-                    android:layout_marginEnd="12dp"
-                    android:clickable="true"
-                    android:focusable="true">
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_nav_products"
-                        android:layout_marginBottom="8dp"  android:contentDescription="@string/cd_nav_icon" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Products &amp; Inventory"
-                        android:textColor="@color/text_primary"
-                        android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Catalog &amp; Stock levels"
-                        android:textColor="@color/text_muted"
-                        android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
-                </LinearLayout>
+                <!-- Inventory & Products moved to the Inventory staff dashboard -->
 
                 <!-- Staff -->
                 <LinearLayout

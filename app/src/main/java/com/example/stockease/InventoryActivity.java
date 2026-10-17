@@ -33,6 +33,7 @@ public class InventoryActivity extends AppCompatActivity {
 
     private RecyclerView rvCategories, rvFilteredProducts;
     private View emptyCategories;
+    private View errorCategories;
     private View loadingCategories;
     private LinearLayout layoutFilteredProducts;
     private TextView tvHeaderTitle, tvHeaderSubtitle;
@@ -48,6 +49,7 @@ public class InventoryActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inventory);
+        SidebarNav.attach(this, "inventory");
 
         storeId = getIntent().getIntExtra("store_id", -1);
         if (storeId <= 0) {
@@ -59,8 +61,10 @@ public class InventoryActivity extends AppCompatActivity {
         tvHeaderTitle = findViewById(R.id.tvHeaderTitle);
         tvHeaderSubtitle = findViewById(R.id.tvHeaderSubtitle);
         rvCategories = findViewById(R.id.rvCategories);
-        emptyCategories = findViewById(R.id.emptyCategories);
         loadingCategories = findViewById(R.id.loadingCategories);
+        emptyCategories = findViewById(R.id.emptyCategories);
+        errorCategories = findViewById(R.id.errorCategories);
+        StateViews.bindError(errorCategories, null, null, v -> fetchCategories());
         StateViews.bindEmpty(emptyCategories,
                 getString(R.string.empty_categories_title),
                 getString(R.string.empty_categories_msg),
@@ -100,6 +104,7 @@ public class InventoryActivity extends AppCompatActivity {
                 null,
                 response -> {
                     StateViews.hideLoading(loadingCategories);
+                    StateViews.setErrorVisible(errorCategories, false);
                     categoryList.clear();
                     try {
                         for (int i = 0; i < response.length(); i++) {
@@ -120,6 +125,7 @@ public class InventoryActivity extends AppCompatActivity {
                     StateViews.hideLoading(loadingCategories);
                     if (ApiSession.handleAuthError(this, error)) return;
                     Toast.makeText(this, "Failed to load categories", Toast.LENGTH_SHORT).show();
+                    showCategoriesError();
                 }
         );
         queue.add(request);
@@ -265,4 +271,17 @@ public class InventoryActivity extends AppCompatActivity {
         ScreenTransitions.open(InventoryActivity.this, intent);
         ScreenTransitions.finish(InventoryActivity.this);
     }
+
+    /**
+     * A load failed. Shows the error state with a working retry instead of
+     * leaving a blank screen, which a user cannot tell apart from an empty
+     * list or a broken app.
+     */
+    private void showCategoriesError() {
+        if (emptyCategories != null) {
+            StateViews.setEmptyVisible(emptyCategories, false);
+        }
+        StateViews.setErrorVisible(errorCategories, true);
+    }
+
 }

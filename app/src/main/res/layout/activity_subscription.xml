@@ -2,8 +2,17 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:background="@color/app_background">
+
+    <!-- Persistent navigation (shared across all main screens) -->
+    <include layout="@layout/view_sidebar" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical">
 
     <!-- Top App Bar -->
     <LinearLayout
@@ -196,13 +205,16 @@
 
                 <!-- Tier 1: Free -->
                 <LinearLayout
+                    android:id="@+id/cardTierFree"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:background="@drawable/bg_card_white"
                     android:orientation="vertical"
                     android:padding="16dp"
-                    android:layout_marginEnd="8dp">
+                    android:layout_marginEnd="8dp"
+                    android:clickable="true"
+                    android:focusable="true">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -240,13 +252,16 @@
 
                 <!-- Tier 2: Premium Monthly -->
                 <LinearLayout
+                    android:id="@+id/cardTierMonthly"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:background="@drawable/bg_card_white"
                     android:orientation="vertical"
                     android:padding="16dp"
-                    android:layout_marginEnd="8dp">
+                    android:layout_marginEnd="8dp"
+                    android:clickable="true"
+                    android:focusable="true">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -295,12 +310,15 @@
 
                 <!-- Tier 3: Premium Yearly (Value Option) -->
                 <LinearLayout
+                    android:id="@+id/cardTierYearly"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:background="@drawable/bg_card_white"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="16dp"
+                    android:clickable="true"
+                    android:focusable="true">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -370,5 +388,6 @@
 
         </LinearLayout>
     </ScrollView>
+    </LinearLayout>
 
 </LinearLayout>

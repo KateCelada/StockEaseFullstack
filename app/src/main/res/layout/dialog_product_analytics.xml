@@ -230,7 +230,21 @@
         android:layout_width="match_parent"
         android:layout_height="140dp"
         android:background="@color/app_background"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/btnDownloadTrendChart"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/card_subtle_bg"
+        android:gravity="center"
+        android:padding="6dp"
+        android:text="⤓ Save Chart as PNG"
+        android:textColor="@color/primary"
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_marginBottom="16dp"
+        android:textAppearance="@style/TextAppearance.StockEase.Label" />
 
     <!-- Action Buttons: Edit Prices & Restock -->
     <LinearLayout

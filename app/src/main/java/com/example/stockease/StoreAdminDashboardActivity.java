@@ -44,11 +44,11 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
     private JSONArray cachedTodaySoldProducts = new JSONArray();
     private JSONArray cachedAllLowStockItems = new JSONArray();
     private JSONArray cachedTodayHourlyTrend = new JSONArray();
-    private View cardActionProducts, cardActionStaff, cardActionReports;
+    private View cardActionStaff, cardActionReports;
     private View cardActionTransfers, cardActionInsights;
     private TextView tvViewAllTransactions, tvViewAllLowStock;
     private LinearLayout containerLowStockList, containerRecentSales;
-    private View navDashboard, navProducts, navStores, navInventory, navSales, navStaff, navReports, navTransfers, navInsights, navSubscription, navSettings, navLogout;
+    private View navDashboard, navStores, navSales, navStaff, navReports, navTransfers, navInsights, navSubscription, navSettings, navLogout, navStoreAdmins;
 
     private int storeId = -1;
     private int userId = -1;
@@ -83,8 +83,10 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
             email = getIntent().getStringExtra("email");
         }
 
-        if (storeId <= 0 || userId <= 0 || (!"store_admin".equals(role) && !"manager".equals(role))) {
-            returnToLogin("This dashboard is available only to Store Admin or Manager accounts with a valid store.");
+        // A manager may sign in before their first branch exists: the store owner
+        // creates them first, then they add the branches themselves.
+        if (userId <= 0 || (!"store_admin".equals(role) && !"manager".equals(role)) || (storeId <= 0 && !"manager".equals(role))) {
+            returnToLogin("This dashboard is available only to Store Admin or Manager accounts.");
             return;
         }
 
@@ -159,6 +161,12 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
 
         // Earnings Line Chart & Period Filters
         chartStoreEarnings = findViewById(R.id.chartStoreEarnings);
+
+        TextView btnDownloadEarningsChart = findViewById(R.id.btnDownloadEarningsChart);
+        if (btnDownloadEarningsChart != null && chartStoreEarnings != null) {
+            btnDownloadEarningsChart.setOnClickListener(v -> ExportUtil.saveChartPng(
+                    this, chartStoreEarnings, "stockease_store_earnings_" + System.currentTimeMillis()));
+        }
         tvChartWeeklyTotal = findViewById(R.id.tvChartWeeklyTotal);
         btnPeriodToday = findViewById(R.id.btnPeriodToday);
         btnPeriodThisWeek = findViewById(R.id.btnPeriodThisWeek);
@@ -168,7 +176,6 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
         setupPeriodButtons();
 
         // Quick Action Cards
-        cardActionProducts = findViewById(R.id.cardActionProducts);
         cardActionStaff = findViewById(R.id.cardActionStaff);
         cardActionReports = findViewById(R.id.cardActionReports);
         cardActionTransfers = findViewById(R.id.cardActionTransfers);
@@ -196,9 +203,8 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
 
         // Sidebar Navigation Items
         navDashboard = findViewById(R.id.navDashboard);
-        navProducts = findViewById(R.id.navProducts);
         navStores = findViewById(R.id.navStores);
-        navInventory = findViewById(R.id.navInventory);
+        navStoreAdmins = findViewById(R.id.navStoreAdmins);
         navSales = findViewById(R.id.navSales);
         navStaff = findViewById(R.id.navStaff);
         navReports = findViewById(R.id.navReports);
@@ -214,6 +220,11 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
             if (btnManagerAddBranch != null) btnManagerAddBranch.setVisibility(View.GONE);
             if (containerManagerBranchSection != null) containerManagerBranchSection.setVisibility(View.GONE);
             if (navStores != null) navStores.setVisibility(View.GONE);
+        }
+
+        // Strict hierarchy: creating store admin accounts is a Manager/Super Admin duty
+        if (!"manager".equals(role) && !"super_admin".equals(role)) {
+            if (navStoreAdmins != null) navStoreAdmins.setVisibility(View.GONE);
         }
 
         // Collapsible sidebar sections (accordion): OVERVIEW opens by default
@@ -290,10 +301,17 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
             tvAdminGreeting.setText(greeting + ", " + displayName);
         }
 
-        String displayStore = (storeName != null && !storeName.isEmpty()) ? storeName : "Branch " + storeId;
+        boolean preBranch = storeId <= 0;
+        String displayStore = (storeName != null && !storeName.isEmpty()) ? storeName : (preBranch ? "No branch yet" : "Branch " + storeId);
         if (tvHeaderStorePill != null) {
-            tvHeaderStorePill.setText(displayStore + " ▾");
-            tvHeaderStorePill.setOnClickListener(v -> showBranchSwitchDialog());
+            tvHeaderStorePill.setText(preBranch ? displayStore : displayStore + " ▾");
+            tvHeaderStorePill.setOnClickListener(v -> {
+                if (storeId <= 0) {
+                    Toast.makeText(StoreAdminDashboardActivity.this, "Add your first branch below to get started.", Toast.LENGTH_SHORT).show();
+                } else {
+                    showBranchSwitchDialog();
+                }
+            });
         }
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMM d, yyyy", Locale.US);
@@ -322,13 +340,6 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
     }
 
     private void setupQuickActionListeners() {
-        if (cardActionProducts != null) {
-            cardActionProducts.setOnClickListener(v -> {
-                Intent intent = new Intent(this, ProductsActivity.class);
-                addIdentityExtras(intent);
-                ScreenTransitions.open(StoreAdminDashboardActivity.this, intent);
-            });
-        }
         if (cardActionStaff != null) {
             cardActionStaff.setOnClickListener(v -> {
                 Intent intent = new Intent(this, StaffActivity.class);
@@ -423,6 +434,11 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
 
     private void loadDashboardMetrics() {
         setMetricPlaceholders();
+
+        // Pre-branch manager: no store to query yet, keep the placeholders.
+        if (storeId <= 0) {
+            return;
+        }
 
         RequestQueue queue = ApiSession.getRequestQueue(this);
         String dashUrl = ApiConfig.getUrl("get_store_admin_dashboard.php?store_id=" + storeId);
@@ -767,11 +783,15 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
     }
 
     private void setupNavigationListeners() {
-        if (navProducts != null) {
-            navProducts.setOnClickListener(v -> {
-                Intent intent = new Intent(this, ProductsActivity.class);
-                addIdentityExtras(intent);
-                ScreenTransitions.open(StoreAdminDashboardActivity.this, intent);
+        if (navStoreAdmins != null) {
+            navStoreAdmins.setOnClickListener(v -> {
+                if ("manager".equals(role) || "super_admin".equals(role)) {
+                    Intent intent = new Intent(this, StoreAdminsActivity.class);
+                    addIdentityExtras(intent);
+                    ScreenTransitions.open(StoreAdminDashboardActivity.this, intent);
+                } else {
+                    Toast.makeText(this, "Store admin accounts are created by Managers.", Toast.LENGTH_SHORT).show();
+                }
             });
         }
 
@@ -786,14 +806,6 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(this, "Branch management is restricted to Store Managers.", Toast.LENGTH_SHORT).show();
                 }
-            });
-        }
-
-        if (navInventory != null) {
-            navInventory.setOnClickListener(v -> {
-                Intent intent = new Intent(this, InventoryActivity.class);
-                addIdentityExtras(intent);
-                ScreenTransitions.open(StoreAdminDashboardActivity.this, intent);
             });
         }
 
@@ -1025,6 +1037,8 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
             }
             hourlyChart.setData(hPoints, hLabels);
             container.addView(hourlyChart);
+            container.addView(ExportUtil.createChartDownloadButton(
+                    this, hourlyChart, "stockease_intraday_sales_" + System.currentTimeMillis()));
 
             View div = new View(this);
             div.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 2));
@@ -1298,17 +1312,14 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
     }
 
     private void showBranchesMenuDialog() {
-        String[] options = {"Add New Branch", "Create & Assign Store Admins", "View Branches List"};
+        // "Create & Assign Store Admins" moved to the manager-only "Store Admins" sidebar item
+        String[] options = {"Add New Branch", "View Branches List"};
         new androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle("Branches Management")
                 .setItems(options, (dialog, which) -> {
                     if (which == 0) {
                         showManagerAddBranchDialog();
                     } else if (which == 1) {
-                        Intent intent = new Intent(this, StoreAdminsActivity.class);
-                        addIdentityExtras(intent);
-                        ScreenTransitions.open(StoreAdminDashboardActivity.this, intent);
-                    } else if (which == 2) {
                         if (containerManagerBranchSection != null) {
                             containerManagerBranchSection.setVisibility(View.VISIBLE);
                             ScrollView sv = findViewById(R.id.scrollDashboardContent);
@@ -1400,6 +1411,8 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
         chart.setFocusable(true);
         chart.setOnClickListener(v -> showManagerTopProductsDialog(bName, topProducts));
         layout.addView(chart);
+        layout.addView(ExportUtil.createChartDownloadButton(
+                this, chart, "stockease_branch_sales_" + (bName != null ? bName : "branch").replaceAll("\\s+", "_")));
 
         Button btnTop = new Button(this);
         btnTop.setText("View Top Purchased Products & Profit");
@@ -1571,7 +1584,18 @@ public class StoreAdminDashboardActivity extends AppCompatActivity {
                     String msg = response.optString("message", "Branch created successfully!");
                     Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
                     if (ok) {
+                        // Adopt the new branch immediately (pre-branch manager flow).
+                        int newStoreId = response.optInt("store_id", 0);
+                        if (newStoreId > 0) {
+                            storeId = newStoreId;
+                            storeName = name;
+                            if (tvHeaderStorePill != null) {
+                                tvHeaderStorePill.setText(storeName + " ▾");
+                                tvHeaderStorePill.setOnClickListener(v -> showBranchSwitchDialog());
+                            }
+                        }
                         loadManagerBranches();
+                        loadDashboardMetrics();
                     }
                 },
                 error -> Toast.makeText(this, "Failed to create branch", Toast.LENGTH_SHORT).show()

@@ -2,9 +2,18 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
+    android:orientation="horizontal"
     android:background="@color/app_background">
+
+    <!-- Persistent navigation (shared across all main screens) -->
+    <include layout="@layout/view_sidebar" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:padding="16dp">
 
     <!-- Header & Action Row -->
     <LinearLayout
@@ -144,6 +153,58 @@
             android:layout_gravity="center"
             android:visibility="gone"
             layout="@layout/view_empty_state" />
+
+        <include
+            android:id="@+id/errorProducts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            layout="@layout/view_error_state" />
     </FrameLayout>
+
+    <!-- Table pagination -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingTop="8dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnProductsPrev"
+            style="@style/Widget.StockEase.Button.Secondary"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="Prev"
+            android:textAllCaps="false"
+            android:textColor="@color/slate_600"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="0dp"
+            android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+        <TextView
+            android:id="@+id/tvProductsPage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Page 1 of 1"
+            android:textColor="@color/text_secondary"
+            android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnProductsNext"
+            style="@style/Widget.StockEase.Button.Secondary"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="Next"
+            android:textAllCaps="false"
+            android:textColor="@color/slate_600"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="0dp"
+            android:textAppearance="@style/TextAppearance.StockEase.Label" />
+    </LinearLayout>
+    </LinearLayout>
 
 </LinearLayout>

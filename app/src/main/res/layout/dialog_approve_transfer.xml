@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/card_background"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="APPROVE TRANSFER REQUEST"
+        android:textColor="@color/text_secondary"
+        android:textStyle="bold"
+        android:layout_marginBottom="12dp"
+        android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+    <TextView
+        android:id="@+id/tvApproveInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Choose the branch that will send the stock:"
+        android:textColor="@color/text_primary"
+        android:layout_marginBottom="12dp"
+        android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Donor Branch (Source)"
+        android:textColor="@color/text_primary"
+        android:textStyle="bold"
+        android:layout_marginBottom="4dp"
+        android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+    <Spinner
+        android:id="@+id/spDonorStore"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:background="@drawable/bg_input_field"
+        android:paddingHorizontal="8dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="On approval the chosen branch's stock is deducted and the transfer moves to In Transit."
+        android:textColor="@color/text_muted"
+        android:layout_marginTop="10dp"
+        android:textAppearance="@style/TextAppearance.StockEase.Caption" />
+</LinearLayout>

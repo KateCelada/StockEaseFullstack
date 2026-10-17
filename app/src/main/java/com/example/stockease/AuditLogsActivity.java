@@ -59,6 +59,16 @@ public class AuditLogsActivity extends AppCompatActivity {
     private TextView tvAuditLogsStatus;
     private TextView tvAuditAvatarInitials, tvAuditProfileName;
 
+    /** Server side pagination of the audit table. */
+    private static final int PAGE_SIZE = 25;
+    private int currentPage = 1;
+    private int totalPages = 1;
+    private int totalLogs = 0;
+    private Button btnAuditPrevPage, btnAuditNextPage;
+    private TextView tvAuditPageInfo;
+    private final android.os.Handler searchDebounce = new android.os.Handler(android.os.Looper.getMainLooper());
+    private Runnable pendingSearch;
+
     private View navAuditDashboard, navAuditStores, navAuditUsers, navAuditAdmins, navAuditReports, navAuditSettings, navAuditLogout;
 
     private static class LogEntry {
@@ -120,6 +130,27 @@ public class AuditLogsActivity extends AppCompatActivity {
         btnAuditFilterWeek = findViewById(R.id.btnAuditFilterWeek);
         btnAuditFilterMonth = findViewById(R.id.btnAuditFilterMonth);
         btnAuditFilterCustom = findViewById(R.id.btnAuditFilterCustom);
+
+        btnAuditPrevPage = findViewById(R.id.btnAuditPrevPage);
+        btnAuditNextPage = findViewById(R.id.btnAuditNextPage);
+        tvAuditPageInfo = findViewById(R.id.tvAuditPageInfo);
+
+        if (btnAuditPrevPage != null) {
+            btnAuditPrevPage.setOnClickListener(v -> {
+                if (currentPage > 1) {
+                    currentPage--;
+                    fetchLogs();
+                }
+            });
+        }
+        if (btnAuditNextPage != null) {
+            btnAuditNextPage.setOnClickListener(v -> {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    fetchLogs();
+                }
+            });
+        }
 
         setupFilters();
         setupDateFilters();
@@ -229,7 +260,7 @@ public class AuditLogsActivity extends AppCompatActivity {
                         : "";
 
                 CardDetailDialog.show(this, "Audit Logs",
-                        "Events shown: " + renderedCount + " of " + logsList.size(),
+                        "Events shown: " + renderedCount + " of " + totalLogs + " (page " + currentPage + " of " + totalPages + ")",
                         "Date filter: " + dateFilter,
                         "Action filter: " + actionFilter,
                         query.isEmpty() ? "Search: none" : "Search: " + query);
@@ -267,6 +298,7 @@ public class AuditLogsActivity extends AppCompatActivity {
             spinnerAuditActionFilter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    currentPage = 1;
                     fetchLogs();
                 }
 
@@ -278,6 +310,8 @@ public class AuditLogsActivity extends AppCompatActivity {
         if (etAuditSearch != null) {
             etAuditSearch.setOnEditorActionListener((v, actionId, event) -> {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    if (pendingSearch != null) searchDebounce.removeCallbacks(pendingSearch);
+                    currentPage = 1;
                     fetchLogs();
                     return true;
                 }
@@ -290,8 +324,8 @@ public class AuditLogsActivity extends AppCompatActivity {
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    // Filter existing list locally for fast response
-                    renderFilteredLogs(s.toString());
+                    // The API searches every column, so re-query instead of filtering this page only
+                    scheduleServerSearch();
                 }
 
                 @Override
@@ -323,6 +357,7 @@ public class AuditLogsActivity extends AppCompatActivity {
         selectedPeriod = period;
         customStartDate = start;
         customEndDate = end;
+        currentPage = 1;
         updateDateFilterButtonsUI();
         fetchLogs();
     }
@@ -411,6 +446,8 @@ public class AuditLogsActivity extends AppCompatActivity {
                     urlBuilder.append("&end_date=").append(URLEncoder.encode(customEndDate, "UTF-8"));
                 }
             }
+            urlBuilder.append(firstParam ? "?" : "&").append("page=").append(currentPage);
+            urlBuilder.append("&per_page=").append(PAGE_SIZE);
         } catch (UnsupportedEncodingException ignored) {}
 
         RequestQueue queue = ApiSession.getRequestQueue(this);
@@ -439,6 +476,17 @@ public class AuditLogsActivity extends AppCompatActivity {
                                 }
                             }
                             renderLogRows(logsList);
+
+                            JSONObject pagination = response.optJSONObject("pagination");
+                            if (pagination != null) {
+                                currentPage = Math.max(1, pagination.optInt("page", 1));
+                                totalPages = Math.max(1, pagination.optInt("total_pages", 1));
+                                totalLogs = pagination.optInt("total", logsList.size());
+                            } else {
+                                totalPages = 1;
+                                totalLogs = logsList.size();
+                            }
+                            updatePaginationUi();
                         } else {
                             showErrorState(response.optString("message", "Unable to load audit trail"));
                         }
@@ -455,24 +503,32 @@ public class AuditLogsActivity extends AppCompatActivity {
         queue.add(request);
     }
 
-    private void renderFilteredLogs(String query) {
-        if (TextUtils.isEmpty(query)) {
-            renderLogRows(logsList);
-            return;
+    /** Refreshes the pagination footer under the audit table. */
+    private void updatePaginationUi() {
+        if (tvAuditPageInfo != null) {
+            int first = logsList.isEmpty() ? 0 : ((currentPage - 1) * PAGE_SIZE) + 1;
+            int last = first + logsList.size() - 1;
+            tvAuditPageInfo.setText("Page " + currentPage + " of " + totalPages
+                    + " • showing " + first + "-" + last + " of " + totalLogs + " events");
         }
+        if (btnAuditPrevPage != null) {
+            btnAuditPrevPage.setEnabled(currentPage > 1);
+        }
+        if (btnAuditNextPage != null) {
+            btnAuditNextPage.setEnabled(currentPage < totalPages);
+        }
+    }
 
-        String lowerQuery = query.toLowerCase(Locale.US);
-        List<LogEntry> filtered = new ArrayList<>();
-        for (LogEntry item : logsList) {
-            if (item.userName.toLowerCase(Locale.US).contains(lowerQuery)
-                    || item.action.toLowerCase(Locale.US).contains(lowerQuery)
-                    || item.target.toLowerCase(Locale.US).contains(lowerQuery)
-                    || item.storeName.toLowerCase(Locale.US).contains(lowerQuery)
-                    || item.details.toLowerCase(Locale.US).contains(lowerQuery)) {
-                filtered.add(item);
-            }
+    /** Typing in the search box re-queries the server for the first matching page. */
+    private void scheduleServerSearch() {
+        if (pendingSearch != null) {
+            searchDebounce.removeCallbacks(pendingSearch);
         }
-        renderLogRows(filtered);
+        pendingSearch = () -> {
+            currentPage = 1;
+            fetchLogs();
+        };
+        searchDebounce.postDelayed(pendingSearch, 400);
     }
 
     private void renderLogRows(List<LogEntry> list) {

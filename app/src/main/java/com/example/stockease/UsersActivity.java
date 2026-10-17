@@ -36,6 +36,7 @@ public class UsersActivity extends AppCompatActivity {
     private final Map<Integer, String> storeNames = new HashMap<>();
     private UserAdapter adapter;
     private View emptyUsers;
+    private View errorUsers;
     private View loadingUsers;
     private RecyclerView rvUsersList;
     private int authenticatedUserId = -1;
@@ -45,6 +46,7 @@ public class UsersActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_users);
+        SidebarNav.attach(this, "staff");
 
         authenticatedUserId = getIntent().getIntExtra("user_id", -1);
         authenticatedRole = getIntent().getStringExtra("role");
@@ -59,8 +61,10 @@ public class UsersActivity extends AppCompatActivity {
         adapter = new UserAdapter(users, this::showRoleDialog);
         rvUsers.setAdapter(adapter);
         rvUsersList = rvUsers;
-        emptyUsers = findViewById(R.id.emptyUsers);
         loadingUsers = findViewById(R.id.loadingUsers);
+        emptyUsers = findViewById(R.id.emptyUsers);
+        errorUsers = findViewById(R.id.errorUsers);
+        StateViews.bindError(errorUsers, null, null, v -> loadUsers());
         StateViews.bindEmpty(emptyUsers,
                 getString(R.string.empty_users_title),
                 getString(R.string.empty_users_msg), null, null);
@@ -110,6 +114,7 @@ public class UsersActivity extends AppCompatActivity {
                 null,
                 response -> {
                     StateViews.hideLoading(loadingUsers);
+                    StateViews.setErrorVisible(errorUsers, false);
                     try {
                         if (!response.optBoolean("success", false)) {
                             Toast.makeText(this, response.optString("message", "Unable to load users"), Toast.LENGTH_SHORT).show();
@@ -147,6 +152,7 @@ public class UsersActivity extends AppCompatActivity {
                     StateViews.hideLoading(loadingUsers);
                     if (ApiSession.handleAuthError(this, error)) return;
                     Toast.makeText(this, "Failed to load users", Toast.LENGTH_SHORT).show();
+                    showUsersError();
                 }
         );
         queue.add(request);
@@ -308,4 +314,17 @@ public class UsersActivity extends AppCompatActivity {
         ScreenTransitions.open(UsersActivity.this, intent);
         ScreenTransitions.finish(UsersActivity.this);
     }
+
+    /**
+     * A load failed. Shows the error state with a working retry instead of
+     * leaving a blank screen, which a user cannot tell apart from an empty
+     * list or a broken app.
+     */
+    private void showUsersError() {
+        if (emptyUsers != null) {
+            StateViews.setEmptyVisible(emptyUsers, false);
+        }
+        StateViews.setErrorVisible(errorUsers, true);
+    }
+
 }

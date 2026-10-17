@@ -36,6 +36,7 @@ public class StoresActivity extends AppCompatActivity {
 
     private RecyclerView rvStores;
     private View emptyStores;
+    private View errorStores;
     private View loadingStores;
     private Button btnAddStore;
     private TextView tvStoresTitle, tvStoresSubtitle;
@@ -56,6 +57,7 @@ public class StoresActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stores);
+        SidebarNav.attach(this, "stores");
 
         selectionMode = getIntent().getBooleanExtra(EXTRA_SELECTION_MODE, false);
         selectionTarget = getIntent().getStringExtra(EXTRA_SELECTION_TARGET);
@@ -63,8 +65,13 @@ public class StoresActivity extends AppCompatActivity {
         role = getIntent().getStringExtra("role");
         fullName = getIntent().getStringExtra("full_name");
 
-        if (userId <= 0 || !"super_admin".equals(role)) {
-            returnToLogin("Store management and selection are available only to Super Admin accounts.");
+        boolean isSuperAdmin = "super_admin".equals(role);
+        boolean isStoreOwner = "store_owner".equals(role);
+
+        // Store owners get view-only access to the branches they own; every
+        // other role is bounced to login.
+        if (userId <= 0 || (!isSuperAdmin && !isStoreOwner)) {
+            returnToLogin("Store management and selection are available only to Super Admin and Store Owner accounts.");
             return;
         }
 
@@ -78,8 +85,10 @@ public class StoresActivity extends AppCompatActivity {
         }
 
         rvStores = findViewById(R.id.rvStores);
-        emptyStores = findViewById(R.id.emptyStores);
         loadingStores = findViewById(R.id.loadingStores);
+        emptyStores = findViewById(R.id.emptyStores);
+        errorStores = findViewById(R.id.errorStores);
+        StateViews.bindError(errorStores, null, null, v -> loadStores());
         StateViews.bindEmpty(emptyStores,
                 getString(R.string.empty_stores_title),
                 getString(R.string.empty_stores_msg), null, null);
@@ -108,7 +117,13 @@ public class StoresActivity extends AppCompatActivity {
                 }
             }
         } else if (btnAddStore != null) {
-            btnAddStore.setOnClickListener(v -> showAddStoreDialog());
+            if (isSuperAdmin) {
+                btnAddStore.setOnClickListener(v -> showAddStoreDialog());
+            } else {
+                // Store owners have view-only access; branch creation stays
+                // with the Super Admin (managers add branches from their app).
+                btnAddStore.setVisibility(View.GONE);
+            }
         }
 
         loadStores();
@@ -189,6 +204,7 @@ public class StoresActivity extends AppCompatActivity {
                 Request.Method.GET, FETCH_STORES_URL, null,
                 response -> {
                     StateViews.hideLoading(loadingStores);
+                    StateViews.setErrorVisible(errorStores, false);
                     try {
                         if (response.getBoolean("success")) {
                             storeList.clear();
@@ -215,6 +231,7 @@ public class StoresActivity extends AppCompatActivity {
                 error -> {
                     StateViews.hideLoading(loadingStores);
                     ApiSession.handleAuthError(StoresActivity.this, error);
+                    showStoresError();
                 }
         );
 
@@ -259,6 +276,19 @@ public class StoresActivity extends AppCompatActivity {
 
     private void showStoreActionsDialog(StoreAdapter.StoreItem store) {
         if (store == null || store.getId() <= 0) return;
+
+        // Store owners get a read-only view of their own branches; archiving
+        // and deleting stay Super Admin actions.
+        if (!"super_admin".equals(role)) {
+            new AlertDialog.Builder(this)
+                    .setTitle(store.getStoreName())
+                    .setMessage("Location: " + store.getLocation()
+                            + "\nStatus: " + store.getStatus()
+                            + "\n\nRead-only access — only the Super Admin can archive or delete branches.")
+                    .setPositiveButton("OK", null)
+                    .show();
+            return;
+        }
 
         boolean isArchived = "Archived".equalsIgnoreCase(store.getStatus());
         String archiveOption = isArchived ? "Restore / Activate Store" : "Archive Store";
@@ -350,4 +380,17 @@ public class StoresActivity extends AppCompatActivity {
         ScreenTransitions.open(StoresActivity.this, intent);
         ScreenTransitions.finish(StoresActivity.this);
     }
+
+    /**
+     * A load failed. Shows the error state with a working retry instead of
+     * leaving a blank screen, which a user cannot tell apart from an empty
+     * list or a broken app.
+     */
+    private void showStoresError() {
+        if (emptyStores != null) {
+            StateViews.setEmptyVisible(emptyStores, false);
+        }
+        StateViews.setErrorVisible(errorStores, true);
+    }
+
 }

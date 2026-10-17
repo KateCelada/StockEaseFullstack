@@ -28,6 +28,7 @@ public class StaffActivity extends AppCompatActivity {
 
     private RecyclerView rvStaff;
     private View emptyStaff;
+    private View errorStaff;
     private View loadingStaff;
     private Button btnAddStaff;
     private StaffAdapter adapter;
@@ -43,6 +44,7 @@ public class StaffActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_staff);
+        SidebarNav.attach(this, "staff");
 
         storeId = getIntent().getIntExtra("store_id", -1);
         userId = getIntent().getIntExtra("user_id", -1);
@@ -54,8 +56,10 @@ public class StaffActivity extends AppCompatActivity {
         }
 
         rvStaff = findViewById(R.id.rvStaff);
-        emptyStaff = findViewById(R.id.emptyStaff);
         loadingStaff = findViewById(R.id.loadingStaff);
+        emptyStaff = findViewById(R.id.emptyStaff);
+        errorStaff = findViewById(R.id.errorStaff);
+        StateViews.bindError(errorStaff, null, null, v -> loadStaff());
         StateViews.bindEmpty(emptyStaff,
                 getString(R.string.empty_staff_title),
                 getString(R.string.empty_staff_msg), null, null);
@@ -79,6 +83,7 @@ public class StaffActivity extends AppCompatActivity {
                 Request.Method.GET, GET_STAFF_URL + storeId, null,
                 response -> {
                     StateViews.hideLoading(loadingStaff);
+                    StateViews.setErrorVisible(errorStaff, false);
                     try {
                         if (response.getBoolean("success")) {
                             staffList.clear();
@@ -109,6 +114,7 @@ public class StaffActivity extends AppCompatActivity {
                     StateViews.hideLoading(loadingStaff);
                     if (ApiSession.handleAuthError(this, error)) return;
                     Toast.makeText(this, "Failed to fetch staff list", Toast.LENGTH_SHORT).show();
+                    showStaffError();
                 }
         );
 
@@ -138,10 +144,35 @@ public class StaffActivity extends AppCompatActivity {
         Spinner spinnerRole = dialogView.findViewById(R.id.spinnerStaffRole);
         Button btnSaveStaff = dialogView.findViewById(R.id.btnSaveStaff);
 
+        // Live strength meter (same verdict as the API policy)
+        PasswordStrength.bind(dialogView.findViewById(R.id.pwStrengthMeter), etPassword);
+
         if (spinnerRole != null) {
-            String[] roles = new String[]{"Cashier", "Inventory Checker"};
-            ArrayAdapter<String> roleAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, roles);
+            String[] roles = new String[]{"Cashier", "Inventory Staff"};
+            ArrayAdapter<String> roleAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, roles) {
+                @Override
+                public android.view.View getView(int position, android.view.View convertView, android.view.ViewGroup parent) {
+                    android.view.View v = super.getView(position, convertView, parent);
+                    if (v instanceof android.widget.TextView) {
+                        ((android.widget.TextView) v).setTextColor(android.graphics.Color.WHITE);
+                    }
+                    return v;
+                }
+
+                @Override
+                public android.view.View getDropDownView(int position, android.view.View convertView, android.view.ViewGroup parent) {
+                    android.view.View v = super.getDropDownView(position, convertView, parent);
+                    v.setBackgroundColor(0xFF2A3040);
+                    if (v instanceof android.widget.TextView) {
+                        android.widget.TextView tv = (android.widget.TextView) v;
+                        tv.setTextColor(android.graphics.Color.WHITE);
+                        tv.setPadding(32, 24, 32, 24);
+                    }
+                    return v;
+                }
+            };
             spinnerRole.setAdapter(roleAdapter);
+            spinnerRole.setSelection(0, true);
         }
 
         AlertDialog dialog = builder.create();
@@ -158,6 +189,12 @@ public class StaffActivity extends AppCompatActivity {
 
             if (fullName.isEmpty() || username.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Please fill in all required fields", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Same rule the API enforces (8+ chars, a letter and a number)
+            if (!PasswordStrength.isAcceptable(password)) {
+                Toast.makeText(this, PasswordStrength.requirementText(), Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -223,4 +260,17 @@ public class StaffActivity extends AppCompatActivity {
         ScreenTransitions.open(StaffActivity.this, intent);
         ScreenTransitions.finish(StaffActivity.this);
     }
+
+    /**
+     * A load failed. Shows the error state with a working retry instead of
+     * leaving a blank screen, which a user cannot tell apart from an empty
+     * list or a broken app.
+     */
+    private void showStaffError() {
+        if (emptyStaff != null) {
+            StateViews.setEmptyVisible(emptyStaff, false);
+        }
+        StateViews.setErrorVisible(errorStaff, true);
+    }
+
 }

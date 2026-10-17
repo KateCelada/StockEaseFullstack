@@ -2,8 +2,17 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:background="@color/app_background">
+
+    <!-- Persistent navigation (shared across all main screens) -->
+    <include layout="@layout/view_sidebar" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical">
 
     <!-- Top App Bar -->
     <LinearLayout
@@ -96,6 +105,7 @@
                     android:layout_marginBottom="12dp">
 
                     <LinearLayout
+                        android:id="@+id/llFromStoreColumn"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -103,6 +113,7 @@
                         android:layout_marginEnd="12dp">
 
                         <TextView
+                            android:id="@+id/tvFromStoreLabel"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="From Store (Source)"
@@ -126,6 +137,7 @@
                         android:orientation="vertical">
 
                         <TextView
+                            android:id="@+id/tvToStoreLabel"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="To Store (Destination)"
@@ -230,6 +242,36 @@
                             android:paddingHorizontal="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
                     </LinearLayout>
                 </LinearLayout>
+
+                <!-- Multi-select: add the chosen product to the request -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAddTransferItem"
+                    style="@style/Widget.StockEase.Button.Secondary"
+                    android:layout_width="match_parent"
+                    android:layout_height="38dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="12dp"
+                    android:text="+ Add item to request"
+                    android:textAllCaps="false"
+                    android:textColor="@color/slate_600"
+                    android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+                <TextView
+                    android:id="@+id/tvSelectedItemsLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Requested items (0)"
+                    android:textColor="@color/text_primary"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp"
+                    android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+                <LinearLayout
+                    android:id="@+id/llSelectedItems"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="12dp" />
 
                 <!-- Notes Input -->
                 <TextView
@@ -408,5 +450,6 @@
 
         </LinearLayout>
     </ScrollView>
+    </LinearLayout>
 
 </LinearLayout>

@@ -53,6 +53,7 @@ public class ProductsActivity extends AppCompatActivity {
     private ProductAdapter productAdapter;
     private RecyclerView rvProducts;
     private View emptyProducts;
+    private View errorProducts;
     private View loadingProducts;
     private EditText etSearchProduct;
     private Spinner spinnerFilterCategory;
@@ -61,10 +62,19 @@ public class ProductsActivity extends AppCompatActivity {
     private String currentSearchQuery = "";
     private String currentCategoryFilter = "All Categories";
 
+    /** Table pagination: rows shown per page of the product table. */
+    private static final int PAGE_SIZE = 10;
+    private int currentPage = 1;
+    private int totalPages = 1;
+    private final List<Product> filteredProducts = new ArrayList<>();
+    private Button btnProductsPrev, btnProductsNext;
+    private TextView tvProductsPage;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_products);
+        SidebarNav.attach(this, "products");
 
         storeId = getIntent().getIntExtra("store_id", -1);
         userId = getIntent().getIntExtra("user_id", -1);
@@ -79,7 +89,9 @@ public class ProductsActivity extends AppCompatActivity {
         spinnerFilterCategory = findViewById(R.id.spinnerFilterCategory);
         rvProducts = findViewById(R.id.rvProducts);
         emptyProducts = findViewById(R.id.emptyProducts);
+        errorProducts = findViewById(R.id.errorProducts);
         loadingProducts = findViewById(R.id.loadingProducts);
+        StateViews.bindError(errorProducts, null, null, v -> fetchProducts());
         StateViews.bindEmpty(emptyProducts,
                 getString(R.string.empty_products_title),
                 getString(R.string.empty_products_msg), null, null);
@@ -99,6 +111,26 @@ public class ProductsActivity extends AppCompatActivity {
             }
         }
 
+        btnProductsPrev = findViewById(R.id.btnProductsPrev);
+        btnProductsNext = findViewById(R.id.btnProductsNext);
+        tvProductsPage = findViewById(R.id.tvProductsPage);
+        if (btnProductsPrev != null) {
+            btnProductsPrev.setOnClickListener(v -> {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderPage();
+                }
+            });
+        }
+        if (btnProductsNext != null) {
+            btnProductsNext.setOnClickListener(v -> {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderPage();
+                }
+            });
+        }
+
         setupSearchAndFilter();
         fetchCategories();
         fetchProducts();
@@ -112,6 +144,7 @@ public class ProductsActivity extends AppCompatActivity {
                 @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
                 @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
                     currentSearchQuery = s.toString().trim().toLowerCase(Locale.getDefault());
+                    currentPage = 1;
                     applyFilters();
                 }
                 @Override public void afterTextChanged(Editable s) {}
@@ -123,6 +156,7 @@ public class ProductsActivity extends AppCompatActivity {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     currentCategoryFilter = (String) parent.getItemAtPosition(position);
+                    currentPage = 1;
                     applyFilters();
                 }
                 @Override
@@ -132,7 +166,7 @@ public class ProductsActivity extends AppCompatActivity {
     }
 
     private void applyFilters() {
-        displayedProducts.clear();
+        filteredProducts.clear();
         for (Product p : allProducts) {
             boolean matchesSearch = currentSearchQuery.isEmpty()
                     || p.getName().toLowerCase(Locale.getDefault()).contains(currentSearchQuery)
@@ -142,12 +176,45 @@ public class ProductsActivity extends AppCompatActivity {
                     || p.getCategoryName().equalsIgnoreCase(currentCategoryFilter);
 
             if (matchesSearch && matchesCategory) {
-                displayedProducts.add(p);
+                filteredProducts.add(p);
             }
         }
 
+        totalPages = Math.max(1, (int) Math.ceil(filteredProducts.size() / (double) PAGE_SIZE));
+        if (currentPage > totalPages) {
+            currentPage = totalPages;
+        }
+        if (currentPage < 1) {
+            currentPage = 1;
+        }
+
+        renderPage();
+    }
+
+    /** Renders the slice of the filtered table that belongs to the current page. */
+    private void renderPage() {
+        displayedProducts.clear();
+        int from = (currentPage - 1) * PAGE_SIZE;
+        int to = Math.min(from + PAGE_SIZE, filteredProducts.size());
+        for (int i = from; i < to; i++) {
+            displayedProducts.add(filteredProducts.get(i));
+        }
+
         if (tvProductCountSubtitle != null) {
-            tvProductCountSubtitle.setText("Showing " + displayedProducts.size() + " of " + allProducts.size() + " products • Tap to view profit & charts");
+            int firstRow = filteredProducts.isEmpty() ? 0 : from + 1;
+            tvProductCountSubtitle.setText("Showing " + firstRow + "-" + to + " of "
+                    + filteredProducts.size() + " products • Page " + currentPage + " of " + totalPages
+                    + " • Tap a row for profit & charts");
+        }
+
+        if (tvProductsPage != null) {
+            tvProductsPage.setText("Page " + currentPage + " of " + totalPages);
+        }
+        if (btnProductsPrev != null) {
+            btnProductsPrev.setEnabled(currentPage > 1);
+        }
+        if (btnProductsNext != null) {
+            btnProductsNext.setEnabled(currentPage < totalPages);
         }
 
         if (productAdapter != null) {
@@ -160,6 +227,21 @@ public class ProductsActivity extends AppCompatActivity {
      * Two different empty states: no products at all, versus a filter or search
      * that matches nothing. The second offers a way out (clear the filter).
      */
+    /**
+     * A load failed. Shows the error state with a working retry instead of
+     * leaving a blank screen, which a user cannot tell apart from an empty
+     * catalog or a broken app.
+     */
+    private void showProductsError() {
+        if (emptyProducts != null) {
+            StateViews.setEmptyVisible(emptyProducts, false);
+        }
+        if (rvProducts != null) {
+            rvProducts.setVisibility(View.INVISIBLE);
+        }
+        StateViews.setErrorVisible(errorProducts, true);
+    }
+
     private void updateEmptyState() {
         boolean nothingAtAll = allProducts == null || allProducts.isEmpty();
         boolean nothingShown = displayedProducts == null || displayedProducts.isEmpty();
@@ -188,6 +270,7 @@ public class ProductsActivity extends AppCompatActivity {
     private void clearFilters() {
         currentSearchQuery = "";
         currentCategoryFilter = "All Categories";
+        currentPage = 1;
         if (etSearchProduct != null) {
             etSearchProduct.setText("");
         }
@@ -246,6 +329,7 @@ public class ProductsActivity extends AppCompatActivity {
                 null,
                 response -> {
                     StateViews.hideLoading(loadingProducts);
+                    StateViews.setErrorVisible(errorProducts, false);
                     allProducts.clear();
                     try {
                         if (!response.optBoolean("success", false)) {
@@ -269,7 +353,8 @@ public class ProductsActivity extends AppCompatActivity {
                                     obj.getInt("stock"),
                                     soldUnits,
                                     progGross,
-                                    progNet
+                                    progNet,
+                                    obj.optInt("min_stock", Product.DEFAULT_MIN_STOCK)
                             ));
                         }
                         applyFilters();
@@ -281,6 +366,7 @@ public class ProductsActivity extends AppCompatActivity {
                     StateViews.hideLoading(loadingProducts);
                     if (ApiSession.handleAuthError(this, error)) return;
                     Log.e("FetchProducts", "Failed to load product list");
+                    showProductsError();
                 }
         );
         queue.add(request);
@@ -301,6 +387,7 @@ public class ProductsActivity extends AppCompatActivity {
         EditText etCostPrice = view.findViewById(R.id.etProductCostPrice);
         EditText etPrice = view.findViewById(R.id.etProductPrice);
         EditText etQty = view.findViewById(R.id.etProductQuantity);
+        EditText etMinStock = view.findViewById(R.id.etProductMinStock);
 
         // Populate category dropdown and autofill suggestions
         List<String> suggestionList = new ArrayList<>();
@@ -323,6 +410,7 @@ public class ProductsActivity extends AppCompatActivity {
             String costStr = etCostPrice != null ? etCostPrice.getText().toString().trim() : "0";
             String priceStr = etPrice != null ? etPrice.getText().toString().trim() : "0";
             String qtyStr = etQty != null ? etQty.getText().toString().trim() : "0";
+            String minStockStr = etMinStock != null ? etMinStock.getText().toString().trim() : "";
 
             if (TextUtils.isEmpty(name) || TextUtils.isEmpty(priceStr)) {
                 Toast.makeText(this, "Product name and selling price are required", Toast.LENGTH_SHORT).show();
@@ -332,6 +420,9 @@ public class ProductsActivity extends AppCompatActivity {
             double price = Double.parseDouble(priceStr);
             double cost = TextUtils.isEmpty(costStr) ? 0.0 : Double.parseDouble(costStr);
             int qty = TextUtils.isEmpty(qtyStr) ? 0 : Integer.parseInt(qtyStr);
+            int minStock = TextUtils.isEmpty(minStockStr)
+                    ? Product.DEFAULT_MIN_STOCK
+                    : Math.max(0, Integer.parseInt(minStockStr));
 
             // Find matching category id or resolve
             int matchedCategoryId = 0;
@@ -342,14 +433,14 @@ public class ProductsActivity extends AppCompatActivity {
                 }
             }
 
-            performAddProduct(matchedCategoryId, catNameInput, name, price, cost, qty);
+            performAddProduct(matchedCategoryId, catNameInput, name, price, cost, qty, minStock);
         });
 
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
         builder.create().show();
     }
 
-    private void performAddProduct(int categoryId, String catName, String name, double price, double costPrice, int quantity) {
+    private void performAddProduct(int categoryId, String catName, String name, double price, double costPrice, int quantity, int minStock) {
         RequestQueue queue = ApiSession.getRequestQueue(this);
 
         JSONObject postData = new JSONObject();
@@ -364,6 +455,7 @@ public class ProductsActivity extends AppCompatActivity {
             postData.put("price", price);
             postData.put("cost_price", costPrice);
             postData.put("stock", quantity);
+            postData.put("min_stock", minStock);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -432,6 +524,12 @@ public class ProductsActivity extends AppCompatActivity {
         TextView tvMargin = dialogView.findViewById(R.id.tvAnalyticsMargin);
         SimpleLineChartView chart = dialogView.findViewById(R.id.chartProductTrend);
         Button btnClose = dialogView.findViewById(R.id.btnCloseAnalytics);
+
+        View btnDownloadTrendChart = dialogView.findViewById(R.id.btnDownloadTrendChart);
+        if (btnDownloadTrendChart != null) {
+            btnDownloadTrendChart.setOnClickListener(v -> ExportUtil.saveChartPng(
+                    this, chart, "stockease_product_trend_" + product.getName()));
+        }
 
         tvName.setText(product.getName());
         tvCategory.setText("Category: " + product.getCategoryName() + " • Current Stock: " + product.getStock());
@@ -553,12 +651,19 @@ public class ProductsActivity extends AppCompatActivity {
         etStock.setText(String.valueOf(product.getStock()));
         layout.addView(etStock);
 
+        EditText etMinStock = new EditText(this);
+        etMinStock.setHint("Minimum Stock (low stock alert)");
+        etMinStock.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        etMinStock.setText(String.valueOf(product.getMinStock()));
+        layout.addView(etMinStock);
+
         b.setView(layout);
         b.setPositiveButton("Save Changes", (d, w) -> {
             String newName = etName.getText().toString().trim();
             String costStr = etCost.getText().toString().trim();
             String priceStr = etPrice.getText().toString().trim();
             String stockStr = etStock.getText().toString().trim();
+            String minStockStr = etMinStock.getText().toString().trim();
 
             if (TextUtils.isEmpty(newName) || TextUtils.isEmpty(priceStr)) {
                 Toast.makeText(this, "Product name and price are required", Toast.LENGTH_SHORT).show();
@@ -568,6 +673,9 @@ public class ProductsActivity extends AppCompatActivity {
             double p = Double.parseDouble(priceStr);
             double c = TextUtils.isEmpty(costStr) ? 0.0 : Double.parseDouble(costStr);
             int s = TextUtils.isEmpty(stockStr) ? product.getStock() : Integer.parseInt(stockStr);
+            int minStock = TextUtils.isEmpty(minStockStr)
+                    ? product.getMinStock()
+                    : Math.max(0, Integer.parseInt(minStockStr));
 
             JSONObject payload = new JSONObject();
             try {
@@ -576,6 +684,7 @@ public class ProductsActivity extends AppCompatActivity {
                 payload.put("price", p);
                 payload.put("cost_price", c);
                 payload.put("stock", s);
+                payload.put("min_stock", minStock);
                 payload.put("category_name", product.getCategoryName());
             } catch (JSONException ignored) {}
 
