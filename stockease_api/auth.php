@@ -88,6 +88,8 @@ function auth_require_user(PDO $conn): array
     $stmt->execute(['id' => $userId]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
+    // Strict 5-tier role model: super_admin > store_owner > manager > store_admin > staff.
+    // 'staff' is classified into two: 'staff' (Cashier) and 'inventory_checker' (Inventory).
     $canonicalRoles = ['super_admin', 'store_owner', 'manager', 'store_admin', 'staff', 'inventory_checker'];
     if (!$user || !auth_is_active($user['is_active']) || !in_array($user['role'], $canonicalRoles, true)) {
         auth_clear_session();
@@ -103,12 +105,12 @@ function auth_require_roles(array $identity, array $allowedRoles): void
     if ($identity['role'] === 'super_admin') {
         return;
     }
-    // Store owners and Managers have all store_admin and manager privileges
+    // Store owners and Managers outrank store_admin: they satisfy store_admin/manager/owner gates
     if (($identity['role'] === 'store_owner' || $identity['role'] === 'manager') &&
         (in_array('store_admin', $allowedRoles, true) || in_array('manager', $allowedRoles, true) || in_array('store_owner', $allowedRoles, true))) {
         return;
     }
-    // Inventory Checkers have inventory and staff privileges
+    // Inventory staff satisfy cashier/staff gates (both are the staff tier)
     if ($identity['role'] === 'inventory_checker' &&
         (in_array('staff', $allowedRoles, true) || in_array('inventory_checker', $allowedRoles, true))) {
         return;
@@ -116,6 +118,40 @@ function auth_require_roles(array $identity, array $allowedRoles): void
     if (!in_array($identity['role'], $allowedRoles, true)) {
         auth_json_error(403, 'You are not authorized to perform this operation');
     }
+}
+
+/**
+ * Strict hierarchy: which account roles a given role is allowed to create.
+ * super_admin creates store owners (and below), store owners create managers,
+ * managers create store admins, store admins create staff (cashier/inventory).
+ */
+function auth_allowed_child_roles(string $role): array
+{
+    switch ($role) {
+        case 'super_admin':
+            return ['store_owner', 'manager', 'store_admin', 'staff', 'inventory_checker'];
+        case 'store_owner':
+            return ['manager'];
+        case 'manager':
+            return ['store_admin'];
+        case 'store_admin':
+            return ['staff', 'inventory_checker'];
+        default:
+            return [];
+    }
+}
+
+function auth_role_tier(string $role): int
+{
+    $tiers = [
+        'super_admin' => 5,
+        'store_owner' => 4,
+        'manager' => 3,
+        'store_admin' => 2,
+        'staff' => 1,
+        'inventory_checker' => 1,
+    ];
+    return $tiers[$role] ?? 0;
 }
 
 function auth_store_exists(PDO $conn, int $storeId): bool
@@ -158,10 +194,9 @@ function auth_resolve_store_context(
         return $assignedStoreId;
     }
 
-    if ($requestedStoreId > 0 && auth_store_exists($conn, $requestedStoreId)) {
-        return $requestedStoreId;
-    }
-
+    // Never fall back to the requested store unless the caller owns it (checked
+    // above): otherwise an account with no assignment of its own (e.g. a store
+    // owner) could read another owner's branch data just by passing store_id.
     auth_json_error(403, 'The authenticated account has no valid store assignment');
     return 0;
 }

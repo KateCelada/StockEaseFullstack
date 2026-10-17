@@ -20,6 +20,8 @@ $price = isset($data['price']) ? (float)$data['price'] : -1;
 $costPrice = isset($data['cost_price']) ? (float)$data['cost_price'] : -1;
 $stock = isset($data['stock']) ? (int)$data['stock'] : -1;
 $categoryName = trim($data['category_name'] ?? ($data['category'] ?? ''));
+// Optional low stock threshold update (ignored when absent)
+$minStock = isset($data['min_stock']) && $data['min_stock'] !== '' ? (int)$data['min_stock'] : -1;
 
 if ($productId <= 0) {
     http_response_code(400);
@@ -62,6 +64,7 @@ try {
     $finalPrice = $price >= 0 ? $price : (float)$prod['price'];
     $finalCost = $costPrice >= 0 ? $costPrice : (float)$prod['cost_price'];
     $finalStock = $stock >= 0 ? $stock : (int)$prod['stock'];
+    $finalMinStock = $minStock >= 0 ? $minStock : (int)$prod['min_stock'];
 
     $upStmt = $conn->prepare("
         UPDATE products
@@ -69,16 +72,18 @@ try {
             price = :price,
             cost_price = :cost,
             stock = :stock,
+            min_stock = :min_stock,
             category = :cat,
             category_id = :cat_id
         WHERE id = :id
-        RETURNING id, product_name, price, cost_price, stock, category, category_id
+        RETURNING id, product_name, price, cost_price, stock, min_stock, category, category_id
     ");
     $upStmt->execute([
         'pname' => $finalName,
         'price' => $finalPrice,
         'cost' => $finalCost,
         'stock' => $finalStock,
+        'min_stock' => $finalMinStock,
         'cat' => $categoryName,
         'cat_id' => $categoryId,
         'id' => $productId

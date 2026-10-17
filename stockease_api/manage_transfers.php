@@ -8,7 +8,8 @@ require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/subscription_helper.php';
 
 $identity = auth_require_user($conn);
-auth_require_roles($identity, ['super_admin', 'store_admin', 'manager']);
+// Store admins and inventory staff request; managers approve; inventory staff may also view
+auth_require_roles($identity, ['super_admin', 'store_admin', 'manager', 'inventory_checker']);
 
 // Server-side Premium Enforcement
 subscription_require_premium($conn, $identity);
@@ -27,7 +28,7 @@ $action = $_GET['action'] ?? $_POST['action'] ?? ($jsonBody['action'] ?? 'list')
 function get_or_create_destination_product(PDO $conn, int $toStoreId, int $sourceProductId): int
 {
     // Fetch source product details
-    $srcStmt = $conn->prepare("SELECT product_name, category, category_id, price FROM products WHERE id = :id");
+    $srcStmt = $conn->prepare("SELECT product_name, category, category_id, price, COALESCE(cost_price, 0.00) AS cost_price, COALESCE(min_stock, 10) AS min_stock FROM products WHERE id = :id");
     $srcStmt->execute(['id' => $sourceProductId]);
     $src = $srcStmt->fetch(PDO::FETCH_ASSOC);
 
@@ -46,8 +47,8 @@ function get_or_create_destination_product(PDO $conn, int $toStoreId, int $sourc
 
     // Create corresponding product entry in destination store with 0 initial stock
     $createStmt = $conn->prepare("
-        INSERT INTO products (store_id, product_name, category, category_id, price, stock)
-        VALUES (:store_id, :name, :category, :category_id, :price, 0)
+        INSERT INTO products (store_id, product_name, category, category_id, price, cost_price, stock, min_stock)
+        VALUES (:store_id, :name, :category, :category_id, :price, :cost_price, 0, :min_stock)
         RETURNING id
     ");
     $createStmt->execute([
@@ -55,7 +56,9 @@ function get_or_create_destination_product(PDO $conn, int $toStoreId, int $sourc
         'name' => $src['product_name'],
         'category' => $src['category'] ?? 'General',
         'category_id' => $src['category_id'] ?? null,
-        'price' => $src['price'] ?? 0.00
+        'price' => $src['price'] ?? 0.00,
+        'cost_price' => $src['cost_price'] ?? 0.00,
+        'min_stock' => $src['min_stock'] ?? 10
     ]);
 
     return (int)$createStmt->fetchColumn();
@@ -69,15 +72,24 @@ try {
         $where = ["1=1"];
         $params = [];
 
-        // Store Admin isolation: can only inspect transfers involving their store
-        if ($identity['role'] === 'store_admin') {
+        // Branch-level isolation: store admins and inventory staff only see transfers involving their store
+        if ($identity['role'] === 'store_admin' || $identity['role'] === 'inventory_checker') {
             $userStoreId = (int)($identity['store_id'] ?? 0);
             $where[] = "(st.from_store_id = :user_store OR st.to_store_id = :user_store)";
             $params['user_store'] = $userStoreId;
         } elseif ($identity['role'] === 'manager') {
             $mgrId = (int)$identity['user_id'];
-            $where[] = "(st.from_store_id IN (SELECT id FROM stores WHERE owner_id = :mgr_id) OR st.to_store_id IN (SELECT id FROM stores WHERE owner_id = :mgr_id))";
+            $mgrAssignedStore = (int)($identity['store_id'] ?? 0);
+            // Managers see transfers for branches they own, manage, or are assigned to
+            $where[] = "(st.from_store_id IN (SELECT id FROM stores WHERE owner_id = :mgr_id OR manager_id = :mgr_id OR id = :mgr_store)
+                         OR st.to_store_id IN (SELECT id FROM stores WHERE owner_id = :mgr_id OR manager_id = :mgr_id OR id = :mgr_store))";
             $params['mgr_id'] = $mgrId;
+            $params['mgr_store'] = $mgrAssignedStore;
+        } elseif ($identity['role'] === 'store_owner') {
+            $ownerId = (int)$identity['user_id'];
+            $where[] = "(st.from_store_id IN (SELECT id FROM stores WHERE owner_id = :own_id)
+                         OR st.to_store_id IN (SELECT id FROM stores WHERE owner_id = :own_id))";
+            $params['own_id'] = $ownerId;
         } elseif ($filterStore > 0) {
             $where[] = "(st.from_store_id = :filter_store OR st.to_store_id = :filter_store)";
             $params['filter_store'] = $filterStore;
@@ -99,10 +111,14 @@ try {
                    to_char(st.dispatched_at, 'YYYY-MM-DD HH24:MI:SS') AS dispatched_at,
                    to_char(st.received_at, 'YYYY-MM-DD HH24:MI:SS') AS received_at,
                    to_char(st.completed_at, 'YYYY-MM-DD HH24:MI:SS') AS completed_at,
+                   to_char(st.declined_at, 'YYYY-MM-DD HH24:MI:SS') AS declined_at,
+                   COALESCE(st.decline_reason, '') AS decline_reason,
                    COALESCE(COUNT(sti.id), 0) AS total_items,
-                   COALESCE(SUM(sti.quantity), 0) AS total_quantity
+                   COALESCE(SUM(sti.quantity), 0) AS total_quantity,
+                   COALESCE(SUM(sti.base_price * sti.quantity), 0.00) AS total_base_value,
+                   COALESCE(SUM(sti.selling_price * sti.quantity), 0.00) AS total_selling_value
             FROM stock_transfers st
-            JOIN stores sf ON st.from_store_id = sf.id
+            LEFT JOIN stores sf ON st.from_store_id = sf.id
             JOIN stores st_dest ON st.to_store_id = st_dest.id
             JOIN users u ON st.requested_by = u.id
             LEFT JOIN stock_transfer_items sti ON st.id = sti.transfer_id
@@ -137,9 +153,11 @@ try {
                    to_char(st.created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at,
                    to_char(st.dispatched_at, 'YYYY-MM-DD HH24:MI:SS') AS dispatched_at,
                    to_char(st.received_at, 'YYYY-MM-DD HH24:MI:SS') AS received_at,
-                   to_char(st.completed_at, 'YYYY-MM-DD HH24:MI:SS') AS completed_at
+                   to_char(st.completed_at, 'YYYY-MM-DD HH24:MI:SS') AS completed_at,
+                   to_char(st.declined_at, 'YYYY-MM-DD HH24:MI:SS') AS declined_at,
+                   COALESCE(st.decline_reason, '') AS decline_reason
             FROM stock_transfers st
-            JOIN stores sf ON st.from_store_id = sf.id
+            LEFT JOIN stores sf ON st.from_store_id = sf.id
             JOIN stores st_dest ON st.to_store_id = st_dest.id
             JOIN users u ON st.requested_by = u.id
             WHERE st.id = :id
@@ -152,18 +170,25 @@ try {
             auth_json_error(404, 'Transfer not found');
         }
 
-        // Scope check for store admin
-        if ($identity['role'] === 'store_admin') {
+        // Scope check for branch-level roles
+        if ($identity['role'] === 'store_admin' || $identity['role'] === 'inventory_checker') {
             $userStore = (int)$identity['store_id'];
-            if ((int)$transfer['from_store_id'] !== $userStore && (int)$transfer['to_store_id'] !== $userStore) {
+            $fromStore = $transfer['from_store_id'] !== null ? (int)$transfer['from_store_id'] : 0;
+            if ($fromStore !== $userStore && (int)$transfer['to_store_id'] !== $userStore) {
                 auth_json_error(403, 'Unauthorized access to transfer record');
             }
         }
 
         $itemsStmt = $conn->prepare("
-            SELECT sti.id, sti.product_id, p.product_name, sti.quantity, p.stock AS current_source_stock
+            SELECT sti.id, sti.product_id, p.product_name,
+                   COALESCE(c.name, p.category, 'General') AS category,
+                   sti.quantity,
+                   COALESCE(sti.base_price, 0.00) AS base_price,
+                   COALESCE(sti.selling_price, 0.00) AS selling_price,
+                   p.stock AS current_source_stock
             FROM stock_transfer_items sti
             JOIN products p ON sti.product_id = p.id
+            LEFT JOIN categories c ON p.category_id = c.id
             WHERE sti.transfer_id = :id
         ");
         $itemsStmt->execute(['id' => $transferId]);
@@ -174,95 +199,226 @@ try {
         exit;
     }
 
+    if ($action === 'donor_options') {
+        // Branches a Manager may choose from when approving: the siblings of the
+        // requesting branch (same owner or same business), excluding the requester.
+        $transferId = (int)($_GET['id'] ?? 0);
+        if ($transferId <= 0) {
+            auth_json_error(400, 'Invalid transfer ID');
+        }
+
+        if ($identity['role'] !== 'super_admin' && $identity['role'] !== 'manager' && $identity['role'] !== 'store_owner') {
+            auth_json_error(403, 'Only a Manager can choose which branch transfers the stock.');
+        }
+
+        $destStmt = $conn->prepare("
+            SELECT st.id, st.status AS transfer_status, s.id AS dest_id, s.store_name, s.owner_id, s.business_id
+            FROM stock_transfers st
+            JOIN stores s ON s.id = st.to_store_id
+            WHERE st.id = :id
+        ");
+        $destStmt->execute(['id' => $transferId]);
+        $dest = $destStmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$dest) {
+            auth_json_error(404, 'Transfer request not found');
+        }
+
+        $conds = ["id <> :dest_id", "LOWER(COALESCE(status, 'active')) = 'active'"];
+        $donorParams = ['dest_id' => (int)$dest['dest_id']];
+
+        if ($dest['owner_id'] !== null) {
+            $conds[] = "owner_id = :owner_id";
+            $donorParams['owner_id'] = (int)$dest['owner_id'];
+        }
+        if ($dest['business_id'] !== null) {
+            $conds[] = "business_id = :business_id";
+            $donorParams['business_id'] = (int)$dest['business_id'];
+        }
+
+        if (count($conds) === 2) {
+            // Neither an owner nor a business links this branch: no valid donor exists
+            echo json_encode([
+                'success' => true,
+                'transfer_id' => $transferId,
+                'destination_store' => ['id' => (int)$dest['dest_id'], 'store_name' => $dest['store_name']],
+                'donors' => []
+            ]);
+            exit;
+        }
+
+        $donorStmt = $conn->prepare("
+            SELECT id, store_name
+            FROM stores
+            WHERE " . implode(' AND ', $conds) . "
+            ORDER BY store_name ASC
+        ");
+        $donorStmt->execute($donorParams);
+        $donors = $donorStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        echo json_encode([
+            'success' => true,
+            'transfer_id' => $transferId,
+            'destination_store' => ['id' => (int)$dest['dest_id'], 'store_name' => $dest['store_name']],
+            'donors' => $donors
+        ]);
+        exit;
+    }
+
     if ($action === 'create') {
         $input = !empty($jsonBody) ? $jsonBody : $_POST;
 
         $fromStoreId = (int)($input['from_store_id'] ?? 0);
         $toStoreId = (int)($input['to_store_id'] ?? 0);
-        $productId = (int)($input['product_id'] ?? 0);
-        $quantity = (int)($input['quantity'] ?? 0);
         $notes = trim((string)($input['notes'] ?? ''));
 
-        if ($fromStoreId <= 0 || $toStoreId <= 0 || $productId <= 0 || $quantity <= 0) {
-            auth_json_error(400, 'From Store, To Store, Product, and positive Quantity are required.');
+        // Multi-select request: [{product_id, quantity}, ...]
+        $items = [];
+        if (isset($input['items']) && is_array($input['items'])) {
+            foreach ($input['items'] as $rawItem) {
+                if (!is_array($rawItem)) {
+                    continue;
+                }
+                $rawProductId = (int)($rawItem['product_id'] ?? 0);
+                $rawQuantity = (int)($rawItem['quantity'] ?? 0);
+                if ($rawProductId > 0 && $rawQuantity > 0) {
+                    $items[$rawProductId] = ($items[$rawProductId] ?? 0) + $rawQuantity;
+                }
+            }
         }
 
-        if ($fromStoreId === $toStoreId) {
+        // Backwards compatible: a single product_id/quantity payload
+        if (empty($items)) {
+            $legacyProductId = (int)($input['product_id'] ?? 0);
+            $legacyQuantity = (int)($input['quantity'] ?? 0);
+            if ($legacyProductId > 0 && $legacyQuantity > 0) {
+                $items[$legacyProductId] = $legacyQuantity;
+            }
+        }
+
+        // Store Admins and Inventory staff request stock FOR their own branch; the manager picks the donor on approval.
+        if ($identity['role'] === 'store_admin' || $identity['role'] === 'inventory_checker') {
+            $assignedStore = (int)($identity['store_id'] ?? 0);
+            if ($assignedStore <= 0) {
+                auth_json_error(403, 'Your account is not assigned to a branch.');
+            }
+            if ($toStoreId > 0 && $toStoreId !== $assignedStore) {
+                auth_json_error(403, 'Store Admins can only request transfers for their own branch.');
+            }
+            $toStoreId = $assignedStore;
+        }
+
+        if ($toStoreId <= 0 || empty($items)) {
+            auth_json_error(400, 'To Store and at least one item with a positive quantity are required.');
+        }
+
+        if ($fromStoreId > 0 && $fromStoreId === $toStoreId) {
             auth_json_error(400, 'Source and destination store must be different.');
         }
 
-        // Store Admin role authorization: Must be assigned to either source or destination store
-        if ($identity['role'] === 'store_admin') {
-            $assignedStore = (int)($identity['store_id'] ?? 0);
-            if ($assignedStore !== $fromStoreId && $assignedStore !== $toStoreId) {
-                auth_json_error(403, 'Store Admins can only create transfers involving their assigned store.');
-            }
-        }
+        $itemLines = [];
 
         $conn->beginTransaction();
 
         // Validate stores exist
-        if (!auth_store_exists($conn, $fromStoreId) || !auth_store_exists($conn, $toStoreId)) {
+        if (!auth_store_exists($conn, $toStoreId) || ($fromStoreId > 0 && !auth_store_exists($conn, $fromStoreId))) {
             $conn->rollBack();
             auth_json_error(400, 'One or both specified stores do not exist.');
         }
 
-        // Enforce sibling branch ownership
-        $ownersStmt = $conn->prepare("SELECT id, owner_id FROM stores WHERE id IN (:from, :to)");
-        $ownersStmt->execute(['from' => $fromStoreId, 'to' => $toStoreId]);
-        $storeOwnerRows = $ownersStmt->fetchAll(PDO::FETCH_KEY_PAIR);
+        if ($fromStoreId > 0) {
+            // Enforce sibling branch ownership when the donor is already known
+            $metaStmt = $conn->prepare("SELECT owner_id, business_id FROM stores WHERE id = :id");
+            $metaStmt->execute(['id' => $fromStoreId]);
+            $fromMeta = $metaStmt->fetch(PDO::FETCH_ASSOC);
+            $metaStmt->execute(['id' => $toStoreId]);
+            $toMeta = $metaStmt->fetch(PDO::FETCH_ASSOC);
 
-        $fromOwner = $storeOwnerRows[$fromStoreId] ?? null;
-        $toOwner = $storeOwnerRows[$toStoreId] ?? null;
+            $sameOwner = $fromMeta && $toMeta && $fromMeta['owner_id'] !== null && $fromMeta['owner_id'] == $toMeta['owner_id'];
+            $sameBusiness = $fromMeta && $toMeta && $fromMeta['business_id'] !== null && $fromMeta['business_id'] == $toMeta['business_id'];
 
-        if ($fromOwner !== $toOwner || !$fromOwner) {
-            $conn->rollBack();
-            auth_json_error(403, 'Stock transfers are strictly permitted only between branches belonging to the same business owner.');
+            if (!$sameOwner && !$sameBusiness) {
+                $conn->rollBack();
+                auth_json_error(403, 'Stock transfers are strictly permitted only between branches belonging to the same business.');
+            }
         }
 
-        // Lock and validate product in source store
-        $prodStmt = $conn->prepare("
-            SELECT id, product_name, stock FROM products
-            WHERE id = :p_id AND store_id = :s_id
-            FOR UPDATE
-        ");
-        $prodStmt->execute(['p_id' => $productId, 's_id' => $fromStoreId]);
-        $sourceProduct = $prodStmt->fetch(PDO::FETCH_ASSOC);
+        // Validate every requested line and snapshot its base/selling price
+        foreach ($items as $productId => $quantity) {
+            $priceSelect = "SELECT id, product_name, stock,
+                                   COALESCE(cost_price, 0.00) AS base_price,
+                                   COALESCE(price, 0.00) AS selling_price
+                            FROM products
+                            WHERE id = :p_id AND store_id = :s_id";
 
-        if (!$sourceProduct) {
-            $conn->rollBack();
-            auth_json_error(400, 'Selected product does not belong to the source store.');
+            if ($fromStoreId > 0) {
+                // Lock and validate the product inside the known source store
+                $prodStmt = $conn->prepare($priceSelect . " FOR UPDATE");
+                $prodStmt->execute(['p_id' => $productId, 's_id' => $fromStoreId]);
+                $product = $prodStmt->fetch(PDO::FETCH_ASSOC);
+
+                if (!$product) {
+                    $conn->rollBack();
+                    auth_json_error(400, 'Selected product does not belong to the source store.');
+                }
+
+                if ((int)$product['stock'] < $quantity) {
+                    $conn->rollBack();
+                    auth_json_error(400, "Insufficient stock for '{$product['product_name']}'. Source store only has {$product['stock']} units available.");
+                }
+            } else {
+                // Pending-donor request: the product is selected from the requester's (destination) branch
+                $prodStmt = $conn->prepare($priceSelect);
+                $prodStmt->execute(['p_id' => $productId, 's_id' => $toStoreId]);
+                $product = $prodStmt->fetch(PDO::FETCH_ASSOC);
+
+                if (!$product) {
+                    $conn->rollBack();
+                    auth_json_error(400, 'Selected product does not belong to your branch.');
+                }
+            }
+
+            $itemLines[$productId] = [
+                'product_id' => $productId,
+                'quantity' => $quantity,
+                'product_name' => $product['product_name'],
+                'base_price' => (float)$product['base_price'],
+                'selling_price' => (float)$product['selling_price'],
+            ];
         }
 
-        if ((int)$sourceProduct['stock'] < $quantity) {
-            $conn->rollBack();
-            auth_json_error(400, "Insufficient stock. Source store only has {$sourceProduct['stock']} units available.");
-        }
-
-        // Insert stock_transfers header
+        // Insert stock_transfers header ('requested' = awaiting manager approval)
         $insertStmt = $conn->prepare("
             INSERT INTO stock_transfers (from_store_id, to_store_id, requested_by, status, notes)
             VALUES (:from_id, :to_id, :req_by, 'requested', :notes)
             RETURNING id
         ");
         $insertStmt->execute([
-            'from_id' => $fromStoreId,
+            'from_id' => $fromStoreId > 0 ? $fromStoreId : null,
             'to_id' => $toStoreId,
             'req_by' => $identity['user_id'],
             'notes' => $notes
         ]);
         $transferId = (int)$insertStmt->fetchColumn();
 
-        // Insert stock_transfer_items
+        // Insert stock_transfer_items with the price snapshot for each line
         $itemStmt = $conn->prepare("
-            INSERT INTO stock_transfer_items (transfer_id, product_id, quantity)
-            VALUES (:t_id, :p_id, :qty)
+            INSERT INTO stock_transfer_items (transfer_id, product_id, quantity, base_price, selling_price)
+            VALUES (:t_id, :p_id, :qty, :base_price, :selling_price)
         ");
-        $itemStmt->execute([
-            't_id' => $transferId,
-            'p_id' => $productId,
-            'qty' => $quantity
-        ]);
+        $totalQuantity = 0;
+        $summaryParts = [];
+        foreach ($itemLines as $line) {
+            $itemStmt->execute([
+                't_id' => $transferId,
+                'p_id' => $line['product_id'],
+                'qty' => $line['quantity'],
+                'base_price' => $line['base_price'],
+                'selling_price' => $line['selling_price'],
+            ]);
+            $totalQuantity += $line['quantity'];
+            $summaryParts[] = $line['quantity'] . 'x ' . $line['product_name'];
+        }
 
         // Audit log entry
         $auditStmt = $conn->prepare("
@@ -274,16 +430,21 @@ try {
             $identity['role'],
             'STOCK_TRANSFER_REQUESTED',
             "Transfer #$transferId",
-            "Store #$fromStoreId -> Store #$toStoreId",
-            "Requested transfer of $quantity unit(s) of '{$sourceProduct['product_name']}'."
+            "Store #" . ($fromStoreId > 0 ? $fromStoreId . ' -> ' : '(pending donor) -> ') . "Store #$toStoreId",
+            "Requested " . count($itemLines) . " item line(s), $totalQuantity unit(s): " . implode(', ', $summaryParts) . '.' .
+                ($fromStoreId > 0 ? '' : ' Awaiting manager approval and donor branch selection.')
         ]);
 
         $conn->commit();
 
         echo json_encode([
             'success' => true,
-            'message' => 'Stock transfer request created successfully.',
-            'transfer_id' => $transferId
+            'message' => $fromStoreId > 0
+                ? 'Stock transfer request created successfully.'
+                : 'Stock transfer request submitted. The manager will approve it and choose the donor branch.',
+            'transfer_id' => $transferId,
+            'item_count' => count($itemLines),
+            'total_quantity' => $totalQuantity
         ]);
         exit;
     }
@@ -428,6 +589,9 @@ try {
         if ($transferId <= 0) {
             auth_json_error(400, 'Invalid transfer ID');
         }
+        if ($selectedSourceStoreId <= 0) {
+            auth_json_error(400, 'You must choose which branch will transfer stock (donor branch) before approving.');
+        }
 
         $conn->beginTransaction();
 
@@ -450,22 +614,73 @@ try {
             auth_json_error(403, 'Manager or Super Admin approval is required for stock transfers.');
         }
 
-        $fromStoreId = $selectedSourceStoreId > 0 ? $selectedSourceStoreId : (int)$transfer['from_store_id'];
+        $fromStoreId = $selectedSourceStoreId;
+        $toStoreId = (int)$transfer['to_store_id'];
+
+        if ($fromStoreId === $toStoreId) {
+            $conn->rollBack();
+            auth_json_error(400, 'The donor branch must be different from the requesting branch.');
+        }
+
+        // The donor must belong to the same business (or at least the same owner) as the requester's branch
+        $metaStmt = $conn->prepare("SELECT owner_id, business_id FROM stores WHERE id = :id");
+        $metaStmt->execute(['id' => $fromStoreId]);
+        $donorMeta = $metaStmt->fetch(PDO::FETCH_ASSOC);
+        $metaStmt->execute(['id' => $toStoreId]);
+        $destMeta = $metaStmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$donorMeta || !$destMeta) {
+            $conn->rollBack();
+            auth_json_error(400, 'One of the specified branches no longer exists.');
+        }
+
+        $sameOwner = $donorMeta['owner_id'] !== null && $donorMeta['owner_id'] == $destMeta['owner_id'];
+        $sameBusiness = $donorMeta['business_id'] !== null && $donorMeta['business_id'] == $destMeta['business_id'];
+
+        if (!$sameOwner && !$sameBusiness) {
+            $conn->rollBack();
+            auth_json_error(403, 'You can only transfer stock between branches of the same business.');
+        }
+
+        // Managers may only approve requests within their own branch portfolio
+        if ($identity['role'] === 'manager') {
+            $mgrCheck = $conn->prepare("SELECT id FROM stores WHERE id = :sid AND (owner_id = :uid OR manager_id = :uid OR id = :assigned)");
+            $mgrCheck->execute([
+                'sid' => $toStoreId,
+                'uid' => (int)$identity['user_id'],
+                'assigned' => (int)($identity['store_id'] ?? 0)
+            ]);
+            if (!$mgrCheck->fetchColumn()) {
+                $conn->rollBack();
+                auth_json_error(403, 'You can only approve transfer requests for your own branches.');
+            }
+        }
 
         $itemsStmt = $conn->prepare("SELECT * FROM stock_transfer_items WHERE transfer_id = :id");
         $itemsStmt->execute(['id' => $transferId]);
         $items = $itemsStmt->fetchAll(PDO::FETCH_ASSOC);
 
         foreach ($items as $item) {
-            $pStmt = $conn->prepare("SELECT id, stock, product_name FROM products WHERE (id = :p_id OR LOWER(product_name) = (SELECT LOWER(product_name) FROM products WHERE id = :p_id)) AND store_id = :s_id FOR UPDATE");
+            // Resolve the requested product inside the donor branch (matched by id or identical name)
+            $pStmt = $conn->prepare("SELECT id, stock, product_name, COALESCE(cost_price, 0.00) AS base_price, COALESCE(price, 0.00) AS selling_price FROM products WHERE (id = :p_id OR LOWER(product_name) = (SELECT LOWER(product_name) FROM products WHERE id = :p_id)) AND store_id = :s_id FOR UPDATE");
             $pStmt->execute(['p_id' => $item['product_id'], 's_id' => $fromStoreId]);
             $p = $pStmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$p || (int)$p['stock'] < (int)$item['quantity']) {
                 $conn->rollBack();
                 $avail = $p ? $p['stock'] : 0;
-                auth_json_error(400, "Donor store does not have sufficient stock (Available: $avail, Needed: {$item['quantity']}).");
+                auth_json_error(400, "The chosen donor branch does not have sufficient stock (Available: $avail, Needed: {$item['quantity']}).");
             }
+
+            // Point the transfer item at the donor's product so receipt/cancel reconcile the right stock,
+            // and refresh the price snapshot with the donor branch's actual base/selling prices
+            $rebindStmt = $conn->prepare("UPDATE stock_transfer_items SET product_id = :donor_pid, base_price = :base_price, selling_price = :selling_price WHERE id = :item_id");
+            $rebindStmt->execute([
+                'donor_pid' => $p['id'],
+                'base_price' => (float)$p['base_price'],
+                'selling_price' => (float)$p['selling_price'],
+                'item_id' => $item['id']
+            ]);
 
             $decStmt = $conn->prepare("UPDATE products SET stock = stock - :qty WHERE id = :p_id");
             $decStmt->execute(['qty' => $item['quantity'], 'p_id' => $p['id']]);
@@ -482,6 +697,10 @@ try {
             'id' => $transferId
         ]);
 
+        $donorNameStmt = $conn->prepare("SELECT store_name FROM stores WHERE id = :id");
+        $donorNameStmt->execute(['id' => $fromStoreId]);
+        $donorName = $donorNameStmt->fetchColumn() ?: "Store #$fromStoreId";
+
         $auditStmt = $conn->prepare("
             INSERT INTO audit_logs (user_name, role, action, target, store_name, details)
             VALUES (?, ?, ?, ?, ?, ?)
@@ -491,12 +710,70 @@ try {
             $identity['role'],
             'STOCK_TRANSFER_MANAGER_APPROVED',
             "Transfer #$transferId",
-            "Approved donor Store #$fromStoreId -> Store #{$transfer['to_store_id']}",
-            "Manager {$identity['full_name']} approved transfer #$transferId. Donor inventory deducted and dispatched."
+            "$donorName -> Store #$toStoreId",
+            "Manager {$identity['full_name']} approved transfer #$transferId and chose $donorName as the donor branch. Donor inventory deducted and dispatched."
         ]);
 
         $conn->commit();
-        echo json_encode(['success' => true, 'message' => "Transfer #$transferId approved by Manager and dispatched into transit."]);
+        echo json_encode(['success' => true, 'message' => "Transfer #$transferId approved. $donorName was chosen as the donor branch and the stock is now in transit."]);
+        exit;
+    }
+
+    if ($action === 'manager_decline') {
+        $input = !empty($jsonBody) ? $jsonBody : $_POST;
+        $transferId = (int)($input['transfer_id'] ?? 0);
+        $reason = trim((string)($input['reason'] ?? ''));
+
+        if ($transferId <= 0) {
+            auth_json_error(400, 'Invalid transfer ID');
+        }
+
+        if ($identity['role'] !== 'super_admin' && $identity['role'] !== 'manager') {
+            auth_json_error(403, 'Only a Manager or Super Admin can decline transfer requests.');
+        }
+
+        $conn->beginTransaction();
+
+        $stStmt = $conn->prepare("SELECT * FROM stock_transfers WHERE id = :id FOR UPDATE");
+        $stStmt->execute(['id' => $transferId]);
+        $transfer = $stStmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$transfer) {
+            $conn->rollBack();
+            auth_json_error(404, 'Transfer request not found');
+        }
+
+        if ($transfer['status'] !== 'requested') {
+            $conn->rollBack();
+            auth_json_error(400, "Only transfers in 'requested' status can be declined. Current: {$transfer['status']}.");
+        }
+
+        $upStmt = $conn->prepare("
+            UPDATE stock_transfers
+            SET status = 'declined', declined_at = CURRENT_TIMESTAMP, declined_by = :uid, decline_reason = :reason
+            WHERE id = :id
+        ");
+        $upStmt->execute([
+            'uid' => (int)$identity['user_id'],
+            'reason' => $reason !== '' ? $reason : 'No reason provided.',
+            'id' => $transferId
+        ]);
+
+        $auditStmt = $conn->prepare("
+            INSERT INTO audit_logs (user_name, role, action, target, store_name, details)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ");
+        $auditStmt->execute([
+            $identity['full_name'],
+            $identity['role'],
+            'STOCK_TRANSFER_DECLINED',
+            "Transfer #$transferId",
+            "Store #{$transfer['to_store_id']}",
+            "Transfer #$transferId declined. Reason: " . ($reason !== '' ? $reason : 'No reason provided.')
+        ]);
+
+        $conn->commit();
+        echo json_encode(['success' => true, 'message' => "Transfer #$transferId declined."]);
         exit;
     }
 
@@ -671,9 +948,10 @@ try {
         }
 
         // Scope check
-        if ($identity['role'] === 'store_admin') {
+        if ($identity['role'] === 'store_admin' || $identity['role'] === 'inventory_checker') {
             $assignedStore = (int)$identity['store_id'];
-            if ($assignedStore !== (int)$transfer['from_store_id'] && $assignedStore !== (int)$transfer['to_store_id']) {
+            $fromStore = $transfer['from_store_id'] !== null ? (int)$transfer['from_store_id'] : 0;
+            if ($assignedStore !== $fromStore && $assignedStore !== (int)$transfer['to_store_id']) {
                 $conn->rollBack();
                 auth_json_error(403, 'Unauthorized to cancel this transfer.');
             }
@@ -704,7 +982,7 @@ try {
             $identity['role'],
             'STOCK_TRANSFER_CANCELLED',
             "Transfer #$transferId",
-            "Store #{$transfer['from_store_id']}",
+            "Store #" . ($transfer['from_store_id'] !== null ? $transfer['from_store_id'] : $transfer['to_store_id']),
             "Transfer #$transferId cancelled. " . ($transfer['status'] === 'in_transit' ? "Inventory refunded to source." : "")
         ]);
 

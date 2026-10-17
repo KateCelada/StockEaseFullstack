@@ -33,6 +33,20 @@ if ($paymentType === '' || !is_array($items) || empty($items)) {
 $requestedItems = [];
 $requestedQuantities = [];
 
+// Cashiers (staff) must start their shift before they can process a sale
+if ($identity['role'] === 'staff') {
+    $shiftStmt = $conn->prepare("SELECT id FROM staff_shifts WHERE user_id = :uid AND status = 'active' LIMIT 1");
+    $shiftStmt->execute(['uid' => $userId]);
+    if (!$shiftStmt->fetchColumn()) {
+        echo json_encode([
+            "success" => false,
+            "requires_shift" => true,
+            "message" => "Start your shift before processing transactions."
+        ]);
+        exit;
+    }
+}
+
 foreach ($items as $item) {
     if (!is_array($item)) {
         echo json_encode(["success" => false, "message" => "Each transaction item must be an object"]);

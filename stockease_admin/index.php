@@ -1,7 +1,5 @@
 <?php
 require_once __DIR__ . '/../stockease_api/auth.php';
-require_once __DIR__ . '/../stockease_api/db.php';
-require_once __DIR__ . '/../stockease_api/subscription_helper.php';
 
 auth_start_session();
 
@@ -10,13 +8,8 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role
     exit;
 }
 
-$currentUserId = (int)$_SESSION['user_id'];
 $currentFullName = htmlspecialchars($_SESSION['full_name'] ?? 'Super Admin', ENT_QUOTES, 'UTF-8');
 $currentUsername = htmlspecialchars($_SESSION['username'] ?? 'admin', ENT_QUOTES, 'UTF-8');
-$currentSubscription = subscription_get_current($conn);
-$isPremium = !empty($currentSubscription['is_premium']);
-$planName = htmlspecialchars($currentSubscription['display_plan'] ?? 'StockEase Free', ENT_QUOTES, 'UTF-8');
-$planStatus = strtoupper($currentSubscription['status'] ?? 'ACTIVE');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -42,50 +35,72 @@ $planStatus = strtoupper($currentSubscription['status'] ?? 'ACTIVE');
     </div>
 
     <nav class="sidebar-nav">
-      <div class="nav-section-title">Core Operations</div>
-      <a class="nav-item active" data-tab="dashboard">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-        <span>Overview</span>
-      </a>
+      <div class="nav-group" data-group="overview">
+        <button type="button" class="nav-group-header" aria-expanded="true">
+          <span>Overview</span>
+          <span class="nav-group-arrow" aria-hidden="true"></span>
+        </button>
+        <div class="nav-group-items">
+          <a class="nav-item active" data-tab="dashboard">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            <span>Executive Overview</span>
+          </a>
+        </div>
+      </div>
 
-      <div class="nav-section-title">Retail Stores &amp; Portfolios</div>
-      <a class="nav-item" data-tab="stores">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-        <span>Stores</span>
-      </a>
+      <div class="nav-group" data-group="management">
+        <button type="button" class="nav-group-header" aria-expanded="true">
+          <span>Management</span>
+          <span class="nav-group-arrow" aria-hidden="true"></span>
+        </button>
+        <div class="nav-group-items">
+          <a class="nav-item" data-tab="businesses">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            <span>Businesses</span>
+          </a>
 
-      <div class="nav-section-title">Administration</div>
-      <a class="nav-item" data-tab="users">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-        <span>Users &amp; Roles</span>
-      </a>
+          <a class="nav-item" data-tab="users">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            <span>Users &amp; Roles</span>
+          </a>
+        </div>
+      </div>
 
-      <div class="nav-section-title">Analytics &amp; Intelligence</div>
-      <a class="nav-item" data-tab="insights">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
-        <span>StockEase Insights</span>
-      </a>
+      <div class="nav-group" data-group="analytics">
+        <button type="button" class="nav-group-header" aria-expanded="true">
+          <span>Analytics</span>
+          <span class="nav-group-arrow" aria-hidden="true"></span>
+        </button>
+        <div class="nav-group-items">
+          <a class="nav-item" data-tab="insights">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+            <span>StockEase Insights</span>
+          </a>
 
-      <a class="nav-item" data-tab="reports">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-        <span>Branch Reports</span>
-      </a>
+          <a class="nav-item" data-tab="reports">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            <span>Branch Reports</span>
+          </a>
 
-      <a class="nav-item" data-tab="audit">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-        <span>Security Audit Logs</span>
-      </a>
+          <a class="nav-item" data-tab="audit">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <span>Security Audit Logs</span>
+          </a>
+        </div>
+      </div>
 
-      <div class="nav-section-title">System &amp; Billing</div>
-      <a class="nav-item" data-tab="subscription">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
-        <span>Subscription &amp; Plans</span>
-      </a>
-
-      <a class="nav-item" data-tab="settings">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-        <span>System Settings</span>
-      </a>
+      <div class="nav-group" data-group="system">
+        <button type="button" class="nav-group-header" aria-expanded="true">
+          <span>System</span>
+          <span class="nav-group-arrow" aria-hidden="true"></span>
+        </button>
+        <div class="nav-group-items">
+          <a class="nav-item" data-tab="subscription">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+            <span>Subscription &amp; Plans</span>
+          </a>
+        </div>
+      </div>
     </nav>
 
     <div class="sidebar-footer">
@@ -113,7 +128,6 @@ $planStatus = strtoupper($currentSubscription['status'] ?? 'ACTIVE');
       <div class="header-right">
         <div id="live-header-date" class="header-pill">Loading date...</div>
         <div id="sub-pending-notification" style="display: none; background: #FEF3C7; border: 1px solid #FCD34D; color: #92400E; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; cursor: pointer;" onclick="app.showTab('subscription')">🔔 <span id="sub-pending-count">0</span> Pending Request(s)</div>
-        <div id="live-plan-badge" class="header-pill plan-pill"><?= $planName ?> (<?= $planStatus ?>)</div>
         <button id="btn-global-refresh" class="btn btn-secondary btn-sm" title="Refresh Current View">
           <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
           <span>Refresh</span>
@@ -158,12 +172,12 @@ $planStatus = strtoupper($currentSubscription['status'] ?? 'ACTIVE');
             <div class="stat-trend" style="color: #64748B;">Click to view receipts &rarr;</div>
           </div>
 
-          <div class="stat-card" style="cursor: pointer;" onclick="app.showTab('stores')" title="Click to manage physical branches">
+          <div class="stat-card" style="cursor: pointer;" onclick="app.showTab('businesses')" title="Click to manage business portfolios and their branches">
             <div class="stat-header">
               <span class="stat-title">Active Store Branches</span>
             </div>
             <div id="kpi-total-stores" class="stat-value">&mdash;</div>
-            <div class="stat-trend" style="color: #2563EB;">Click to manage stores &rarr;</div>
+            <div class="stat-trend" style="color: #2563EB;">Click to manage businesses &rarr;</div>
           </div>
 
           <div class="stat-card" style="cursor: pointer;" onclick="app.showTab('users')" title="Click to manage system users and roles">
@@ -175,17 +189,20 @@ $planStatus = strtoupper($currentSubscription['status'] ?? 'ACTIVE');
           </div>
         </div>
 
-        <!-- Store Owners & Multi-Branch Business Cards -->
+        <!-- Business Name Cards (click opens the business progress page) -->
         <div class="card" style="margin-bottom: 24px;">
           <div class="card-header">
             <div>
-              <div class="card-title">Store Owners &amp; Multi-Branch Portfolios</div>
-              <div class="card-subtitle">Separate progress cards for each business owner/manager. Click any owner or branch to inspect real-time progress.</div>
+              <div class="card-title">Business Portfolios</div>
+              <div class="card-subtitle">Click a business name to open its full progress line chart, branch breakdown, and Excel export.</div>
             </div>
-            <button class="btn btn-secondary btn-sm" onclick="app.loadStoreOwnersCards()">↻ Refresh Portfolios</button>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-secondary btn-sm" onclick="app.loadBusinessCards()">↻ Refresh</button>
+              <button class="btn btn-primary btn-sm" onclick="app.showTab('businesses')">+ Add Business</button>
+            </div>
           </div>
-          <div id="container-store-owners-cards" style="padding: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px;">
-            <div style="color: #64748B; font-size: 13px; padding: 16px; grid-column: 1 / -1; text-align: center;">Loading store owner portfolios...</div>
+          <div id="container-business-cards" style="padding: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;">
+            <div style="color: #64748B; font-size: 13px; padding: 16px; grid-column: 1 / -1; text-align: center;">Loading businesses...</div>
           </div>
         </div>
 
@@ -197,8 +214,9 @@ $planStatus = strtoupper($currentSubscription['status'] ?? 'ACTIVE');
               <div class="card-subtitle">Real-time daily transaction metrics and branch operations.</div>
             </div>
             <div style="display: flex; gap: 8px;">
+              <button class="btn btn-secondary btn-sm" data-export-table="table-store-performance">Export CSV</button>
               <button id="btn-open-compare" class="btn btn-secondary btn-sm">Compare Stores</button>
-              <button class="btn btn-primary btn-sm" onclick="app.showTab('stores')">Manage Stores</button>
+              <button class="btn btn-primary btn-sm" onclick="app.showTab('businesses')">Manage Businesses</button>
             </div>
           </div>
 
@@ -224,18 +242,51 @@ $planStatus = strtoupper($currentSubscription['status'] ?? 'ACTIVE');
       </section>
 
       <!-- ================= SECTION: STORE BRANCHES ================= -->
-      <section id="section-stores" class="content-section">
+      <!-- ================= SECTION: BUSINESSES (+ BRANCH MANAGEMENT) ================= -->
+      <section id="section-businesses" class="content-section">
         <div class="toolbar">
           <div>
-            <h2 style="font-size: 16px; font-weight: 700;">Retail Store Branches</h2>
-            <div style="color: #64748B; font-size: 12px;">Manage physical retail store locations and operational status.</div>
+            <h2 style="font-size: 16px; font-weight: 700;">Business Portfolios</h2>
+            <div style="color: #64748B; font-size: 12px;">Register businesses, create store owner accounts, and group store branches under a single owner portfolio.</div>
           </div>
-          <button id="btn-modal-add-store" class="btn btn-primary btn-sm">+ Add New Store</button>
+          <div class="toolbar-group">
+            <button class="btn btn-secondary btn-sm" data-export-table="table-businesses">Export CSV</button>
+            <button id="btn-modal-add-business" class="btn btn-primary btn-sm">+ Add Business</button>
+          </div>
         </div>
 
         <div class="card">
           <div class="table-responsive">
-            <table>
+            <table id="table-businesses">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Business Name</th>
+                  <th>Business Owner</th>
+                  <th style="text-align: center;">Active Branches</th>
+                  <th style="text-align: right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-businesses-list">
+                <tr><td colspan="5" style="text-align: center; color: #64748B; padding: 24px;">Loading businesses...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Store Branches (functions moved here from the removed Stores button) -->
+        <div class="card" style="margin-top: 24px;">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Store Branches</div>
+              <div class="card-subtitle">Physical retail store locations that roll up into the business portfolios above.</div>
+            </div>
+            <div class="toolbar-group">
+              <button class="btn btn-secondary btn-sm" data-export-table="table-stores">Export CSV</button>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table id="table-stores">
               <thead>
                 <tr>
                   <th>ID</th>
@@ -255,6 +306,172 @@ $planStatus = strtoupper($currentSubscription['status'] ?? 'ACTIVE');
         </div>
       </section>
 
+      <!-- ============ SECTION: BUSINESS PROGRESS (drill-down page) ============ -->
+      <section id="section-business-detail" class="content-section">
+        <div class="toolbar">
+          <div class="toolbar-group">
+            <button class="btn btn-secondary btn-sm" onclick="app.showTab('dashboard')">&larr; Back to Overview</button>
+            <div>
+              <h2 id="business-detail-title" style="font-size: 16px; font-weight: 700;">Business</h2>
+              <div id="business-detail-subtitle" style="color: #64748B; font-size: 12px;">Loading business progress...</div>
+            </div>
+          </div>
+          <div class="toolbar-group">
+            <button class="btn btn-secondary btn-sm btn-business-period active" data-bperiod="today">Today</button>
+            <button class="btn btn-secondary btn-sm btn-business-period" data-bperiod="this_week">This Week</button>
+            <button class="btn btn-secondary btn-sm btn-business-period" data-bperiod="this_month">This Month</button>
+            <button id="btn-export-business-excel" class="btn btn-primary btn-sm">Export to Excel</button>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-header"><span class="stat-title">Business Revenue</span></div>
+            <div id="biz-revenue" class="stat-value">&mdash;</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header"><span class="stat-title">Orders</span></div>
+            <div id="biz-orders" class="stat-value">&mdash;</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header"><span class="stat-title">Average Order</span></div>
+            <div id="biz-avg" class="stat-value">&mdash;</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header"><span class="stat-title">Units Sold</span></div>
+            <div id="biz-units" class="stat-value">&mdash;</div>
+          </div>
+        </div>
+
+        <!-- Whole-business progress line chart (Excel exportable) -->
+        <div class="card" style="margin-bottom: 24px;">
+          <div class="card-header">
+            <div>
+              <div class="card-title">📈 Whole Business Progress</div>
+              <div id="business-chart-subtitle" class="card-subtitle">Combined sales trajectory of every branch in this business.</div>
+            </div>
+            <div class="toolbar-group">
+              <button class="btn btn-secondary btn-sm" id="btn-business-chart-excel">Chart &rarr; Excel</button>
+              <button class="btn btn-secondary btn-sm" id="btn-business-chart-png">⤓ PNG</button>
+            </div>
+          </div>
+          <div style="height: 300px; position: relative;">
+            <canvas id="chart-business-progress"></canvas>
+          </div>
+        </div>
+
+        <!-- Branch cards of this business -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Branches of this Business</div>
+              <div class="card-subtitle">Click a branch card to open its progress, top selling products, and assigned accounts.</div>
+            </div>
+            <span id="business-branch-count" class="badge badge-slate">0 Branch(es)</span>
+          </div>
+          <div id="container-business-branches" style="padding: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;">
+            <div style="color: #64748B; font-size: 13px; padding: 16px; grid-column: 1 / -1; text-align: center;">Loading branches...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SECTION: BRANCH PROGRESS (drill-down page) ============ -->
+      <section id="section-branch-detail" class="content-section">
+        <div class="toolbar">
+          <div class="toolbar-group">
+            <button id="btn-branch-detail-back" class="btn btn-secondary btn-sm">&larr; Back</button>
+            <div>
+              <h2 id="branch-detail-title" style="font-size: 16px; font-weight: 700;">Branch</h2>
+              <div id="branch-detail-subtitle" style="color: #64748B; font-size: 12px;">Loading branch progress...</div>
+            </div>
+          </div>
+          <div class="toolbar-group">
+            <button class="btn btn-secondary btn-sm btn-branch-period active" data-brperiod="today">Today</button>
+            <button class="btn btn-secondary btn-sm btn-branch-period" data-brperiod="this_week">This Week</button>
+            <button class="btn btn-secondary btn-sm btn-branch-period" data-brperiod="this_month">This Month</button>
+            <button id="btn-export-branch-excel" class="btn btn-primary btn-sm">Export to Excel</button>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-header"><span class="stat-title">Branch Revenue</span></div>
+            <div id="br-revenue" class="stat-value">&mdash;</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header"><span class="stat-title">Orders</span></div>
+            <div id="br-orders" class="stat-value">&mdash;</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header"><span class="stat-title">Average Order</span></div>
+            <div id="br-avg" class="stat-value">&mdash;</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header"><span class="stat-title">Units Sold</span></div>
+            <div id="br-units" class="stat-value">&mdash;</div>
+          </div>
+        </div>
+
+        <div class="insights-row" style="margin-bottom: 20px;">
+          <!-- Branch progress line chart (Excel exportable) -->
+          <div class="card" style="flex: 1.4;">
+            <div class="card-header">
+              <div>
+                <div class="card-title">📈 Branch Progress</div>
+                <div id="branch-chart-subtitle" class="card-subtitle">Sales trajectory for the selected period.</div>
+              </div>
+              <div class="toolbar-group">
+                <button class="btn btn-secondary btn-sm" id="btn-branch-chart-excel">Chart &rarr; Excel</button>
+                <button class="btn btn-secondary btn-sm" id="btn-branch-chart-png">⤓ PNG</button>
+              </div>
+            </div>
+            <div style="height: 260px; position: relative;">
+              <canvas id="chart-branch-progress"></canvas>
+            </div>
+          </div>
+
+          <!-- Top selling products -->
+          <div class="card" style="flex: 1;">
+            <div class="card-header">
+              <div>
+                <div class="card-title">🏆 Top Selling Products</div>
+                <div class="card-subtitle">Best performing items in this branch for the selected period.</div>
+              </div>
+              <button class="btn btn-secondary btn-sm" data-export-table="table-branch-top-products">Export CSV</button>
+            </div>
+            <div class="table-responsive" style="max-height: 260px; overflow-y: auto;">
+              <table id="table-branch-top-products">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Product</th>
+                    <th style="text-align: right;">Units</th>
+                    <th style="text-align: right;">Revenue</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-branch-top-products">
+                  <tr><td colspan="4" style="text-align: center; color: #64748B; padding: 20px;">Loading top products...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Assigned accounts card (click to reveal) -->
+        <div class="card">
+          <div class="card-header" style="cursor: pointer;" onclick="app.toggleBranchAccounts()" title="Click to display every account assigned to this branch">
+            <div>
+              <div class="card-title">👥 Accounts Assigned to this Branch</div>
+              <div class="card-subtitle">Click this card to display all accounts assigned in this branch.</div>
+            </div>
+            <span id="branch-accounts-toggle" class="btn btn-secondary btn-sm">Show Accounts</span>
+          </div>
+          <div id="container-branch-accounts" style="display: none; padding: 0 16px 16px;">
+            <div style="color: #64748B; font-size: 13px;">Loading accounts...</div>
+          </div>
+        </div>
+      </section>
+
       <!-- ================= SECTION: STOCK TRANSFERS ================= -->
       <section id="section-transfers" class="content-section">
         <div class="toolbar">
@@ -270,6 +487,7 @@ $planStatus = strtoupper($currentSubscription['status'] ?? 'ACTIVE');
               <option value="completed">Completed</option>
               <option value="cancelled">Cancelled</option>
             </select>
+            <button class="btn btn-secondary btn-sm" data-export-table="table-transfers">Export CSV</button>
             <button id="btn-modal-quick-transfer" class="btn btn-secondary btn-sm" style="border-color: #38BDF8; color: #0284C7; font-weight: 600;">⚡ Quick Direct Move</button>
             <button id="btn-modal-new-transfer" class="btn btn-primary btn-sm">+ Create Transfer</button>
           </div>
@@ -283,7 +501,7 @@ $planStatus = strtoupper($currentSubscription['status'] ?? 'ACTIVE');
 
         <div class="card">
           <div class="table-responsive">
-            <table>
+            <table id="table-transfers">
               <thead>
                 <tr>
                   <th>Transfer #</th>
@@ -314,16 +532,19 @@ $planStatus = strtoupper($currentSubscription['status'] ?? 'ACTIVE');
             <input type="text" id="input-search-users" class="form-control" placeholder="Search name or username..." style="width: 220px; font-size: 12px; padding: 5px 10px;">
             <select id="filter-user-role" class="form-select" style="width: auto; padding: 5px 10px; font-size: 12px;">
               <option value="">All Roles</option>
-              <option value="super_admin">Super Admin</option>
+              <option value="store_owner">Store Owner</option>
+              <option value="manager">Manager</option>
               <option value="store_admin">Store Admin</option>
-              <option value="staff">Staff / Cashier</option>
+              <option value="staff">Staff &ndash; Cashier</option>
+              <option value="inventory_checker">Staff &ndash; Inventory</option>
             </select>
+            <button class="btn btn-secondary btn-sm" data-export-table="table-users">Export CSV</button>
           </div>
         </div>
 
         <div class="card">
           <div class="table-responsive">
-            <table>
+            <table id="table-users">
               <thead>
                 <tr>
                   <th>User ID</th>
@@ -351,12 +572,15 @@ $planStatus = strtoupper($currentSubscription['status'] ?? 'ACTIVE');
             <h2 style="font-size: 16px; font-weight: 700;">Branch Store Administrators</h2>
             <div style="color: #64748B; font-size: 12px;">Store managers with branch authority over products, staff, and daily registers.</div>
           </div>
-          <button id="btn-modal-add-admin" class="btn btn-primary btn-sm">+ Assign Store Admin</button>
+          <div class="toolbar-group">
+            <button class="btn btn-secondary btn-sm" data-export-table="table-store-admins">Export CSV</button>
+            <button id="btn-modal-add-admin" class="btn btn-primary btn-sm">+ Assign Store Admin</button>
+          </div>
         </div>
 
         <div class="card">
           <div class="table-responsive">
-            <table>
+            <table id="table-store-admins">
               <thead>
                 <tr>
                   <th>Admin ID</th>
@@ -461,9 +685,10 @@ $planStatus = strtoupper($currentSubscription['status'] ?? 'ACTIVE');
         <div class="card">
           <div class="card-header">
             <div class="card-title">Branch Velocity Comparison Table</div>
+            <button class="btn btn-secondary btn-sm" data-export-table="table-insight-comparison">Export CSV</button>
           </div>
           <div class="table-responsive">
-            <table>
+            <table id="table-insight-comparison">
               <thead>
                 <tr>
                   <th>Store</th>
@@ -499,6 +724,8 @@ $planStatus = strtoupper($currentSubscription['status'] ?? 'ACTIVE');
           </div>
         </div>
 
+        <div id="reports-period-scope" style="color: #64748B; font-size: 12px; margin: -8px 0 16px;">Today</div>
+
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-header"><span class="stat-title">Branch Revenue</span></div>
@@ -524,7 +751,7 @@ $planStatus = strtoupper($currentSubscription['status'] ?? 'ACTIVE');
             <div class="card-header">
               <div>
                 <div class="card-title">📈 Branch Earnings Progress (Revenue Trend)</div>
-                <div class="card-subtitle">Real-time daily earnings trajectory across operational dates</div>
+                <div id="chart-branch-earnings-subtitle" class="card-subtitle">Real-time daily earnings trajectory across operational dates</div>
               </div>
             </div>
             <div style="height: 240px; position: relative;">
@@ -583,13 +810,14 @@ $planStatus = strtoupper($currentSubscription['status'] ?? 'ACTIVE');
               <option value="STORE_CREATED">Store Created</option>
               <option value="SYSTEM_LOGIN">System Login</option>
             </select>
+            <button id="btn-audit-export" class="btn btn-secondary btn-sm">Export CSV</button>
             <button id="btn-audit-refresh" class="btn btn-secondary btn-sm">Refresh</button>
           </div>
         </div>
 
         <div class="card">
           <div class="table-responsive">
-            <table>
+            <table id="table-audit-logs">
               <thead>
                 <tr>
                   <th>Timestamp</th>
@@ -605,6 +833,27 @@ $planStatus = strtoupper($currentSubscription['status'] ?? 'ACTIVE');
                 <tr><td colspan="7" style="text-align: center; color: #64748B; padding: 24px;">Loading audit trail...</td></tr>
               </tbody>
             </table>
+          </div>
+
+          <!-- Audit Log Pagination -->
+          <div id="audit-pagination" class="pagination-bar">
+            <div class="pagination-left">
+              <label for="audit-per-page" class="pagination-label">Rows per page</label>
+              <select id="audit-per-page" class="form-select" style="width: auto; padding: 5px 8px; font-size: 12px;">
+                <option value="10">10</option>
+                <option value="25" selected>25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+              <span id="audit-range-label" class="pagination-info">Loading&hellip;</span>
+            </div>
+            <div class="pagination-right">
+              <button id="audit-first-page" class="page-btn" type="button" title="First page">&laquo;</button>
+              <button id="audit-prev-page" class="page-btn" type="button" title="Previous page">&lsaquo;</button>
+              <span id="audit-page-numbers" class="page-numbers"></span>
+              <button id="audit-next-page" class="page-btn" type="button" title="Next page">&rsaquo;</button>
+              <button id="audit-last-page" class="page-btn" type="button" title="Last page">&raquo;</button>
+            </div>
           </div>
         </div>
       </section>
@@ -649,103 +898,7 @@ $planStatus = strtoupper($currentSubscription['status'] ?? 'ACTIVE');
           </div>
         </div>
 
-        <!-- Active Plan Banner -->
-        <div class="card" style="border-left: 4px solid var(--color-primary);">
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: gap;">
-            <div>
-              <span class="badge badge-info" id="sub-active-badge" style="font-size: 12px; padding: 4px 10px;"><?= $planName ?></span>
-              <h3 id="sub-active-title" style="font-size: 18px; margin-top: 8px; font-weight: 700;"><?= $planName ?> &bull; <?= $planStatus ?></h3>
-              <p id="sub-active-desc" style="color: #64748B; font-size: 13px; margin-top: 4px;">Active platform subscription powering your retail stores.</p>
-            </div>
-            <div id="sub-expires-display" style="text-align: right; color: #475569; font-size: 12px;">
-              Valid billing status
-            </div>
-          </div>
-        </div>
-
-        <!-- Comparative Plan Grid -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 24px;">
-          <!-- Card: Free -->
-          <div class="card" style="display: flex; flex-direction: column;">
-            <div style="font-size: 15px; font-weight: 700; color: #0F172A;">StockEase Free</div>
-            <div style="font-size: 26px; font-weight: 800; color: #0F172A; margin: 12px 0;">&#8369;0 <span style="font-size: 13px; font-weight: 500; color: #64748B;">/ forever</span></div>
-            <p style="color: #64748B; font-size: 12px; margin-bottom: 16px;">Core POS checkout and single-store inventory management.</p>
-            <ul style="list-style: none; margin-bottom: 20px; flex: 1;">
-              <li style="padding: 6px 0; color: #334155;">&check; Core POS Checkout &amp; Receipts</li>
-              <li style="padding: 6px 0; color: #334155;">&check; Local Catalog Management</li>
-              <li style="padding: 6px 0; color: #334155;">&check; Basic Low Stock Alerts</li>
-              <li style="padding: 6px 0; color: #334155;">&check; Store Staff Accounts</li>
-              <li style="padding: 6px 0; color: #94A3B8;">&cross; Cross-Store Stock Transfers</li>
-              <li style="padding: 6px 0; color: #94A3B8;">&cross; Velocity &amp; Insights Analytics</li>
-            </ul>
-            <div style="text-align: center; padding: 8px; background: #F1F5F9; color: #475569; font-weight: 600; font-size: 13px; border-radius: 6px;">Included Base Tier</div>
-          </div>
-
-          <!-- Card: Monthly -->
-          <div class="card" style="display: flex; flex-direction: column;">
-            <div style="font-size: 15px; font-weight: 700; color: #0F172A;">StockEase Premium (Monthly)</div>
-            <div style="font-size: 26px; font-weight: 800; color: #0F172A; margin: 12px 0;">&#8369;699 <span style="font-size: 13px; font-weight: 500; color: #64748B;">/ month</span></div>
-            <p style="color: #64748B; font-size: 12px; margin-bottom: 16px;">Full multi-store intelligence with flexible month-to-month billing.</p>
-            <ul style="list-style: none; margin-bottom: 20px; flex: 1;">
-              <li style="padding: 6px 0; color: #334155;">&check; Everything in Free Plan</li>
-              <li style="padding: 6px 0; color: #334155; font-weight: 600;">&check; Multi-Store Stock Transfers</li>
-              <li style="padding: 6px 0; color: #334155; font-weight: 600;">&check; Smart Inventory Velocity Analytics</li>
-              <li style="padding: 6px 0; color: #334155; font-weight: 600;">&check; Automated Transfer Balancing</li>
-              <li style="padding: 6px 0; color: #334155; font-weight: 600;">&check; Stockout Risk Detection</li>
-              <li style="padding: 6px 0; color: #334155; font-weight: 600;">&check; Multi-Store Comparison Analytics</li>
-            </ul>
-            <div style="text-align: center; padding: 8px; background: #EFF6FF; color: #2563EB; font-weight: 600; font-size: 13px; border-radius: 6px;">Store Admin Application Tier</div>
-          </div>
-
-          <!-- Card: Yearly (Best Value) -->
-          <div class="card" style="display: flex; flex-direction: column; border: 2px solid #2563EB;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <div style="font-size: 15px; font-weight: 700; color: #0F172A;">Premium (Yearly)</div>
-              <span class="badge badge-success" style="font-size: 11px;">Best Value</span>
-            </div>
-            <div style="font-size: 26px; font-weight: 800; color: #0F172A; margin: 12px 0;">&#8369;6,990 <span style="font-size: 13px; font-weight: 500; color: #64748B;">/ year</span></div>
-            <p style="color: #059669; font-size: 12px; font-weight: 600; margin-bottom: 16px;">Save &#8369;1,398 compared with monthly billing!</p>
-            <ul style="list-style: none; margin-bottom: 20px; flex: 1;">
-              <li style="padding: 6px 0; color: #334155;">&check; Complete Premium Capabilities</li>
-              <li style="padding: 6px 0; color: #334155;">&check; Priority Multi-Store Balancing</li>
-              <li style="padding: 6px 0; color: #334155;">&check; 365 Days Uninterrupted Access</li>
-              <li style="padding: 6px 0; color: #334155;">&check; Annual Savings Included</li>
-            </ul>
-            <div style="text-align: center; padding: 8px; background: #ECFDF5; color: #059669; font-weight: 600; font-size: 13px; border-radius: 6px;">Store Admin Application Tier (Annual)</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ================= SECTION: SYSTEM SETTINGS ================= -->
-      <section id="section-settings" class="content-section">
-        <div class="toolbar">
-          <div>
-            <h2 style="font-size: 16px; font-weight: 700;">System Settings &amp; Platform Architecture</h2>
-            <div style="color: #64748B; font-size: 12px;">Technical environment parameters, server identity, and database status.</div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header"><div class="card-title">Environment &amp; Infrastructure</div></div>
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
-            <div>
-              <span style="color: #64748B; font-size: 12px;">Database Engine</span>
-              <div style="font-weight: 600; font-size: 14px; margin-top: 2px;">PostgreSQL (stockease_manual)</div>
-            </div>
-            <div>
-              <span style="color: #64748B; font-size: 12px;">Web Application Server</span>
-              <div style="font-weight: 600; font-size: 14px; margin-top: 2px;">Apache / XAMPP (Port 80)</div>
-            </div>
-            <div>
-              <span style="color: #64748B; font-size: 12px;">PHP Runtime</span>
-              <div style="font-weight: 600; font-size: 14px; margin-top: 2px;">PHP <?= phpversion() ?></div>
-            </div>
-            <div>
-              <span style="color: #64748B; font-size: 12px;">Authenticated Super Admin</span>
-              <div style="font-weight: 600; font-size: 14px; margin-top: 2px;"><?= $currentFullName ?> (ID: <?= $currentUserId ?>)</div>
-            </div>
-          </div>
-        </div>
+        <!-- (System Settings removed by request) -->
       </section>
 
     </div>
@@ -754,101 +907,57 @@ $planStatus = strtoupper($currentSubscription['status'] ?? 'ACTIVE');
 
 <!-- ================= MODALS ================= -->
 
-<!-- Modal: Add Store -->
-<div id="modal-add-store" class="modal-overlay">
-  <div class="modal-content" style="max-width: 600px;">
+<!-- Modal: Add Business Portfolio -->
+<div id="modal-add-business" class="modal-overlay">
+  <div class="modal-content">
     <div class="modal-header">
       <div>
-        <div class="modal-title">Create Retail Store &amp; Assign Leadership</div>
-        <div style="font-size: 12px; color: #64748B;">Add store name, location, store owner, and store manager.</div>
+        <div class="modal-title">Register New Business Portfolio</div>
+        <div style="font-size: 12px; color: #64748B;">Group store branches under a named business owned by a Store Owner account.</div>
       </div>
       <button class="modal-close" onclick="app.closeModals()">&times;</button>
     </div>
-    <form id="form-add-store">
+    <form id="form-add-business">
       <div class="modal-body">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-          <div class="form-group">
-            <label class="form-label" for="new-store-name">Store Name *</label>
-            <input type="text" id="new-store-name" class="form-control" placeholder="e.g. Apex Mart - Downtown" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="new-store-location">Physical Location *</label>
-            <input type="text" id="new-store-location" class="form-control" placeholder="e.g. Colon St, Cebu City" required>
-          </div>
-        </div>
-
         <div class="form-group">
-          <label class="form-label" for="new-store-description">Store Description (Optional)</label>
-          <textarea id="new-store-description" class="form-control" rows="2" placeholder="e.g. Prime flagship store. Edit anytime via the Store Description button."></textarea>
+          <label class="form-label" for="new-business-name">Business Name *</label>
+          <input type="text" id="new-business-name" class="form-control" placeholder="e.g. Apex Retail Group" required>
         </div>
-
-        <!-- Store Owner Section -->
-        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <label class="form-label" style="margin: 0; font-weight: 700; color: #0F172A;">Store Owner *</label>
-            <span style="font-size: 11px; color: #2563EB;">Multi-branch portfolio owner</span>
-          </div>
-          <select id="new-store-owner" class="form-select" onchange="app.toggleNewOwnerFields()">
-            <option value="">-- Select Existing Store Owner --</option>
+        <div class="form-group">
+          <label class="form-label" for="business-owner-select">Business Owner</label>
+          <select id="business-owner-select" class="form-select" onchange="app.toggleNewBusinessOwnerFields()">
+            <option value="">-- No Owner (Assign Later) --</option>
             <option value="__new__">+ Create New Store Owner Account</option>
           </select>
-
-          <!-- Collapsible New Owner Fields -->
-          <div id="new-owner-fields" style="display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #CBD5E1;">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px;">
-              <div>
-                <label class="form-label" style="font-size: 11px;">Owner Full Name</label>
-                <input type="text" id="new-owner-fullname" class="form-control" placeholder="e.g. Juan dela Cruz">
-              </div>
-              <div>
-                <label class="form-label" style="font-size: 11px;">Owner Username</label>
-                <input type="text" id="new-owner-username" class="form-control" placeholder="e.g. jdelacruz">
-              </div>
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-              <div>
-                <label class="form-label" style="font-size: 11px;">Owner Email</label>
-                <input type="email" id="new-owner-email" class="form-control" placeholder="e.g. juan@stockease.com">
-              </div>
-              <div>
-                <label class="form-label" style="font-size: 11px;">Initial Password</label>
-                <input type="password" id="new-owner-password" class="form-control" placeholder="e.g. admin123" value="admin123">
-              </div>
-            </div>
-          </div>
+          <div style="font-size: 11px; color: #64748B; margin-top: 4px;">Pick an existing Store Owner / Manager, or create the store owner account together with this business.</div>
         </div>
 
-        <!-- Store Manager Section -->
-        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 12px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <label class="form-label" style="margin: 0; font-weight: 700; color: #0F172A;">Store Manager (Optional)</label>
-            <span style="font-size: 11px; color: #059669;">Branch operations manager</span>
-          </div>
-          <select id="new-store-manager" class="form-select" onchange="app.toggleNewManagerFields()">
-            <option value="">-- No Separate Manager (Same as Owner) --</option>
-            <option value="__new__">+ Create New Store Manager Account</option>
-          </select>
-
-          <!-- Collapsible New Manager Fields -->
-          <div id="new-manager-fields" style="display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #CBD5E1;">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px;">
-              <div>
-                <label class="form-label" style="font-size: 11px;">Manager Full Name</label>
-                <input type="text" id="new-manager-fullname" class="form-control" placeholder="e.g. Maria Santos">
-              </div>
-              <div>
-                <label class="form-label" style="font-size: 11px;">Manager Username</label>
-                <input type="text" id="new-manager-username" class="form-control" placeholder="e.g. msantos">
-              </div>
+        <!-- Collapsible New Store Owner Account Fields -->
+        <div id="new-business-owner-fields" style="display: none; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 12px; margin-top: 8px;">
+          <div style="font-size: 12px; font-weight: 700; color: #0F172A; margin-bottom: 8px;">New Store Owner Account</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px;">
+            <div>
+              <label class="form-label" style="font-size: 11px;">Owner Full Name</label>
+              <input type="text" id="new-business-owner-fullname" class="form-control" placeholder="e.g. Juan dela Cruz">
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-              <div>
-                <label class="form-label" style="font-size: 11px;">Manager Email</label>
-                <input type="email" id="new-manager-email" class="form-control" placeholder="e.g. maria@stockease.com">
-              </div>
-              <div>
-                <label class="form-label" style="font-size: 11px;">Initial Password</label>
-                <input type="password" id="new-manager-password" class="form-control" placeholder="e.g. admin123" value="admin123">
+            <div>
+              <label class="form-label" style="font-size: 11px;">Owner Username</label>
+              <input type="text" id="new-business-owner-username" class="form-control" placeholder="e.g. jdelacruz">
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div>
+              <label class="form-label" style="font-size: 11px;">Owner Email</label>
+              <input type="email" id="new-business-owner-email" class="form-control" placeholder="e.g. juan@stockease.com">
+            </div>
+            <div>
+              <label class="form-label" style="font-size: 11px;">Initial Password</label>
+              <div class="password-wrap">
+                <input type="password" id="new-business-owner-password" class="form-control" placeholder="e.g. admin123" value="admin123">
+                <button type="button" class="btn-eye" title="Show password" aria-label="Show password" aria-pressed="false" onclick="app.togglePassword('new-business-owner-password', this)">
+                  <svg class="eye-open" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                  <svg class="eye-closed" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
+                </button>
               </div>
             </div>
           </div>
@@ -856,7 +965,33 @@ $planStatus = strtoupper($currentSubscription['status'] ?? 'ACTIVE');
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" onclick="app.closeModals()">Cancel</button>
-        <button type="submit" class="btn btn-primary">Create Store &amp; Setup Accounts</button>
+        <button type="submit" class="btn btn-primary">Create Business</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Rename Business Portfolio -->
+<div id="modal-rename-business" class="modal-overlay">
+  <div class="modal-content" style="max-width: 460px;">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Rename Business Portfolio</div>
+        <div style="font-size: 12px; color: #64748B;">The business name is the real name of the company, not the owner&rsquo;s name.</div>
+      </div>
+      <button class="modal-close" onclick="app.closeModals()">&times;</button>
+    </div>
+    <form id="form-rename-business">
+      <input type="hidden" id="rename-business-id">
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="rename-business-name">Business Name *</label>
+          <input type="text" id="rename-business-name" class="form-control" placeholder="e.g. Apex Retail Group" required>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="app.closeModals()">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Name</button>
       </div>
     </form>
   </div>
@@ -937,7 +1072,13 @@ $planStatus = strtoupper($currentSubscription['status'] ?? 'ACTIVE');
         </div>
         <div class="form-group">
           <label class="form-label" for="admin-password">Initial Password</label>
-          <input type="password" id="admin-password" class="form-control" placeholder="Enter secure password" required minlength="4">
+          <div class="password-wrap">
+            <input type="password" id="admin-password" class="form-control" placeholder="Enter secure password" required minlength="4">
+            <button type="button" class="btn-eye" title="Show password" aria-label="Show password" aria-pressed="false" onclick="app.togglePassword('admin-password', this)">
+              <svg class="eye-open" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              <svg class="eye-closed" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
+            </button>
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label" for="admin-role-select">Account Role</label>
@@ -964,41 +1105,34 @@ $planStatus = strtoupper($currentSubscription['status'] ?? 'ACTIVE');
   </div>
 </div>
 
-<!-- Modal: Update User Role & Store Assignment -->
+<!-- Modal: User Role & Store Scope (read-only) -->
 <div id="modal-update-role" class="modal-overlay">
   <div class="modal-content">
     <div class="modal-header">
-      <div class="modal-title">Update User Role &amp; Store Scope</div>
+      <div>
+        <div class="modal-title">User Role &amp; Store Scope</div>
+        <div style="font-size: 12px; color: #64748B;">Roles and branch scope are fixed when the account is created.</div>
+      </div>
       <button class="modal-close" onclick="app.closeModals()">&times;</button>
     </div>
-    <form id="form-update-role">
-      <input type="hidden" id="edit-user-id">
-      <div class="modal-body">
-        <div class="form-group">
-          <label class="form-label">User</label>
-          <div id="edit-user-display" style="font-weight: 600; font-size: 14px; padding: 6px 0;"></div>
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="edit-user-role">System Role</label>
-          <select id="edit-user-role" class="form-select" required>
-            <option value="super_admin">Super Administrator (Platform Owner)</option>
-            <option value="store_admin">Store Administrator (Branch Manager)</option>
-            <option value="staff">Staff (Cashier / POS Terminal)</option>
-          </select>
-        </div>
-        <div class="form-group" id="group-edit-store">
-          <label class="form-label" for="edit-user-store">Assigned Store Branch</label>
-          <select id="edit-user-store" class="form-select">
-            <option value="">None / Not Assigned</option>
-          </select>
-          <div style="font-size: 11px; color: #64748B; margin-top: 4px;">Store Admins and Staff must be assigned to an active branch.</div>
-        </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">User</label>
+        <div id="edit-user-display" style="font-weight: 600; font-size: 14px; padding: 6px 0;"></div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" onclick="app.closeModals()">Cancel</button>
-        <button type="submit" class="btn btn-primary">Save Changes</button>
+      <div class="form-group">
+        <label class="form-label">System Role</label>
+        <div style="padding: 6px 0;"><span id="edit-user-role-text" class="badge badge-slate">&mdash;</span></div>
       </div>
-    </form>
+      <div class="form-group">
+        <label class="form-label">Assigned Store Branch</label>
+        <div id="edit-user-store-text" style="padding: 6px 0; font-weight: 600; font-size: 13px; color: #334155;">&mdash;</div>
+        <div style="font-size: 11px; color: #64748B; margin-top: 4px;">The System Super Admin cannot change a user&rsquo;s role or branch scope from this console. Create the account with the correct role and branch instead.</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" onclick="app.closeModals()">Close</button>
+    </div>
   </div>
 </div>
 

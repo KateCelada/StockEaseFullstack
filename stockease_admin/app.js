@@ -9,10 +9,25 @@ const app = {
   stores: [],
   users: [],
   storeAdmins: [],
+  businesses: [],
   currentPerformanceList: [],
   currentInsightsPeriod: 7,
   currentReportPeriod: 'today',
   currentReportStoreId: null,
+
+  // Audit log pagination
+  auditPage: 1,
+  auditPerPage: 25,
+  auditPagination: null,
+
+  // Business / Branch drill-down pages
+  currentBusinessId: null,
+  currentBusinessData: null,
+  businessPeriod: 'today',
+  currentBranchId: null,
+  currentBranchData: null,
+  branchPeriod: 'today',
+  branchReturnTab: 'dashboard',
 
   // Initialization
   init() {
@@ -42,6 +57,29 @@ const app = {
         }
       });
     });
+
+    // Accordion-style collapsible sidebar groups (mirrors the Android sidebar:
+    // opening a section closes the others; tapping an open one closes it).
+    this.navGroups = Array.from(document.querySelectorAll('.sidebar-nav .nav-group'));
+    this.navGroups.forEach(group => {
+      const header = group.querySelector('.nav-group-header');
+      if (!header) return;
+      header.addEventListener('click', () => {
+        const willOpen = !group.classList.contains('open');
+        this.navGroups.forEach(other => {
+          other.classList.remove('open');
+          const h = other.querySelector('.nav-group-header');
+          if (h) h.setAttribute('aria-expanded', 'false');
+        });
+        if (willOpen) {
+          group.classList.add('open');
+          header.setAttribute('aria-expanded', 'true');
+        }
+      });
+    });
+
+    // Start with the group owning the initial tab expanded.
+    this.expandNavGroupForTab(this.activeTab || 'dashboard');
 
     const refreshBtn = document.getElementById('btn-global-refresh');
     if (refreshBtn) {
@@ -91,9 +129,82 @@ const app = {
     const auditSearch = document.getElementById('input-audit-search');
     const auditAction = document.getElementById('filter-audit-action');
     const auditRefresh = document.getElementById('btn-audit-refresh');
-    if (auditRefresh) auditRefresh.addEventListener('click', () => this.loadAuditLogs());
-    if (auditSearch) auditSearch.addEventListener('keyup', (e) => { if (e.key === 'Enter') this.loadAuditLogs(); });
-    if (auditAction) auditAction.addEventListener('change', () => this.loadAuditLogs());
+    const auditPerPage = document.getElementById('audit-per-page');
+    if (auditRefresh) auditRefresh.addEventListener('click', () => { this.auditPage = 1; this.loadAuditLogs(); });
+    if (auditSearch) auditSearch.addEventListener('keyup', (e) => { if (e.key === 'Enter') { this.auditPage = 1; this.loadAuditLogs(); } });
+    if (auditAction) auditAction.addEventListener('change', () => { this.auditPage = 1; this.loadAuditLogs(); });
+    if (auditPerPage) auditPerPage.addEventListener('change', () => {
+      this.auditPerPage = parseInt(auditPerPage.value, 10) || 25;
+      this.auditPage = 1;
+      this.loadAuditLogs();
+    });
+    const auditExport = document.getElementById('btn-audit-export');
+    if (auditExport) auditExport.addEventListener('click', () => this.exportAuditLogsCsv());
+
+    // Audit pagination controls
+    const bindAuditPage = (id, pageFn) => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('click', () => {
+        const next = pageFn(this.auditPage, this.auditPagination);
+        if (next && next !== this.auditPage) {
+          this.auditPage = next;
+          this.loadAuditLogs();
+        }
+      });
+    };
+    bindAuditPage('audit-first-page', () => 1);
+    bindAuditPage('audit-prev-page', (p) => Math.max(1, p - 1));
+    bindAuditPage('audit-next-page', (p, pg) => Math.min((pg ? pg.total_pages : p) || p, p + 1));
+    bindAuditPage('audit-last-page', (p, pg) => (pg && pg.total_pages ? pg.total_pages : p));
+    const pageNumbers = document.getElementById('audit-page-numbers');
+    if (pageNumbers) {
+      pageNumbers.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-page]');
+        if (!btn) return;
+        const page = parseInt(btn.getAttribute('data-page'), 10);
+        if (page && page !== this.auditPage) {
+          this.auditPage = page;
+          this.loadAuditLogs();
+        }
+      });
+    }
+
+    // Business drill-down page period filters
+    document.querySelectorAll('.btn-business-period').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.btn-business-period').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.businessPeriod = btn.getAttribute('data-bperiod') || 'today';
+        this.loadBusinessDetail();
+      });
+    });
+
+    // Branch drill-down page period filters
+    document.querySelectorAll('.btn-branch-period').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.btn-branch-period').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.branchPeriod = btn.getAttribute('data-brperiod') || 'today';
+        this.loadBranchDetail();
+      });
+    });
+
+    const bizExcel = document.getElementById('btn-export-business-excel');
+    if (bizExcel) bizExcel.addEventListener('click', () => this.exportBusinessProgressExcel());
+    const bizChartExcel = document.getElementById('btn-business-chart-excel');
+    if (bizChartExcel) bizChartExcel.addEventListener('click', () => this.exportChartSeriesToExcel('chart-business-progress', 'stockease_business_progress_' + new Date().toISOString().split('T')[0] + '.csv'));
+    const bizChartPng = document.getElementById('btn-business-chart-png');
+    if (bizChartPng) bizChartPng.addEventListener('click', () => this.downloadChartPng(this.getChartInstance('chart-business-progress'), 'stockease_business_progress_' + new Date().toISOString().split('T')[0] + '.png'));
+
+    const brExcel = document.getElementById('btn-export-branch-excel');
+    if (brExcel) brExcel.addEventListener('click', () => this.exportBranchProgressExcel());
+    const brChartExcel = document.getElementById('btn-branch-chart-excel');
+    if (brChartExcel) brChartExcel.addEventListener('click', () => this.exportChartSeriesToExcel('chart-branch-progress', 'stockease_branch_progress_' + new Date().toISOString().split('T')[0] + '.csv'));
+    const brChartPng = document.getElementById('btn-branch-chart-png');
+    if (brChartPng) brChartPng.addEventListener('click', () => this.downloadChartPng(this.getChartInstance('chart-branch-progress'), 'stockease_branch_progress_' + new Date().toISOString().split('T')[0] + '.png'));
+
+    const branchBack = document.getElementById('btn-branch-detail-back');
+    if (branchBack) branchBack.addEventListener('click', () => this.showTab(this.branchReturnTab || 'dashboard'));
 
     // User Filter
     const userRoleFilter = document.getElementById('filter-user-role');
@@ -106,6 +217,44 @@ const app = {
     if (btnCsv) {
       btnCsv.addEventListener('click', () => this.exportReportsCSV());
     }
+
+    // Generic per-table CSV export buttons (data-export-table="<table id>")
+    document.querySelectorAll('[data-export-table]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tableId = btn.getAttribute('data-export-table');
+        this.exportTableToCsv(tableId, this.csvExportName(tableId.replace(/^table-/, '')));
+      });
+    });
+  },
+
+  // Which sidebar group owns each tab (drives the accordion auto-expand).
+  // business-detail / branch-detail are sub-pages of Businesses.
+  tabToNavGroup(tabId) {
+    const map = {
+      dashboard: 'overview',
+      businesses: 'management',
+      'business-detail': 'management',
+      'branch-detail': 'management',
+      users: 'management',
+      insights: 'analytics',
+      reports: 'analytics',
+      audit: 'analytics',
+      subscription: 'system'
+    };
+    return map[tabId] || null;
+  },
+
+  // Opens the sidebar group that owns tabId (accordion: others close).
+  expandNavGroupForTab(tabId) {
+    const groupName = this.tabToNavGroup(tabId);
+    if (!groupName || !this.navGroups || this.navGroups.length === 0) return;
+
+    this.navGroups.forEach(group => {
+      const open = group.getAttribute('data-group') === groupName;
+      group.classList.toggle('open', open);
+      const header = group.querySelector('.nav-group-header');
+      if (header) header.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
   },
 
   showTab(tabId) {
@@ -115,6 +264,9 @@ const app = {
     document.querySelectorAll('.sidebar-nav .nav-item').forEach(item => {
       item.classList.toggle('active', item.getAttribute('data-tab') === tabId);
     });
+
+    // Keep the owning sidebar group open so the active item stays visible.
+    this.expandNavGroupForTab(tabId);
 
     // Update content sections
     document.querySelectorAll('.content-section').forEach(sec => {
@@ -129,15 +281,16 @@ const app = {
     // Update Page Header Title
     const titles = {
       dashboard: 'Executive Overview',
-      stores: 'Retail Store Branches',
+      businesses: 'Business Portfolio Management',
+      'business-detail': 'Business Progress Report',
+      'branch-detail': 'Branch Progress Report',
       transfers: 'Inter-Store Stock Transfers',
       users: 'User Accounts & Roles',
       admins: 'Branch Store Administrators',
       insights: 'StockEase Smart Inventory Insights',
       reports: 'Branch Sales & Performance Reports',
       audit: 'Security & Operational Audit Logs',
-      subscription: 'Subscription & Freemium Management',
-      settings: 'System Technical Architecture'
+      subscription: 'Subscription & Freemium Management'
     };
     const titleEl = document.getElementById('current-page-title');
     if (titleEl && titles[tabId]) {
@@ -153,8 +306,15 @@ const app = {
       case 'dashboard':
         this.loadDashboardData();
         break;
-      case 'stores':
+      case 'businesses':
+        this.loadBusinesses();
         this.loadStores();
+        break;
+      case 'business-detail':
+        this.loadBusinessDetail();
+        break;
+      case 'branch-detail':
+        this.loadBranchDetail();
         break;
       case 'transfers':
         this.loadTransfers();
@@ -182,25 +342,22 @@ const app = {
 
   // Modal Dialogs
   setupModalEvents() {
-    const btnAddStore = document.getElementById('btn-modal-add-store');
-    if (btnAddStore) {
-      btnAddStore.addEventListener('click', async () => {
-        if (!this.users || this.users.length === 0) {
-          await this.loadUsers();
-        }
-        this.populateOwnerSelect('new-store-owner');
-        this.populateManagerSelect('new-store-manager');
-        const f1 = document.getElementById('new-owner-fields');
-        const f2 = document.getElementById('new-manager-fields');
-        if (f1) f1.style.display = 'none';
-        if (f2) f2.style.display = 'none';
-        this.openModal('modal-add-store');
+    const btnAddBusiness = document.getElementById('btn-modal-add-business');
+    if (btnAddBusiness) {
+      btnAddBusiness.addEventListener('click', async () => {
+        await this.setupBusinessOwnerSelect();
+        this.openModal('modal-add-business');
       });
     }
 
     const btnAddAdmin = document.getElementById('btn-modal-add-admin');
     if (btnAddAdmin) {
-      btnAddAdmin.addEventListener('click', () => {
+      btnAddAdmin.addEventListener('click', async () => {
+        // The branch assignment is required, so make sure the store list is
+        // loaded before populating (populateStoreSelect no-ops when empty).
+        if (!this.stores || this.stores.length === 0) {
+          await this.loadStores();
+        }
         this.populateStoreSelect('admin-store-select');
         this.openModal('modal-add-admin');
       });
@@ -226,58 +383,484 @@ const app = {
     if (btnCompare) {
       btnCompare.addEventListener('click', () => this.openCompareModal());
     }
+  },
 
-    // Role selection change updates store dropdown visibility
-    const roleSelect = document.getElementById('edit-user-role');
-    const storeGroup = document.getElementById('group-edit-store');
-    if (roleSelect && storeGroup) {
-      roleSelect.addEventListener('change', () => {
-        storeGroup.style.display = (roleSelect.value === 'super_admin') ? 'none' : 'block';
-      });
+  // -------------------------------------------------------------
+  // Business Portfolios
+  // -------------------------------------------------------------
+  async loadBusinesses() {
+    const tbody = document.getElementById('tbody-businesses-list');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #64748B; padding: 24px;">Loading businesses...</td></tr>';
+
+    try {
+      const res = await fetch('../stockease_api/manage_businesses.php?action=list', { credentials: 'include' });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+
+      this.businesses = data.businesses || [];
+      if (this.businesses.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #64748B; padding: 20px;">No businesses registered yet. Click "+ Add Business" to create one.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = this.businesses.map(b => `
+        <tr>
+          <td style="font-weight: 600; color: #64748B;">#${b.id}</td>
+          <td style="font-weight: 600;">${this.escape(b.business_name)}</td>
+          <td>
+            ${b.owner_name
+              ? `<span class="badge badge-info" title="Owner ID #${b.owner_id}">👤 ${this.escape(b.owner_name)}</span>`
+              : `<span style="color: #94A3B8; font-size: 12px; font-style: italic;">No owner assigned</span>`}
+          </td>
+          <td style="text-align: center;"><span class="badge badge-slate">${parseInt(b.branch_count, 10) || 0} Branch(es)</span></td>
+          <td style="text-align: right;">
+            <button class="btn btn-outline-secondary btn-sm" onclick="app.openRenameBusiness(${b.id})" title="Rename this business">✎ Rename</button>
+            <button class="btn btn-outline-primary btn-sm" onclick="app.openBusinessDetail(${b.id})">View Progress</button>
+          </td>
+        </tr>
+      `).join('');
+    } catch (err) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #DC2626; padding: 20px;">Error: ${err.message}</td></tr>`;
     }
   },
 
-  populateOwnerSelect(selectId) {
-    const select = document.getElementById(selectId);
+  openRenameBusiness(businessId) {
+    const business = (this.businesses || []).find(b => b.id === businessId);
+    if (!business) return;
+    document.getElementById('rename-business-id').value = business.id;
+    document.getElementById('rename-business-name').value = business.business_name || '';
+    this.openModal('modal-rename-business');
+    const input = document.getElementById('rename-business-name');
+    if (input) { input.focus(); input.select(); }
+  },
+
+  // -------------------------------------------------------------
+  // Dashboard business cards + business / branch drill-down pages
+  // -------------------------------------------------------------
+  async loadBusinessCards() {
+    const container = document.getElementById('container-business-cards');
+    if (!container) return;
+
+    try {
+      const res = await fetch('../stockease_api/manage_businesses.php?action=list', { credentials: 'include' });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message || 'Unable to load businesses');
+
+      const list = data.businesses || [];
+      this.businesses = list;
+
+      if (list.length === 0) {
+        container.innerHTML = '<div style="color: #64748B; font-size: 13px; padding: 16px; grid-column: 1 / -1; text-align: center;">No businesses registered yet. Click "+ Add Business" to create the first one.</div>';
+        return;
+      }
+
+      container.innerHTML = list.map(b => {
+        const branches = parseInt(b.branch_count, 10) || 0;
+        return `
+          <div class="business-name-card" style="background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%); border: 1px solid #CBD5E1; border-left: 4px solid #2563EB; border-radius: 12px; padding: 16px 18px; cursor: pointer; transition: transform .12s ease, box-shadow .12s ease;"
+               onclick="app.openBusinessDetail(${b.id})"
+               title="Click to open this business progress page">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
+              <div style="font-size: 12px; font-weight: 700; color: #2563EB; letter-spacing: .4px; text-transform: uppercase;">Business</div>
+              <span class="badge badge-slate">${branches} Branch(es)</span>
+            </div>
+            <div style="font-size: 17px; font-weight: 800; color: #0F172A; margin-top: 8px; line-height: 1.3;">${this.escape(b.business_name)}</div>
+            <div style="font-size: 12px; color: #64748B; margin-top: 6px;">
+              👤 ${b.owner_name ? this.escape(b.owner_name) : '<em>No owner assigned</em>'}
+            </div>
+            <div style="font-size: 12px; color: #2563EB; font-weight: 600; margin-top: 12px;">View progress &rarr;</div>
+          </div>
+        `;
+      }).join('');
+    } catch (err) {
+      container.innerHTML = `<div style="color: #DC2626; font-size: 13px; padding: 16px; grid-column: 1 / -1; text-align: center;">Error loading businesses: ${this.escape(err.message)}</div>`;
+    }
+  },
+
+  openBusinessDetail(businessId) {
+    this.currentBusinessId = businessId;
+    this.setPeriodButtons('.btn-business-period', 'data-bperiod', 'today');
+    this.businessPeriod = 'today';
+    this.showTab('business-detail');
+  },
+
+  setPeriodButtons(selector, attr, value) {
+    document.querySelectorAll(selector).forEach(b => {
+      b.classList.toggle('active', b.getAttribute(attr) === value);
+    });
+  },
+
+  periodLabel(period) {
+    if (period === 'this_week') return 'This Week';
+    if (period === 'this_month') return 'This Month';
+    if (period === 'custom') return 'Custom Range';
+    return 'Today';
+  },
+
+  async loadBusinessDetail() {
+    if (!this.currentBusinessId) return;
+    const container = document.getElementById('container-business-branches');
+    if (container) container.innerHTML = '<div style="color: #64748B; font-size: 13px; padding: 16px; grid-column: 1 / -1; text-align: center;">Loading branches...</div>';
+
+    try {
+      const url = `../stockease_api/get_business_progress.php?business_id=${this.currentBusinessId}&period=${encodeURIComponent(this.businessPeriod)}`;
+      const res = await fetch(url, { credentials: 'include' });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message || 'Unable to load business progress');
+
+      this.currentBusinessData = data;
+      const bizName = data.business ? data.business.business_name : 'Business #' + this.currentBusinessId;
+      const s = data.summary || {};
+
+      const titleEl = document.getElementById('business-detail-title');
+      if (titleEl) titleEl.textContent = '🏢 ' + bizName;
+      const subEl = document.getElementById('business-detail-subtitle');
+      if (subEl) subEl.textContent = `${this.periodLabel(this.businessPeriod)} progress across every branch of this business.`;
+      const chartSub = document.getElementById('business-chart-subtitle');
+      if (chartSub) chartSub.textContent = `Whole business sales trajectory - ${this.periodLabel(this.businessPeriod)}.`;
+
+      this.setStat('biz-revenue', s.total_sales, true);
+      this.setStat('biz-orders', s.transaction_count, false);
+      this.setStat('biz-avg', s.avg_transaction, true);
+      this.setStat('biz-units', s.products_sold, false);
+
+      const branches = data.branches || [];
+      const countEl = document.getElementById('business-branch-count');
+      if (countEl) countEl.textContent = `${branches.length} Branch(es)`;
+
+      if (container) {
+        if (branches.length === 0) {
+          container.innerHTML = '<div style="color: #64748B; font-size: 13px; padding: 16px; grid-column: 1 / -1; text-align: center;">No branches are linked to this business yet. Branch Managers can add branches in the StockEase app, then the owner assigns them to this business.</div>';
+        } else {
+          container.innerHTML = branches.map(b => `
+            <div style="background: #F8FAFC; border: 1px solid #CBD5E1; border-radius: 10px; padding: 14px; cursor: pointer;"
+                 onclick="app.openBranchDetail(${b.store_id}, 'business-detail')"
+                 title="Click to open this branch progress page">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+                <div>
+                  <div style="font-size: 15px; font-weight: 700; color: #0F172A;">📍 ${this.escape(b.store_name)}</div>
+                  <div style="font-size: 11px; color: #64748B; margin-top: 2px;">${this.escape(b.location || 'Retail Location')}</div>
+                </div>
+                <span class="badge ${String(b.status).toLowerCase() === 'active' ? 'badge-success' : 'badge-danger'}" style="font-size: 10px;">${this.escape(b.status || 'Active')}</span>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 12px; background: #FFFFFF; border: 1px solid #EEF2F6; border-radius: 6px; padding: 8px 10px; font-size: 11px;">
+                <div><span style="color: #64748B;">Sales:</span><strong style="display: block; color: #2563EB;">₱${parseFloat(b.total_sales || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</strong></div>
+                <div><span style="color: #64748B;">Orders:</span><strong style="display: block; color: #0F172A;">${parseInt(b.transaction_count, 10) || 0}</strong></div>
+                <div><span style="color: #64748B;">Share:</span><strong style="display: block; color: #059669;">${parseFloat(b.contribution_pct || 0)}%</strong></div>
+              </div>
+              <div style="font-size: 12px; color: #2563EB; font-weight: 600; margin-top: 10px;">Open branch page &rarr;</div>
+            </div>
+          `).join('');
+        }
+      }
+
+      const chart = data.line_chart || [];
+      this.renderProgressLineChart('chart-business-progress', chart, 'businessProgressChart', 'Business Sales (₱)', '#2563EB', 'rgba(37, 99, 235, 0.10)');
+    } catch (err) {
+      if (container) container.innerHTML = `<div style="color: #DC2626; font-size: 13px; padding: 16px; grid-column: 1 / -1; text-align: center;">Error: ${this.escape(err.message)}</div>`;
+      this.showToast('Unable to load business progress: ' + err.message, 'error');
+    }
+  },
+
+  openBranchDetail(storeId, returnTab) {
+    this.currentBranchId = storeId;
+    this.branchReturnTab = returnTab || this.activeTab || 'dashboard';
+    this.setPeriodButtons('.btn-branch-period', 'data-brperiod', 'today');
+    this.branchPeriod = 'today';
+    this.showTab('branch-detail');
+  },
+
+  async loadBranchDetail() {
+    if (!this.currentBranchId) return;
+    const prodBody = document.getElementById('tbody-branch-top-products');
+    if (prodBody) prodBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #64748B; padding: 20px;">Loading top products...</td></tr>';
+
+    try {
+      const url = `../stockease_api/get_business_progress.php?store_id=${this.currentBranchId}&period=${encodeURIComponent(this.branchPeriod)}`;
+      const res = await fetch(url, { credentials: 'include' });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message || 'Unable to load branch progress');
+
+      this.currentBranchData = data;
+      const store = data.store || {};
+      const branchName = store.store_name || this.getStoreNameById(this.currentBranchId);
+      const s = data.summary || {};
+
+      const backBtn = document.getElementById('btn-branch-detail-back');
+      if (backBtn) backBtn.innerHTML = '&larr; ' + (this.branchReturnTab === 'business-detail' ? 'Back to Business' : 'Back to Overview');
+
+      const titleEl = document.getElementById('branch-detail-title');
+      if (titleEl) titleEl.textContent = '📍 ' + branchName;
+      const subEl = document.getElementById('branch-detail-subtitle');
+      if (subEl) subEl.textContent = [store.location, this.periodLabel(this.branchPeriod)].filter(Boolean).join(' • ');
+      const chartSub = document.getElementById('branch-chart-subtitle');
+      if (chartSub) chartSub.textContent = `Branch sales trajectory - ${this.periodLabel(this.branchPeriod)}.`;
+
+      this.setStat('br-revenue', s.total_sales, true);
+      this.setStat('br-orders', s.transaction_count, false);
+      this.setStat('br-avg', s.avg_transaction, true);
+      this.setStat('br-units', s.products_sold, false);
+
+      // Top selling products
+      const products = data.ranked_products || [];
+      if (prodBody) {
+        if (products.length === 0) {
+          prodBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #64748B; padding: 20px;">No sales recorded in this period.</td></tr>';
+        } else {
+          prodBody.innerHTML = products.slice(0, 20).map((p, idx) => `
+            <tr>
+              <td style="color: #64748B;">#${idx + 1}</td>
+              <td style="font-weight: 600;">${this.escape(p.product_name)}<div style="font-size: 10px; color: #94A3B8;">${this.escape(p.category_name || '')}</div></td>
+              <td style="text-align: right; font-weight: 700;">${parseInt(p.total_sold_qty, 10) || 0}</td>
+              <td style="text-align: right; color: #059669; font-weight: 700;">₱${parseFloat(p.total_revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+            </tr>
+          `).join('');
+        }
+      }
+
+      // Reset the accounts card to its collapsed state for the new branch
+      const accountsBox = document.getElementById('container-branch-accounts');
+      if (accountsBox) {
+        accountsBox.style.display = 'none';
+        accountsBox.dataset.loaded = '1';
+        accountsBox.innerHTML = '<div style="color: #64748B; font-size: 13px;">Loading accounts...</div>';
+      }
+      const toggle = document.getElementById('branch-accounts-toggle');
+      if (toggle) toggle.textContent = 'Show Accounts';
+      this.loadBranchAccounts();
+
+      const chart = data.line_chart || [];
+      this.renderProgressLineChart('chart-branch-progress', chart, 'branchProgressChart', 'Branch Sales (₱)', '#059669', 'rgba(5, 150, 105, 0.10)');
+    } catch (err) {
+      this.showToast('Unable to load branch progress: ' + err.message, 'error');
+    }
+  },
+
+  async loadBranchAccounts() {
+    const box = document.getElementById('container-branch-accounts');
+    if (!box || !this.currentBranchId) return;
+
+    try {
+      const res = await fetch('../stockease_api/get_users.php', { credentials: 'include' });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message || 'Unable to load accounts');
+
+      const accounts = (data.users || []).filter(u =>
+        u.role !== 'super_admin' && parseInt(u.store_id, 10) === parseInt(this.currentBranchId, 10)
+      );
+
+      if (accounts.length === 0) {
+        box.innerHTML = '<div style="color: #64748B; font-size: 13px; padding: 12px 0;">No accounts are currently assigned to this branch.</div>';
+        return;
+      }
+
+      box.innerHTML = `
+        <div style="font-size: 12px; color: #64748B; margin-bottom: 10px;">${accounts.length} account(s) assigned to this branch.</div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px;">
+          ${accounts.map(u => `
+            <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 12px; display: flex; gap: 10px; align-items: center;">
+              <div style="width: 36px; height: 36px; border-radius: 50%; background: #2563EB; color: #FFF; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0;">
+                ${this.escape((u.full_name || 'U').substring(0, 2).toUpperCase())}
+              </div>
+              <div style="min-width: 0;">
+                <div style="font-size: 13px; font-weight: 700; color: #0F172A;">${this.escape(u.full_name || '—')}</div>
+                <div style="font-size: 11px; color: #64748B;">@${this.escape(u.username)}${u.email ? ' • ' + this.escape(u.email) : ''}</div>
+                <div style="margin-top: 6px; display: flex; gap: 6px; align-items: center;">
+                  <span class="badge ${this.roleBadgeClass(u.role)}" style="font-size: 10px;">${this.escape(this.roleLabel(u.role))}</span>
+                  <span class="badge ${u.is_active ? 'badge-success' : 'badge-danger'}" style="font-size: 10px;">${u.is_active ? 'Active' : 'Inactive'}</span>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    } catch (err) {
+      box.innerHTML = `<div style="color: #DC2626; font-size: 13px; padding: 12px 0;">Error: ${this.escape(err.message)}</div>`;
+    }
+  },
+
+  toggleBranchAccounts() {
+    const box = document.getElementById('container-branch-accounts');
+    if (!box) return;
+    const opening = box.style.display === 'none' || !box.style.display;
+    box.style.display = opening ? 'block' : 'none';
+    const toggle = document.getElementById('branch-accounts-toggle');
+    if (toggle) toggle.textContent = opening ? 'Hide Accounts' : 'Show Accounts';
+    if (opening && !box.dataset.loaded) {
+      box.dataset.loaded = '1';
+      this.loadBranchAccounts();
+    }
+  },
+
+  setStat(id, value, asCurrency) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const num = parseFloat(value || 0);
+    el.textContent = asCurrency
+      ? '₱' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+      : num.toLocaleString('en-US');
+  },
+
+  renderProgressLineChart(canvasId, series, chartKey, datasetLabel, borderColor, fillColor) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas || typeof Chart === 'undefined') return;
+
+    const labels = (series || []).map(p => p.label || p.date || '');
+    const values = (series || []).map(p => parseFloat(p.sales || 0));
+
+    if (this[chartKey]) {
+      this[chartKey].destroy();
+      this[chartKey] = null;
+    }
+
+    if (labels.length === 0) {
+      labels.push('No data');
+      values.push(0);
+    }
+
+    this[chartKey] = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: datasetLabel,
+          data: values,
+          borderColor: borderColor,
+          backgroundColor: fillColor,
+          fill: true,
+          tension: 0.35,
+          borderWidth: 2,
+          pointRadius: 3,
+          pointBackgroundColor: borderColor
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: '#F1F5F9' }, ticks: { font: { size: 10 }, callback: v => '₱' + v.toLocaleString() } },
+          x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+        }
+      }
+    });
+  },
+
+  exportChartSeriesToExcel(canvasId, filename) {
+    const chart = this.getChartInstance(canvasId);
+    if (!chart) {
+      this.showToast('Chart is not ready for export yet', 'error');
+      return;
+    }
+    const labels = chart.data.labels || [];
+    const values = (chart.data.datasets && chart.data.datasets[0] ? chart.data.datasets[0].data : []) || [];
+    const label = (chart.data.datasets && chart.data.datasets[0] ? chart.data.datasets[0].label : 'Value') || 'Value';
+
+    let csv = 'Period,' + label + '\r\n';
+    labels.forEach((l, i) => {
+      csv += `"${String(l).replace(/"/g, '""')}",${values[i]}\r\n`;
+    });
+    this.downloadTextCsv(csv, filename);
+  },
+
+  exportBusinessProgressExcel() {
+    const d = this.currentBusinessData;
+    if (!d) {
+      this.showToast('No business data to export yet', 'error');
+      return;
+    }
+    const s = d.summary || {};
+    const period = this.periodLabel(this.businessPeriod);
+
+    let csv = 'StockEase Business Progress Report\r\n';
+    csv += `Business,"${d.business ? d.business.business_name : ''}"\r\n`;
+    csv += `Period,"${period}"\r\n\r\n`;
+    csv += 'Summary\r\nMetric,Value\r\n';
+    csv += `Revenue,${s.total_sales || 0}\r\n`;
+    csv += `Orders,${s.transaction_count || 0}\r\n`;
+    csv += `Average Order,${s.avg_transaction || 0}\r\n`;
+    csv += `Units Sold,${s.products_sold || 0}\r\n\r\n`;
+    csv += 'Progress Line Chart\r\nPeriod,Sales,Transactions\r\n';
+    (d.line_chart || []).forEach(p => {
+      csv += `"${p.label || p.date || ''}",${parseFloat(p.sales || 0)},${parseInt(p.tx_count, 10) || 0}\r\n`;
+    });
+    csv += '\r\nBranches\r\nBranch,Location,Status,Sales,Orders,Contribution %\r\n';
+    (d.branches || []).forEach(b => {
+      csv += `"${String(b.store_name || '').replace(/"/g, '""')}","${String(b.location || '').replace(/"/g, '""')}",${b.status || ''},${parseFloat(b.total_sales || 0)},${parseInt(b.transaction_count, 10) || 0},${parseFloat(b.contribution_pct || 0)}\r\n`;
+    });
+
+    this.downloadTextCsv(csv, 'stockease_business_progress_' + new Date().toISOString().split('T')[0] + '.csv');
+  },
+
+  exportBranchProgressExcel() {
+    const d = this.currentBranchData;
+    if (!d) {
+      this.showToast('No branch data to export yet', 'error');
+      return;
+    }
+    const s = d.summary || {};
+    const store = d.store || {};
+
+    let csv = 'StockEase Branch Progress Report\r\n';
+    csv += `Branch,"${store.store_name || ''}"\r\n`;
+    csv += `Location,"${store.location || ''}"\r\n`;
+    csv += `Period,"${this.periodLabel(this.branchPeriod)}"\r\n\r\n`;
+    csv += 'Summary\r\nMetric,Value\r\n';
+    csv += `Revenue,${s.total_sales || 0}\r\n`;
+    csv += `Orders,${s.transaction_count || 0}\r\n`;
+    csv += `Average Order,${s.avg_transaction || 0}\r\n`;
+    csv += `Units Sold,${s.products_sold || 0}\r\n\r\n`;
+    csv += 'Progress Line Chart\r\nPeriod,Sales,Transactions\r\n';
+    (d.line_chart || []).forEach(p => {
+      csv += `"${p.label || p.date || ''}",${parseFloat(p.sales || 0)},${parseInt(p.tx_count, 10) || 0}\r\n`;
+    });
+    csv += '\r\nTop Selling Products\r\nProduct,Category,Units Sold,Revenue,Net Profit\r\n';
+    (d.ranked_products || []).forEach(p => {
+      csv += `"${String(p.product_name || '').replace(/"/g, '""')}","${String(p.category_name || '').replace(/"/g, '""')}",${parseInt(p.total_sold_qty, 10) || 0},${parseFloat(p.total_revenue || 0)},${parseFloat(p.total_net_profit || 0)}\r\n`;
+    });
+
+    this.downloadTextCsv(csv, 'stockease_branch_progress_' + new Date().toISOString().split('T')[0] + '.csv');
+  },
+
+  downloadTextCsv(csv, filename) {
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    this.showToast('Excel-ready CSV exported: ' + filename, 'success');
+  },
+
+  async setupBusinessOwnerSelect() {
+    const select = document.getElementById('business-owner-select');
     if (!select) return;
     const currentVal = select.value;
-    select.innerHTML = `
-      <option value="">-- Select Existing Store Owner --</option>
-      <option value="__new__">+ Create New Store Owner Account</option>
-    `;
-    if (this.users && this.users.length > 0) {
-      this.users.forEach(u => {
-        select.innerHTML += `<option value="${u.id}">${this.escape(u.full_name)} (@${this.escape(u.username)}) [${u.role}]</option>`;
-      });
-    }
+    let owners = [];
+
+    try {
+      const res = await fetch('../stockease_api/get_store_owners.php', { credentials: 'include' });
+      const data = await res.json();
+      if (data.success && Array.isArray(data.owners)) owners = data.owners;
+    } catch (e) { /* leave empty list */ }
+
+    select.innerHTML = '<option value="">-- No Owner (Assign Later) --</option>' +
+      '<option value="__new__">+ Create New Store Owner Account</option>' +
+      owners
+        .filter(o => o.owner_id)
+        .map(o => `<option value="${o.owner_id}">${this.escape(o.owner_name)} (ID #${o.owner_id})</option>`)
+        .join('');
     if (currentVal) select.value = currentVal;
+    this.toggleNewBusinessOwnerFields();
   },
 
-  populateManagerSelect(selectId) {
-    const select = document.getElementById(selectId);
-    if (!select) return;
-    const currentVal = select.value;
-    select.innerHTML = `
-      <option value="">-- No Separate Manager (Same as Owner) --</option>
-      <option value="__new__">+ Create New Store Manager Account</option>
-    `;
-    if (this.users && this.users.length > 0) {
-      this.users.forEach(u => {
-        select.innerHTML += `<option value="${u.id}">${this.escape(u.full_name)} (@${this.escape(u.username)}) [${u.role}]</option>`;
-      });
-    }
-    if (currentVal) select.value = currentVal;
-  },
-
-  toggleNewOwnerFields() {
-    const sel = document.getElementById('new-store-owner');
-    const f = document.getElementById('new-owner-fields');
-    if (f) f.style.display = (sel && sel.value === '__new__') ? 'block' : 'none';
-  },
-
-  toggleNewManagerFields() {
-    const sel = document.getElementById('new-store-manager');
-    const f = document.getElementById('new-manager-fields');
+  toggleNewBusinessOwnerFields() {
+    const sel = document.getElementById('business-owner-select');
+    const f = document.getElementById('new-business-owner-fields');
     if (f) f.style.display = (sel && sel.value === '__new__') ? 'block' : 'none';
   },
 
@@ -308,43 +891,26 @@ const app = {
 
   // Form Submissions
   setupFormSubmissions() {
-    // Add Store Form
-    const formAddStore = document.getElementById('form-add-store');
-    if (formAddStore) {
-      formAddStore.addEventListener('submit', async (e) => {
+    // Add Business Form
+    const formAddBusiness = document.getElementById('form-add-business');
+    if (formAddBusiness) {
+      formAddBusiness.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const storeName = document.getElementById('new-store-name').value.trim();
-        const location = document.getElementById('new-store-location').value.trim();
-        const description = document.getElementById('new-store-description')?.value.trim() || '';
-        const ownerSelect = document.getElementById('new-store-owner')?.value || '';
-        const managerSelect = document.getElementById('new-store-manager')?.value || '';
+        const businessName = document.getElementById('new-business-name').value.trim();
+        const ownerId = document.getElementById('business-owner-select')?.value || '';
 
-        const payload = {
-          store_name: storeName,
-          location: location,
-          description: description
-        };
-
-        if (ownerSelect === '__new__') {
-          payload.new_owner_name = document.getElementById('new-owner-fullname')?.value.trim();
-          payload.new_owner_username = document.getElementById('new-owner-username')?.value.trim();
-          payload.new_owner_email = document.getElementById('new-owner-email')?.value.trim();
-          payload.new_owner_password = document.getElementById('new-owner-password')?.value.trim();
-        } else if (ownerSelect) {
-          payload.owner_id = parseInt(ownerSelect, 10);
-        }
-
-        if (managerSelect === '__new__') {
-          payload.new_manager_name = document.getElementById('new-manager-fullname')?.value.trim();
-          payload.new_manager_username = document.getElementById('new-manager-username')?.value.trim();
-          payload.new_manager_email = document.getElementById('new-manager-email')?.value.trim();
-          payload.new_manager_password = document.getElementById('new-manager-password')?.value.trim();
-        } else if (managerSelect) {
-          payload.manager_id = parseInt(managerSelect, 10);
+        const payload = { business_name: businessName };
+        if (ownerId === '__new__') {
+          payload.new_owner_name = document.getElementById('new-business-owner-fullname')?.value.trim();
+          payload.new_owner_username = document.getElementById('new-business-owner-username')?.value.trim();
+          payload.new_owner_email = document.getElementById('new-business-owner-email')?.value.trim();
+          payload.new_owner_password = document.getElementById('new-business-owner-password')?.value.trim();
+        } else if (ownerId) {
+          payload.owner_id = parseInt(ownerId, 10);
         }
 
         try {
-          const res = await fetch('../stockease_api/manage_stores.php?action=add', {
+          const res = await fetch('../stockease_api/manage_businesses.php?action=add', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -352,21 +918,49 @@ const app = {
           });
           const data = await res.json();
           if (data.success) {
-            this.showToast('Store created successfully!', 'success');
+            this.showToast(data.message || 'Business registered successfully!', 'success');
             this.closeModals();
-            formAddStore.reset();
-            const f1 = document.getElementById('new-owner-fields');
-            const f2 = document.getElementById('new-manager-fields');
-            if (f1) f1.style.display = 'none';
-            if (f2) f2.style.display = 'none';
-            this.loadStores();
-            this.loadDashboardData();
-            this.loadStoreOwnersCards();
+            formAddBusiness.reset();
+            const ownerFields = document.getElementById('new-business-owner-fields');
+            if (ownerFields) ownerFields.style.display = 'none';
+            this.loadBusinesses();
+            this.loadBusinessCards();
           } else {
-            this.showToast(data.message || 'Failed to create store', 'error');
+            this.showToast(data.message || 'Failed to register business', 'error');
           }
         } catch (err) {
-          this.showToast('Network error creating store', 'error');
+          this.showToast('Network error registering business', 'error');
+        }
+      });
+    }
+
+    // Rename Business Form
+    const formRenameBusiness = document.getElementById('form-rename-business');
+    if (formRenameBusiness) {
+      formRenameBusiness.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const businessId = parseInt(document.getElementById('rename-business-id').value, 10);
+        const businessName = document.getElementById('rename-business-name').value.trim();
+        if (!businessId || !businessName) return;
+
+        try {
+          const res = await fetch('../stockease_api/manage_businesses.php?action=update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ business_id: businessId, business_name: businessName })
+          });
+          const data = await res.json();
+          if (data.success) {
+            this.showToast(data.message || 'Business name updated!', 'success');
+            this.closeModals();
+            this.loadBusinesses();
+            this.loadBusinessCards();
+          } else {
+            this.showToast(data.message || 'Failed to rename business', 'error');
+          }
+        } catch (err) {
+          this.showToast('Network error renaming business', 'error');
         }
       });
     }
@@ -391,7 +985,6 @@ const app = {
           if (data.success) {
             this.showToast('Store description updated!', 'success');
             this.closeModals();
-            this.loadStoreOwnersCards();
             this.loadStores();
           } else {
             this.showToast(data.message || 'Failed to update description', 'error');
@@ -432,36 +1025,6 @@ const app = {
           }
         } catch (err) {
           this.showToast('Network error creating store admin', 'error');
-        }
-      });
-    }
-
-    // Update Role Form
-    const formUpdateRole = document.getElementById('form-update-role');
-    if (formUpdateRole) {
-      formUpdateRole.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const userId = parseInt(document.getElementById('edit-user-id').value, 10);
-        const role = document.getElementById('edit-user-role').value;
-        const storeId = document.getElementById('edit-user-store').value;
-
-        try {
-          const res = await fetch('../stockease_api/update_role.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({ user_id: userId, role, store_id: storeId ? parseInt(storeId, 10) : null })
-          });
-          const data = await res.json();
-          if (data.success) {
-            this.showToast('User role updated successfully!', 'success');
-            this.closeModals();
-            this.loadUsers();
-          } else {
-            this.showToast(data.message || 'Failed to update user role', 'error');
-          }
-        } catch (err) {
-          this.showToast('Network error updating user role', 'error');
         }
       });
     }
@@ -556,13 +1119,6 @@ const app = {
         this.currentSubscription = data.subscription;
         const sub = data.subscription;
         const isPrem = !!sub.is_premium;
-
-        // Update header badge
-        const badge = document.getElementById('live-plan-badge');
-        if (badge) {
-          badge.textContent = (sub.display_plan || 'StockEase Free') + ' (' + (sub.status || 'ACTIVE').toUpperCase() + ')';
-          badge.className = 'header-pill plan-pill' + (isPrem ? '' : ' badge-slate');
-        }
 
         // Update subscription tab elements
         const subBadge = document.getElementById('sub-active-badge');
@@ -799,369 +1355,31 @@ const app = {
       if (tbody) {
         if (perfList.length === 0) {
           tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #64748B; padding: 20px;">No store branches registered.</td></tr>';
-          return;
+        } else {
+          tbody.innerHTML = perfList.map(item => `
+            <tr>
+              <td style="font-weight: 600;">${this.escape(item.name)}</td>
+              <td style="color: #64748B;">${this.escape(item.location)}</td>
+              <td style="text-align: right; font-weight: 700;">₱${item.sales.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+              <td style="text-align: right; color: #64748B;">${item.orders}</td>
+              <td style="text-align: right; color: #64748B;">${item.staffCount}</td>
+              <td style="text-align: center;">
+                <span class="badge ${item.status.toLowerCase() === 'active' ? 'badge-success' : 'badge-danger'}">${this.escape(item.status)}</span>
+              </td>
+              <td style="text-align: center;">
+                <button class="btn btn-outline-primary btn-sm" onclick="app.viewStoreReports(${item.id})">Branch Report</button>
+              </td>
+            </tr>
+          `).join('');
         }
-
-        tbody.innerHTML = perfList.map(item => `
-          <tr>
-            <td style="font-weight: 600;">${this.escape(item.name)}</td>
-            <td style="color: #64748B;">${this.escape(item.location)}</td>
-            <td style="text-align: right; font-weight: 700;">₱${item.sales.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-            <td style="text-align: right; color: #64748B;">${item.orders}</td>
-            <td style="text-align: right; color: #64748B;">${item.staffCount}</td>
-            <td style="text-align: center;">
-              <span class="badge ${item.status.toLowerCase() === 'active' ? 'badge-success' : 'badge-danger'}">${this.escape(item.status)}</span>
-            </td>
-            <td style="text-align: center;">
-              <button class="btn btn-outline-primary btn-sm" onclick="app.viewStoreReports(${item.id})">Branch Report</button>
-            </td>
-          </tr>
-        `).join('');
       }
 
-      // Load Owner Cards
-      this.loadStoreOwnersCards();
+      // Load business cards
+      this.loadBusinessCards();
 
     } catch (err) {
       console.error(err);
       if (tbody) tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #DC2626; padding: 20px;">Error loading store metrics: ${err.message}</td></tr>`;
-    }
-  },
-
-  async loadStoreOwnersCards() {
-    const container = document.getElementById('container-store-owners-cards');
-    if (!container) return;
-    try {
-      const res = await fetch('../stockease_api/get_store_owners.php', { credentials: 'include' });
-      const data = await res.json();
-      if (!data.success || !Array.isArray(data.owners) || data.owners.length === 0) {
-        container.innerHTML = '<div style="color: #64748B; font-size: 13px; padding: 16px; grid-column: 1 / -1; text-align: center;">No stores found. Click "+ Add New Store" to register a store with owner and manager.</div>';
-        return;
-      }
-
-      this.cachedPortfolios = data.owners;
-
-      container.innerHTML = data.owners.map((owner, idx) => {
-        const primaryStoreId = owner.primary_store_id || (owner.branches && owner.branches[0] ? owner.branches[0].id : 0);
-        
-        // Build contribution rows
-        const contribRows = (owner.branches || []).map(b => `
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #E2E8F0; font-size: 12px;">
-            <div style="font-weight: 600; color: #0F172A;">${this.escape(b.store_name)}</div>
-            <div style="text-align: right;">
-              <span style="font-weight: 700; color: #2563EB;">${b.contribution_pct}%</span>
-              <span style="color: #64748B; font-size: 11px; margin-left: 6px;">(₱${(b.total_sales || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})</span>
-            </div>
-          </div>
-        `).join('');
-
-        // Build designated branch cards
-        const branchCardsHtml = (owner.branches || []).map(b => {
-          // Top products list
-          const topProdRows = (b.top_products || []).map(tp => `
-            <tr>
-              <td style="font-weight: 600;">${this.escape(tp.product_name)}</td>
-              <td><span class="badge badge-info">${this.escape(tp.category_name)}</span></td>
-              <td style="text-align: right; font-weight: 700;">${tp.quantity_sold}</td>
-              <td style="text-align: right; color: #059669; font-weight: 700;">₱${(tp.gross_earnings || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-              <td style="text-align: right; color: #2563EB; font-weight: 700;">₱${(tp.net_profit || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
-              <td style="text-align: center;"><span class="badge ${tp.stock_on_hand <= 5 ? 'badge-danger' : 'badge-slate'}">${tp.stock_on_hand}</span></td>
-            </tr>
-          `).join('');
-
-          // Branch users
-          const branchUserPills = (b.branch_users || []).map(u => `
-            <div class="user-pill-card" style="background: #FFFFFF; border: 1px solid #CBD5E1; border-radius: 8px; padding: 8px 12px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; margin-top: 6px;"
-                 onclick='app.showUserDetail(${JSON.stringify(u).replace(/'/g, "&#39;")})'
-                 title="Click to view full user information">
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <div style="width: 28px; height: 28px; border-radius: 50%; background: #2563EB; color: #FFF; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700;">
-                  ${this.escape((u.full_name || 'U').substring(0, 2).toUpperCase())}
-                </div>
-                <div>
-                  <div style="font-size: 12px; font-weight: 700; color: #0F172A;">${this.escape(u.full_name)}</div>
-                  <div style="font-size: 10px; color: #64748B;">@${this.escape(u.username)}</div>
-                </div>
-              </div>
-              <span class="badge ${u.role === 'store_admin' ? 'badge-primary' : (u.role === 'manager' ? 'badge-info' : 'badge-success')}" style="font-size: 10px;">${this.escape(u.role_display || u.role)}</span>
-            </div>
-          `).join('');
-
-          return `
-            <div style="background: #F8FAFC; border: 1px solid #CBD5E1; border-radius: 10px; padding: 12px; margin-top: 10px;">
-              <!-- Branch header (clickable) -->
-              <div style="display: flex; justify-content: space-between; align-items: flex-start; cursor: pointer;"
-                   onclick="app.toggleBranchDetail(${b.id})"
-                   title="Click to expand real-time branch progress">
-                <div>
-                  <div style="font-size: 14px; font-weight: 700; color: #0F172A;">📍 ${this.escape(b.store_name)}</div>
-                  <div style="font-size: 11px; color: #64748B; margin-top: 2px;">${this.escape(b.location || 'Retail Location')}</div>
-                </div>
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <span class="badge ${b.status === 'Active' ? 'badge-success' : 'badge-danger'}" style="font-size: 10px;">${this.escape(b.status)}</span>
-                  <span style="font-size: 11px; color: #2563EB; font-weight: 600;">▼ Details</span>
-                </div>
-              </div>
-
-              <!-- Quick stats row -->
-              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; font-size: 11px; background: #FFFFFF; padding: 6px 10px; border-radius: 6px; border: 1px solid #EEF2F6;">
-                <div>
-                  <span style="color: #64748B;">Today:</span>
-                  <strong style="color: #059669; display: block;">₱${(b.today_sales || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</strong>
-                </div>
-                <div>
-                  <span style="color: #64748B;">Total Sales:</span>
-                  <strong style="color: #2563EB; display: block;">₱${(b.total_sales || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</strong>
-                </div>
-                <div>
-                  <span style="color: #64748B;">Products:</span>
-                  <strong style="color: #0F172A; display: block;">${b.total_products || 0} items</strong>
-                </div>
-              </div>
-
-              <!-- Collapsible Branch Detail Panel -->
-              <div id="branch-detail-${b.id}" style="display: none; margin-top: 12px; padding-top: 12px; border-top: 1px dashed #CBD5E1;">
-                <!-- Real-time Progress Line Chart -->
-                <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px; margin-bottom: 12px; cursor: pointer;"
-                     onclick="app.toggleBranchProducts(${b.id})"
-                     title="Click line chart to show top purchased products">
-                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <div style="font-size: 11px; font-weight: 700; color: #475569;">📈 Real-time Branch Sales Trajectory</div>
-                    <span style="font-size: 10px; color: #2563EB;">(Click chart for top products)</span>
-                  </div>
-                  <div style="height: 100px; position: relative;">
-                    <canvas id="chart-branch-${b.id}"></canvas>
-                  </div>
-                </div>
-
-                <!-- Top Purchased Products (Collapsible or Revealed) -->
-                <div id="branch-prods-${b.id}" style="margin-bottom: 12px;">
-                  <div style="font-size: 11px; font-weight: 700; color: #334155; margin-bottom: 6px;">🏆 Top Purchased Products &amp; Profitability:</div>
-                  ${topProdRows ? `
-                    <div class="table-responsive" style="max-height: 180px; overflow-y: auto; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 6px;">
-                      <table style="font-size: 11px; margin: 0;">
-                        <thead>
-                          <tr>
-                            <th>Product</th>
-                            <th>Category</th>
-                            <th style="text-align: right;">Sold</th>
-                            <th style="text-align: right;">Gross Earned</th>
-                            <th style="text-align: right;">Net Profit</th>
-                            <th style="text-align: center;">On-Hand</th>
-                          </tr>
-                        </thead>
-                        <tbody>${topProdRows}</tbody>
-                      </table>
-                    </div>
-                  ` : '<div style="font-size: 11px; color: #94A3B8; padding: 6px;">No purchase transactions recorded yet.</div>'}
-                </div>
-
-                <!-- Branch Users & Roles Card -->
-                <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 8px; padding: 10px;">
-                  <div style="font-size: 11px; font-weight: 700; color: #334155; margin-bottom: 4px;">👥 Assigned Branch Users &amp; Roles:</div>
-                  <div style="font-size: 10px; color: #64748B; margin-bottom: 6px;">Click any user to view full profile, roles, and duty status.</div>
-                  ${branchUserPills || '<div style="font-size: 11px; color: #94A3B8;">No staff assigned to this branch.</div>'}
-                </div>
-              </div>
-            </div>
-          `;
-        }).join('');
-
-        return `
-          <div style="background: #FFFFFF; border: 1px solid #CBD5E1; border-radius: 14px; padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
-              <!-- Top Part: Big Store Name & Store Owner -->
-              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
-                <div>
-                  <h3 style="margin: 0; font-size: 20px; font-weight: 800; color: #0F172A; letter-spacing: -0.3px;">
-                    ${this.escape(owner.store_name || owner.owner_name + ' Store Group')}
-                  </h3>
-                  <div style="font-size: 13px; color: #64748B; margin-top: 4px; font-weight: 500;">
-                    👤 Store Owner: <strong style="color: #1E293B;">${this.escape(owner.owner_name)}</strong>
-                    ${owner.manager_name ? `<span style="margin-left: 8px; color: #059669;">• Manager: <strong>${this.escape(owner.manager_name)}</strong></span>` : ''}
-                  </div>
-                </div>
-
-                <!-- Option Button for Store Description -->
-                <div>
-                  <button class="btn btn-secondary btn-sm" 
-                          onclick="app.openEditDescription(${primaryStoreId}, '${this.escape(owner.store_name)}', '${this.escape(owner.description || '')}')"
-                          title="Click to view or edit store description"
-                          style="font-size: 11px; padding: 4px 8px;">
-                    ⚙️ Store Description
-                  </button>
-                </div>
-              </div>
-
-              <!-- Store Description Display -->
-              ${owner.description ? `
-                <div style="background: #F8FAFC; border-left: 3px solid #2563EB; padding: 6px 12px; font-size: 12px; color: #334155; margin-bottom: 12px; border-radius: 0 6px 6px 0;">
-                  "${this.escape(owner.description)}"
-                </div>
-              ` : `
-                <div style="font-size: 11px; color: #94A3B8; font-style: italic; margin-bottom: 12px;">
-                  No store description added yet. Click "⚙️ Store Description" to add.
-                </div>
-              `}
-
-              <!-- Aggregate Business Metrics -->
-              <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; background: #F1F5F9; padding: 12px; border-radius: 10px; margin-bottom: 14px;">
-                <div>
-                  <span style="font-size: 11px; color: #475569;">Overall Business Revenue</span>
-                  <div style="font-size: 18px; font-weight: 800; color: #0F172A;">₱${(owner.overall_sales || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                </div>
-                <div>
-                  <span style="font-size: 11px; color: #475569;">Today's Progress</span>
-                  <div style="font-size: 18px; font-weight: 800; color: #059669;">₱${(owner.overall_today_sales || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                </div>
-                <div>
-                  <span style="font-size: 11px; color: #475569;">Active Store Branches</span>
-                  <div style="font-size: 14px; font-weight: 700; color: #2563EB;">${(owner.branches || []).length} Branches</div>
-                </div>
-                <div>
-                  <span style="font-size: 11px; color: #475569;">Total Transactions</span>
-                  <div style="font-size: 14px; font-weight: 700; color: #0F172A;">${owner.overall_transactions || 0} orders</div>
-                </div>
-              </div>
-
-              <!-- Combined Business Progress Line Chart -->
-              <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 10px; padding: 12px; margin-bottom: 10px; cursor: pointer;"
-                   onclick="app.toggleBranchContribution('${idx}')"
-                   title="Click line chart to see percentage contribution of each branch">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                  <strong style="font-size: 12px; color: #0F172A;">📈 Combined Business Progress Line Chart</strong>
-                  <span style="font-size: 11px; color: #2563EB; font-weight: 600;">(Click chart for contribution %)</span>
-                </div>
-                <div style="height: 120px; position: relative;">
-                  <canvas id="chart-portfolio-${idx}"></canvas>
-                </div>
-              </div>
-
-              <!-- Branch Contribution Percentage Breakdown (Revealed on click) -->
-              <div id="contrib-panel-${idx}" style="display: none; background: #F8FAFC; border: 1px solid #CBD5E1; border-radius: 8px; padding: 10px; margin-bottom: 12px;">
-                <div style="font-size: 11px; font-weight: 700; color: #334155; margin-bottom: 4px;">Branch Sales Contribution Breakdown:</div>
-                ${contribRows || '<div style="font-size: 11px; color: #94A3B8;">No branch sales data available yet.</div>'}
-              </div>
-
-              <!-- Designated Branch Cards Container -->
-              <div style="margin-top: 14px;">
-                <div style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Designated Branch Stores:</div>
-                <div style="max-height: 380px; overflow-y: auto;">
-                  ${branchCardsHtml || '<div style="font-size: 12px; color: #94A3B8; padding: 8px;">No branches assigned yet.</div>'}
-                </div>
-              </div>
-            </div>
-
-            <div style="margin-top: 16px; padding-top: 10px; border-top: 1px solid #E2E8F0; display: flex; justify-content: space-between; align-items: center;">
-              <span style="font-size: 11px; color: #64748B;">✉ ${this.escape(owner.owner_email || 'No email')}</span>
-              <button class="btn btn-outline-primary btn-sm" onclick="app.showTab('stores')" style="font-size: 11px;">Manage Stores &rarr;</button>
-            </div>
-          </div>
-        `;
-      }).join('');
-
-      // Initialize all portfolio line charts
-      setTimeout(() => {
-        data.owners.forEach((owner, idx) => {
-          this.initPortfolioChart(`chart-portfolio-${idx}`, owner.sales_progress || []);
-          (owner.branches || []).forEach(b => {
-            this.initBranchChart(`chart-branch-${b.id}`, b.sales_progress || []);
-          });
-        });
-      }, 50);
-
-    } catch (e) {
-      console.error(e);
-      container.innerHTML = '<div style="color: #DC2626; font-size: 13px; padding: 16px; grid-column: 1 / -1; text-align: center;">Error loading store portfolio cards.</div>';
-    }
-  },
-
-  initPortfolioChart(canvasId, trendData) {
-    const canvas = document.getElementById(canvasId);
-    if (!canvas || !window.Chart) return;
-    const labels = trendData.map(d => d.label || d.date);
-    const sales = trendData.map(d => d.sales || 0);
-
-    new Chart(canvas, {
-      type: 'line',
-      data: {
-        labels: labels.length ? labels : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-        datasets: [{
-          label: 'Sales (₱)',
-          data: sales.length ? sales : [0, 0, 0, 0, 0, 0, 0],
-          borderColor: '#2563EB',
-          backgroundColor: 'rgba(37, 99, 235, 0.1)',
-          fill: true,
-          tension: 0.35,
-          borderWidth: 2,
-          pointRadius: 3,
-          pointBackgroundColor: '#2563EB'
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          y: { beginAtZero: true, grid: { color: '#F1F5F9' }, ticks: { font: { size: 10 } } },
-          x: { grid: { display: false }, ticks: { font: { size: 10 } } }
-        }
-      }
-    });
-  },
-
-  initBranchChart(canvasId, trendData) {
-    const canvas = document.getElementById(canvasId);
-    if (!canvas || !window.Chart) return;
-    const labels = trendData.map(d => d.label || d.date);
-    const sales = trendData.map(d => d.sales || 0);
-
-    new Chart(canvas, {
-      type: 'line',
-      data: {
-        labels: labels.length ? labels : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-        datasets: [{
-          label: 'Branch Sales (₱)',
-          data: sales.length ? sales : [0, 0, 0, 0, 0, 0, 0],
-          borderColor: '#059669',
-          backgroundColor: 'rgba(5, 150, 105, 0.08)',
-          fill: true,
-          tension: 0.35,
-          borderWidth: 2,
-          pointRadius: 2.5,
-          pointBackgroundColor: '#059669'
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          y: { beginAtZero: true, grid: { color: '#F8FAFC' }, ticks: { font: { size: 9 } } },
-          x: { grid: { display: false }, ticks: { font: { size: 9 } } }
-        }
-      }
-    });
-  },
-
-  toggleBranchContribution(idx) {
-    const p = document.getElementById(`contrib-panel-${idx}`);
-    if (p) {
-      p.style.display = (p.style.display === 'none' || !p.style.display) ? 'block' : 'none';
-    }
-  },
-
-  toggleBranchDetail(branchId) {
-    const p = document.getElementById(`branch-detail-${branchId}`);
-    if (p) {
-      p.style.display = (p.style.display === 'none' || !p.style.display) ? 'block' : 'none';
-    }
-  },
-
-  toggleBranchProducts(branchId) {
-    const p = document.getElementById(`branch-prods-${branchId}`);
-    if (p) {
-      p.style.display = (p.style.display === 'none' || !p.style.display) ? 'block' : 'none';
     }
   },
 
@@ -1175,26 +1393,6 @@ const app = {
     this.openModal('modal-edit-description');
   },
 
-  showUserDetail(u) {
-    if (!u) return;
-    const avatar = document.getElementById('detail-user-avatar');
-    const fn = document.getElementById('detail-user-fullname');
-    const un = document.getElementById('detail-user-username');
-    const rl = document.getElementById('detail-user-role');
-    const em = document.getElementById('detail-user-email');
-    const st = document.getElementById('detail-user-status');
-    const duty = document.getElementById('detail-user-duty');
-
-    if (avatar) avatar.textContent = (u.full_name || 'U').substring(0, 2).toUpperCase();
-    if (fn) fn.textContent = u.full_name || 'User';
-    if (un) un.textContent = '@' + (u.username || 'username');
-    if (rl) rl.textContent = u.role_display || u.role;
-    if (em) em.textContent = u.email || 'No email provided';
-    if (st) st.textContent = u.is_active ? 'Active' : 'Inactive';
-    if (duty) duty.textContent = u.last_transaction_at ? `Last transaction on duty: ${u.last_transaction_at}` : 'No transactions recorded on duty yet';
-
-    this.openModal('modal-user-detail');
-  },
 
   viewStoreReports(storeId) {
     this.currentReportStoreId = storeId;
@@ -1215,7 +1413,7 @@ const app = {
 
       this.stores = data.stores || [];
       if (this.stores.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #64748B; padding: 20px;">No stores found. Click "+ Add New Store" to create one.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #64748B; padding: 20px;">No stores found. Branches are added by the branch Manager in the StockEase app.</td></tr>';
         return;
       }
 
@@ -1228,7 +1426,6 @@ const app = {
             ${s.owner_name 
               ? `<span class="badge badge-info" title="User ID #${s.owner_id}">👤 ${this.escape(s.owner_name)}</span>` 
               : `<span style="color: #94A3B8; font-size: 12px; font-style: italic;">Independent</span>`}
-            <button class="btn btn-outline-secondary btn-sm" style="font-size: 10px; padding: 1px 6px; margin-left: 6px;" onclick="app.promptAssignOwner(${s.id}, ${s.owner_id || 0}, '${this.escape(s.store_name)}')">✎ Assign</button>
           </td>
           <td>${s.admin_count || 0} Manager(s)</td>
           <td style="text-align: center;">
@@ -1244,40 +1441,6 @@ const app = {
     }
   },
 
-  async promptAssignOwner(storeId, currentOwnerId, storeName) {
-    if (!this.users || this.users.length === 0) {
-      await this.loadUsers();
-    }
-    const userOptions = this.users
-      .map(u => `ID ${u.id}: ${u.full_name} (@${u.username}) [${u.role}]`)
-      .join('\n');
-    const input = prompt(
-      `Assign Business Owner for "${storeName}" (Store #${storeId}):\n\nEnter the User ID of the business owner (or 0 for independent):\n\nAvailable Users:\n${userOptions}`,
-      currentOwnerId || ""
-    );
-    if (input === null) return;
-    const newOwnerId = parseInt(input.trim(), 10);
-    try {
-      const res = await fetch('../stockease_api/manage_stores.php?action=assign_owner', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          store_id: storeId,
-          owner_id: (isNaN(newOwnerId) || newOwnerId <= 0) ? null : newOwnerId
-        })
-      });
-      const data = await res.json();
-      if (data.success) {
-        this.showToast(data.message || 'Store owner updated!', 'success');
-        this.loadStores();
-      } else {
-        this.showToast(data.message || 'Failed to update store owner', 'error');
-      }
-    } catch (e) {
-      this.showToast('Network error updating store owner', 'error');
-    }
-  },
 
   async loadTransfers() {
     const tbody = document.getElementById('tbody-transfers-list');
@@ -1567,6 +1730,8 @@ const app = {
     const search = document.getElementById('input-search-users')?.value.toLowerCase().trim() || '';
 
     let filtered = this.users;
+    // There is only one System Super Admin and it is not manageable in Users & Roles
+    filtered = filtered.filter(u => u.role !== 'super_admin');
     if (roleFilter) {
       filtered = filtered.filter(u => u.role === roleFilter);
     }
@@ -1584,10 +1749,7 @@ const app = {
     }
 
     tbody.innerHTML = filtered.map(u => {
-      let roleBadge = 'badge-slate';
-      if (u.role === 'super_admin') roleBadge = 'badge-info';
-      else if (u.role === 'store_admin') roleBadge = 'badge-warning';
-      else if (u.role === 'staff') roleBadge = 'badge-success';
+      const roleBadge = this.roleBadgeClass(u.role);
 
       const storeName = this.getStoreNameById(u.store_id);
 
@@ -1597,13 +1759,13 @@ const app = {
           <td style="font-weight: 600;">${this.escape(u.full_name || '—')}</td>
           <td>@${this.escape(u.username)}</td>
           <td style="color: #64748B;">${this.escape(u.email || '—')}</td>
-          <td><span class="badge ${roleBadge}">${this.escape(u.role)}</span></td>
+          <td><span class="badge ${roleBadge}">${this.escape(this.roleLabel(u.role))}</span></td>
           <td>${this.escape(storeName)}</td>
           <td style="text-align: center;">
             <span class="badge ${u.is_active ? 'badge-success' : 'badge-danger'}">${u.is_active ? 'Active' : 'Inactive'}</span>
           </td>
           <td style="text-align: right;">
-            <button class="btn btn-secondary btn-sm" onclick="app.openEditRoleModal(${u.id})">Edit Scope</button>
+            <button class="btn btn-secondary btn-sm" onclick="app.openEditRoleModal(${u.id})">View Scope</button>
           </td>
         </tr>
       `;
@@ -1614,16 +1776,18 @@ const app = {
     const user = this.users.find(u => u.id === userId);
     if (!user) return;
 
-    document.getElementById('edit-user-id').value = user.id;
-    document.getElementById('edit-user-display').textContent = `${user.full_name} (@${user.username})`;
-    document.getElementById('edit-user-role').value = user.role;
+    const display = document.getElementById('edit-user-display');
+    if (display) display.textContent = `${user.full_name} (@${user.username})`;
 
-    this.populateStoreSelect('edit-user-store');
-    document.getElementById('edit-user-store').value = user.store_id || '';
+    const roleText = document.getElementById('edit-user-role-text');
+    if (roleText) {
+      roleText.textContent = this.roleLabel(user.role);
+      roleText.className = 'badge ' + this.roleBadgeClass(user.role);
+    }
 
-    const storeGroup = document.getElementById('group-edit-store');
-    if (storeGroup) {
-      storeGroup.style.display = (user.role === 'super_admin') ? 'none' : 'block';
+    const storeText = document.getElementById('edit-user-store-text');
+    if (storeText) {
+      storeText.textContent = this.getStoreNameById(user.store_id);
     }
 
     this.openModal('modal-update-role');
@@ -1827,20 +1991,26 @@ const app = {
 
     if (!storeId) return;
 
-    // Dates based on period
+    // Dates based on period (calendar week / calendar month so the chart matches the filter)
     const now = new Date();
-    let startDate = now.toISOString().split('T')[0];
+    let startDate = this.localDateStr(now);
     let endDate = startDate;
 
     if (this.currentReportPeriod === 'week') {
-      const past = new Date();
-      past.setDate(now.getDate() - 7);
-      startDate = past.toISOString().split('T')[0];
+      const dow = (now.getDay() + 6) % 7; // Monday = 0
+      const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - dow);
+      startDate = this.localDateStr(monday);
     } else if (this.currentReportPeriod === 'month') {
-      const past = new Date();
-      past.setDate(now.getDate() - 30);
-      startDate = past.toISOString().split('T')[0];
+      startDate = this.localDateStr(new Date(now.getFullYear(), now.getMonth(), 1));
     }
+
+    const periodLabel = this.reportPeriodLabel();
+    const earningsSubtitle = document.getElementById('chart-branch-earnings-subtitle');
+    if (earningsSubtitle) {
+      earningsSubtitle.textContent = `${periodLabel} progress (${startDate} to ${endDate}) - updates whenever the period filter changes.`;
+    }
+    const reportsScope = document.getElementById('reports-period-scope');
+    if (reportsScope) reportsScope.textContent = `${periodLabel}: ${startDate} to ${endDate}`;
 
     try {
       const url = `../stockease_api/get_store_reports.php?store_id=${storeId}&start_date=${startDate}&end_date=${endDate}`;
@@ -1850,9 +2020,9 @@ const app = {
 
       const s = data.summary || {};
       document.getElementById('rep-total-sales').textContent = '₱' + (s.total_sales || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
-      document.getElementById('rep-total-tx').textContent = s.total_transactions || 0;
+      document.getElementById('rep-total-tx').textContent = s.transaction_count || 0;
       document.getElementById('rep-avg-order').textContent = '₱' + (s.average_transaction || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
-      document.getElementById('rep-units-sold').textContent = s.total_items_sold || 0;
+      document.getElementById('rep-units-sold').textContent = s.products_sold || 0;
 
       // Payment Methods
       const payContainer = document.getElementById('container-payment-methods');
@@ -1863,8 +2033,8 @@ const app = {
         } else {
           payContainer.innerHTML = payMethods.map(pm => `
             <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #F1F5F9;">
-              <span style="font-weight: 600;">${this.escape(pm.method)} (${pm.count} orders)</span>
-              <span style="font-weight: 700;">₱${parseFloat(pm.total || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+              <span style="font-weight: 600;">${this.escape(pm.payment_type || pm.method || 'Unknown')} (${pm.count || 0} orders)</span>
+              <span style="font-weight: 700;">₱${parseFloat(pm.total_amount || pm.total || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
             </div>
           `).join('');
         }
@@ -1881,9 +2051,9 @@ const app = {
             <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #F1F5F9;">
               <div>
                 <strong>#${idx + 1} ${this.escape(tp.product_name)}</strong>
-                <span style="color: #64748B; font-size: 11px; margin-left: 6px;">(${tp.quantity_sold} sold)</span>
+                <span style="color: #64748B; font-size: 11px; margin-left: 6px;">(${tp.total_sold ?? tp.quantity_sold ?? 0} sold)</span>
               </div>
-              <span style="font-weight: 700;">₱${parseFloat(tp.revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+              <span style="font-weight: 700;">₱${parseFloat(tp.total_revenue || tp.revenue || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
             </div>
           `).join('');
         }
@@ -1914,9 +2084,9 @@ const app = {
       const labels = dailySales.map(d => d.sale_date || 'Date');
       const salesValues = dailySales.map(d => parseFloat(d.daily_sales || 0));
 
-      // Fallback if no daily breakdown
+      // Fallback if the period produced no buckets at all
       if (labels.length === 0) {
-        labels.push('Today');
+        labels.push(this.reportPeriodLabel());
         salesValues.push(parseFloat(data.summary?.total_sales || 0));
       }
 
@@ -1951,6 +2121,7 @@ const app = {
           }
         }
       });
+      this.attachChartDownloadButton('chart-branch-earnings', 'stockease_branch_earnings_' + new Date().toISOString().split('T')[0] + '.png');
     }
 
     // 2. Bar Chart: Most Purchased Products
@@ -1989,7 +2160,95 @@ const app = {
           }
         }
       });
+      this.attachChartDownloadButton('chart-top-products', 'stockease_top_products_' + new Date().toISOString().split('T')[0] + '.png');
     }
+  },
+
+  downloadChartPng(chart, filename) {
+    if (!chart || typeof chart.toBase64Image !== 'function') {
+      this.showToast('Chart is not ready for download yet', 'error');
+      return;
+    }
+    try {
+      const dataUrl = chart.toBase64Image('image/png', 1);
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = filename || ('stockease_chart_' + new Date().toISOString().split('T')[0] + '.png');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      this.showToast('Chart image downloaded: ' + link.download, 'success');
+    } catch (e) {
+      console.error('Chart PNG export failed', e);
+      this.showToast('Failed to export chart image', 'error');
+    }
+  },
+
+  attachChartDownloadButton(canvasId, filename) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas || typeof Chart === 'undefined') return;
+    if (!Chart.getChart(canvas)) return;
+    const wrapper = canvas.parentElement;
+    if (!wrapper) return;
+
+    // Avoid duplicate buttons when charts are re-rendered into the same wrapper
+    if (wrapper.querySelector('.chart-download-btn')) return;
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn btn-secondary btn-xs chart-download-btn';
+    btn.textContent = '⤓ PNG';
+    btn.title = 'Download this chart as a PNG image';
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation(); // charts sit inside clickable/toggle panels
+      this.downloadChartPng(Chart.getChart(canvas), filename);
+    });
+    wrapper.appendChild(btn);
+  },
+
+  csvExportName(tableName) {
+    const date = new Date().toISOString().split('T')[0];
+    return 'stockease_' + tableName + '_export_' + date + '.csv';
+  },
+
+  exportTableToCsv(tableId, filename) {
+    const table = document.getElementById(tableId);
+    if (!table) {
+      this.showToast('No table found to export', 'error');
+      return;
+    }
+
+    const csvLines = [];
+    table.querySelectorAll('tr').forEach(tr => {
+      const cells = tr.querySelectorAll('th, td');
+      if (!cells.length) return;
+      const values = Array.from(cells).map(cell => {
+        let text = (cell.innerText || cell.textContent || '').replace(/\s+/g, ' ').trim();
+        if (/[",\n\r]/.test(text)) {
+          text = '"' + text.replace(/"/g, '""') + '"';
+        }
+        return text;
+      });
+      csvLines.push(values.join(','));
+    });
+
+    if (csvLines.length === 0) {
+      this.showToast('Table is empty - nothing to export', 'error');
+      return;
+    }
+
+    // BOM helps spreadsheet apps detect UTF-8 (peso signs, en dashes)
+    const csv = '\uFEFF' + csvLines.join('\r\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+    link.download = filename || this.csvExportName(tableId.replace(/^table-/, ''));
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    this.showToast('CSV exported: ' + link.download, 'success');
   },
 
   exportReportsCSV() {
@@ -2000,19 +2259,21 @@ const app = {
 
     const d = this.lastReportData;
     let csv = "StockEase Branch Report\n";
-    csv += `Store:,"${d.store ? d.store.store_name : 'Branch'}"\n`;
-    csv += `Date Range:,"${d.date_range ? d.date_range.start : ''} to ${d.date_range ? d.date_range.end : ''}"\n\n`;
+    const range = d.date_range || {};
+    const rangeLabel = (range.start_date || range.start || '') + ' to ' + (range.end_date || range.end || '');
+    csv += `Store:,"${(d.store && d.store.store_name) || d.store_name || 'Branch'}"\n`;
+    csv += `Date Range:,"${rangeLabel}"\n\n`;
 
     csv += "Summary Metrics\n";
     csv += `Gross Revenue,${d.summary ? d.summary.total_sales : 0}\n`;
-    csv += `Total Transactions,${d.summary ? d.summary.total_transactions : 0}\n`;
+    csv += `Total Transactions,${d.summary ? d.summary.transaction_count : 0}\n`;
     csv += `Average Order Value,${d.summary ? d.summary.average_transaction : 0}\n`;
-    csv += `Units Sold,${d.summary ? d.summary.total_items_sold : 0}\n\n`;
+    csv += `Units Sold,${d.summary ? d.summary.products_sold : 0}\n\n`;
 
     csv += "Top Products\nProduct,Units Sold,Revenue\n";
     if (d.top_products) {
       d.top_products.forEach(p => {
-        csv += `"${p.product_name}",${p.quantity_sold},${p.revenue}\n`;
+        csv += `"${p.product_name}",${p.total_sold ?? p.quantity_sold ?? 0},${p.total_revenue ?? p.revenue ?? 0}\n`;
       });
     }
 
@@ -2034,19 +2295,32 @@ const app = {
 
     const search = document.getElementById('input-audit-search')?.value.trim() || '';
     const action = document.getElementById('filter-audit-action')?.value || '';
+    const perPageSelect = document.getElementById('audit-per-page');
+    if (perPageSelect) {
+      this.auditPerPage = parseInt(perPageSelect.value, 10) || this.auditPerPage;
+    }
+    if (!Number.isFinite(this.auditPage) || this.auditPage < 1) this.auditPage = 1;
 
-    let url = '../stockease_api/get_audit_logs.php?';
-    if (search) url += 'search=' + encodeURIComponent(search) + '&';
-    if (action) url += 'action_filter=' + encodeURIComponent(action) + '&';
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    if (action) params.set('action_filter', action);
+    params.set('page', String(this.auditPage));
+    params.set('per_page', String(this.auditPerPage));
 
     try {
-      const res = await fetch(url, { credentials: 'include' });
+      const res = await fetch('../stockease_api/get_audit_logs.php?' + params.toString(), { credentials: 'include' });
       const data = await res.json();
       if (!data.success) throw new Error(data.message);
 
       const logs = data.logs || [];
+      const pagination = data.pagination || { page: 1, per_page: this.auditPerPage, total: 0, total_pages: 1 };
+      this.auditPagination = pagination;
+      this.auditPage = pagination.page || 1;
+      this.auditPerPage = pagination.per_page || this.auditPerPage;
+      this.renderAuditPagination(pagination);
+
       if (logs.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #64748B; padding: 20px;">No audit records found.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #64748B; padding: 20px;">No audit records found on this page.</td></tr>';
         return;
       }
 
@@ -2054,7 +2328,7 @@ const app = {
         <tr>
           <td style="color: #64748B; white-space: nowrap;">${l.created_at}</td>
           <td style="font-weight: 600;">${this.escape(l.user_name)}</td>
-          <td><span class="badge badge-slate">${this.escape(l.role)}</span></td>
+          <td><span class="badge ${this.roleBadgeClass(l.role)}">${this.escape(this.roleLabel(l.role))}</span></td>
           <td style="font-weight: 600; color: #0F172A;">${this.escape(l.action)}</td>
           <td>${this.escape(l.target)}</td>
           <td style="color: #64748B;">${this.escape(l.store_name)}</td>
@@ -2062,7 +2336,119 @@ const app = {
         </tr>
       `).join('');
     } catch (err) {
+      this.renderAuditPagination({ page: this.auditPage, per_page: this.auditPerPage, total: 0, total_pages: 1 });
       tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #DC2626; padding: 20px;">Error: ${err.message}</td></tr>`;
+    }
+  },
+
+  renderAuditPagination(p) {
+    const bar = document.getElementById('audit-pagination');
+    if (!bar) return;
+
+    const page = Math.max(1, parseInt(p.page, 10) || 1);
+    const totalPages = Math.max(1, parseInt(p.total_pages, 10) || 1);
+    const perPage = Math.max(1, parseInt(p.per_page, 10) || this.auditPerPage);
+    const total = Math.max(0, parseInt(p.total, 10) || 0);
+
+    if (total === 0) {
+      bar.style.display = 'flex';
+      const range = document.getElementById('audit-range-label');
+      if (range) range.textContent = '0 of 0 records';
+      const numbers = document.getElementById('audit-page-numbers');
+      if (numbers) numbers.innerHTML = '<span class="page-btn" aria-hidden="true">1</span>';
+      this.setAuditPagerState(1, 1);
+      return;
+    }
+
+    const first = (page - 1) * perPage + 1;
+    const last = Math.min(total, page * perPage);
+    const range = document.getElementById('audit-range-label');
+    if (range) range.textContent = `Showing ${first}–${last} of ${total.toLocaleString('en-US')} records`;
+
+    const numbers = document.getElementById('audit-page-numbers');
+    if (numbers) {
+      const pages = this.auditPageWindow(page, totalPages);
+      numbers.innerHTML = pages.map(pg => {
+        if (pg === '…') return '<span class="page-ellipsis">&hellip;</span>';
+        return `<button type="button" class="page-btn${pg === page ? ' active' : ''}" data-page="${pg}">${pg}</button>`;
+      }).join('');
+    }
+
+    this.setAuditPagerState(page, totalPages);
+  },
+
+  auditPageWindow(page, totalPages) {
+    const pages = [];
+    const push = (v) => {
+      if (v > 0 && v <= totalPages && pages[pages.length - 1] !== v) pages.push(v);
+    };
+    push(1);
+    if (page > 3) push('…');
+    for (let p = page - 1; p <= page + 1; p++) push(p);
+    if (page < totalPages - 2) push('…');
+    push(totalPages);
+    return pages;
+  },
+
+  setAuditPagerState(page, totalPages) {
+    const set = (id, disabled) => {
+      const el = document.getElementById(id);
+      if (el) el.disabled = !!disabled;
+    };
+    set('audit-first-page', page <= 1);
+    set('audit-prev-page', page <= 1);
+    set('audit-next-page', page >= totalPages);
+    set('audit-last-page', page >= totalPages);
+  },
+
+  // Export every matching audit record (not just the page on screen)
+  async exportAuditLogsCsv() {
+    const search = document.getElementById('input-audit-search')?.value.trim() || '';
+    const action = document.getElementById('filter-audit-action')?.value || '';
+
+    this.showToast('Preparing full audit log export...', 'info');
+
+    const headers = ['Timestamp', 'User', 'Role', 'Action', 'Target', 'Store', 'Details'];
+    const rows = [];
+    const perPage = 200;
+    let page = 1;
+    let totalPages = 1;
+
+    try {
+      while (page <= totalPages && page <= 100) {
+        const params = new URLSearchParams();
+        if (search) params.set('search', search);
+        if (action) params.set('action_filter', action);
+        params.set('page', String(page));
+        params.set('per_page', String(perPage));
+
+        const res = await fetch('../stockease_api/get_audit_logs.php?' + params.toString(), { credentials: 'include' });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message || 'Export failed');
+
+        const pagination = data.pagination || {};
+        totalPages = Math.max(1, parseInt(pagination.total_pages, 10) || 1);
+
+        (data.logs || []).forEach(l => {
+          rows.push([l.created_at, l.user_name, this.roleLabel(l.role), l.action, l.target, l.store_name, l.details]);
+        });
+        page++;
+      }
+
+      if (rows.length === 0) {
+        this.showToast('No audit records to export', 'error');
+        return;
+      }
+
+      const csvEscape = v => {
+        const s = (v === null || v === undefined) ? '' : String(v);
+        return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+      };
+      let csv = headers.join(',') + '\r\n';
+      rows.forEach(r => { csv += r.map(csvEscape).join(',') + '\r\n'; });
+      this.downloadTextCsv(csv, 'stockease_audit_logs_' + new Date().toISOString().split('T')[0] + '.csv');
+    } catch (err) {
+      this.showToast('Audit export failed: ' + err.message, 'error');
     }
   },
 
@@ -2114,6 +2500,48 @@ const app = {
   },
 
   // Helpers
+  localDateStr(d) {
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return d.getFullYear() + '-' + m + '-' + day;
+  },
+
+  reportPeriodLabel() {
+    if (this.currentReportPeriod === 'week') return 'This Week';
+    if (this.currentReportPeriod === 'month') return 'This Month';
+    return 'Today';
+  },
+
+  getChartInstance(canvasId) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas || typeof Chart === 'undefined' || !Chart.getChart) return null;
+    return Chart.getChart(canvas);
+  },
+
+  roleLabel(role) {
+    const map = {
+      super_admin: 'Super Admin',
+      store_owner: 'Store Owner',
+      manager: 'Manager',
+      store_admin: 'Store Admin',
+      staff: 'Staff – Cashier',
+      inventory_checker: 'Staff – Inventory'
+    };
+    return map[role] || role || 'Unknown';
+  },
+
+  roleBadgeClass(role) {
+    const map = {
+      super_admin: 'badge-info',
+      store_owner: 'badge-primary',
+      manager: 'badge-success',
+      store_admin: 'badge-warning',
+      staff: 'badge-slate',
+      inventory_checker: 'badge-slate'
+    };
+    return map[role] || 'badge-slate';
+  },
+
   populateStoreSelect(selectId) {
     const el = document.getElementById(selectId);
     if (!el || !this.stores) return;
@@ -2127,6 +2555,20 @@ const app = {
     if (!id) return 'Not Assigned';
     const s = this.stores.find(item => item.id == id);
     return s ? s.store_name : 'Branch ' + id;
+  },
+
+  togglePassword(inputId, btn) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    const show = input.type === 'password';
+    input.type = show ? 'text' : 'password';
+    const openIcon = btn.querySelector('.eye-open');
+    const closedIcon = btn.querySelector('.eye-closed');
+    if (openIcon) openIcon.style.display = show ? 'none' : 'block';
+    if (closedIcon) closedIcon.style.display = show ? 'block' : 'none';
+    btn.title = show ? 'Hide password' : 'Show password';
+    btn.setAttribute('aria-label', btn.title);
+    btn.setAttribute('aria-pressed', show ? 'true' : 'false');
   },
 
   escape(str) {

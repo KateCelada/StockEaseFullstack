@@ -10,15 +10,15 @@ auth_require_roles($identity, ['super_admin']);
 $input = json_decode(file_get_contents("php://input"), true);
 $userId = isset($input['user_id']) ? (int)$input['user_id'] : 0;
 $newRole = trim($input['role'] ?? '');
-$allowedRoles = ['super_admin', 'store_admin', 'staff'];
+$allowedRoles = ['store_owner', 'manager', 'store_admin', 'staff', 'inventory_checker'];
 
 if ($userId <= 0 || !in_array($newRole, $allowedRoles, true)) {
     echo json_encode(["success" => false, "message" => "Invalid user ID or role choice"]);
     exit;
 }
 
-if ($userId === $identity['user_id'] && $newRole !== 'super_admin') {
-    auth_json_error(403, 'You cannot remove the role from your authenticated Super Admin account');
+if ($userId === $identity['user_id']) {
+    auth_json_error(403, 'The System Super Admin account cannot be reassigned here');
 }
 
 try {
@@ -35,16 +35,12 @@ try {
         ? (int)$input['store_id'] 
         : ($targetUser['store_id'] !== null ? (int)$targetUser['store_id'] : null);
 
-    if ($newRole !== 'super_admin' && (empty($storeId) || $storeId <= 0)) {
+    if (empty($storeId) || $storeId <= 0) {
         echo json_encode([
             "success" => false,
             "message" => "Store administrators and staff must be assigned to a store"
         ]);
         exit;
-    }
-
-    if ($newRole === 'super_admin') {
-        $storeId = null;
     }
 
     $stmt = $conn->prepare("UPDATE users SET role = :role, store_id = :store_id WHERE id = :id");

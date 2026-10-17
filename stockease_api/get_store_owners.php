@@ -6,7 +6,7 @@ require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/auth.php';
 
 $identity = auth_require_user($conn);
-auth_require_roles($identity, ['super_admin', 'manager', 'store_admin']);
+auth_require_roles($identity, ['super_admin', 'manager', 'store_admin', 'store_owner']);
 
 try {
     $currentUserId = (int)$identity['user_id'];
@@ -40,6 +40,10 @@ try {
         $storeQuery .= " WHERE (s.owner_id = :uid OR s.manager_id = :uid OR s.id = :assigned_store)";
         $whereParams['uid'] = $currentUserId;
         $whereParams['assigned_store'] = (int)($identity['store_id'] ?? 0);
+    } elseif ($currentUserRole === 'store_owner') {
+        // Store owners see only the branches they own (view-only).
+        $storeQuery .= " WHERE s.owner_id = :uid";
+        $whereParams['uid'] = $currentUserId;
     } elseif ($currentUserRole === 'store_admin') {
         $storeQuery .= " WHERE s.id = :assigned_store";
         $whereParams['assigned_store'] = (int)($identity['store_id'] ?? 0);

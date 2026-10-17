@@ -42,45 +42,86 @@ try {
     $startDate = isset($_GET['start_date']) ? trim($_GET['start_date']) : '';
     $endDate = isset($_GET['end_date']) ? trim($_GET['end_date']) : '';
 
-    $sql = "SELECT id, user_name, role, action, target, store_name, details, 
-                   to_char(created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at 
-            FROM audit_logs WHERE 1=1";
+    // Pagination: opt in with ?page=1 (legacy callers without page keep the old 150 row cap)
+    $paginate = isset($_GET['page']) && $_GET['page'] !== '';
+    $page = $paginate ? max(1, (int)$_GET['page']) : 1;
+    $perPage = isset($_GET['per_page']) ? (int)$_GET['per_page'] : 25;
+    $perPage = max(1, min(200, $perPage));
+
+    $where = ["1=1"];
     $params = [];
 
     // System super admin is visible ONLY to the System Admin
     if ($identity['role'] !== 'super_admin') {
-        $sql .= " AND role != 'super_admin' AND user_name NOT ILIKE '%super admin%'";
+        $where[] = "role != 'super_admin' AND user_name NOT ILIKE '%super admin%'";
     }
 
     if (!empty($search)) {
-        $sql .= " AND (user_name ILIKE :search OR target ILIKE :search OR details ILIKE :search OR store_name ILIKE :search)";
+        $where[] = "(user_name ILIKE :search OR target ILIKE :search OR details ILIKE :search OR store_name ILIKE :search)";
         $params['search'] = "%$search%";
     }
 
     if (!empty($actionFilter)) {
-        $sql .= " AND action = :act";
+        $where[] = "action = :act";
         $params['act'] = $actionFilter;
     }
 
     if ($period === 'today') {
-        $sql .= " AND created_at >= CURRENT_DATE AND created_at < CURRENT_DATE + INTERVAL '1 day'";
+        $where[] = "created_at >= CURRENT_DATE AND created_at < CURRENT_DATE + INTERVAL '1 day'";
     } elseif ($period === 'this_week') {
-        $sql .= " AND created_at >= date_trunc('week', CURRENT_DATE) AND created_at < (date_trunc('week', CURRENT_DATE) + INTERVAL '7 days')";
+        $where[] = "created_at >= date_trunc('week', CURRENT_DATE) AND created_at < (date_trunc('week', CURRENT_DATE) + INTERVAL '7 days')";
     } elseif ($period === 'this_month') {
-        $sql .= " AND created_at >= date_trunc('month', CURRENT_DATE) AND created_at < (date_trunc('month', CURRENT_DATE) + INTERVAL '1 month')";
+        $where[] = "created_at >= date_trunc('month', CURRENT_DATE) AND created_at < (date_trunc('month', CURRENT_DATE) + INTERVAL '1 month')";
     } elseif ($period === 'custom' && !empty($startDate) && !empty($endDate)) {
-        $sql .= " AND created_at >= :start_date AND created_at <= :end_date";
+        $where[] = "created_at >= :start_date AND created_at <= :end_date";
         $params['start_date'] = $startDate . " 00:00:00";
         $params['end_date'] = $endDate . " 23:59:59";
     }
 
-    $sql .= " ORDER BY id DESC LIMIT 150";
+    $whereClause = implode(" AND ", $where);
+
+    $countStmt = $conn->prepare("SELECT COUNT(*) FROM audit_logs WHERE $whereClause");
+    $countStmt->execute($params);
+    $total = (int)$countStmt->fetchColumn();
+
+    $sql = "SELECT id, user_name, role, action, target, store_name, details, 
+                   to_char(created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at 
+            FROM audit_logs 
+            WHERE $whereClause 
+            ORDER BY id DESC";
+
+    if ($paginate) {
+        $totalPages = max(1, (int)ceil($total / $perPage));
+        if ($page > $totalPages) {
+            $page = $totalPages;
+        }
+        $sql .= " LIMIT :limit OFFSET :offset";
+    } else {
+        $totalPages = 1;
+        $sql .= " LIMIT 150";
+    }
 
     $stmt = $conn->prepare($sql);
-    $stmt->execute($params);
+    foreach ($params as $key => $value) {
+        $stmt->bindValue($key, $value);
+    }
+    if ($paginate) {
+        $stmt->bindValue('limit', $perPage, PDO::PARAM_INT);
+        $stmt->bindValue('offset', ($page - 1) * $perPage, PDO::PARAM_INT);
+    }
+    $stmt->execute();
     $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    echo json_encode(["success" => true, "logs" => $logs]);
+    echo json_encode([
+        "success" => true,
+        "logs" => $logs,
+        "pagination" => [
+            "page" => $page,
+            "per_page" => $perPage,
+            "total" => $total,
+            "total_pages" => $totalPages
+        ]
+    ]);
 
 } catch (PDOException $e) {
     http_response_code(500);

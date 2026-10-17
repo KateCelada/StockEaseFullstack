@@ -5,6 +5,7 @@ header("Access-Control-Allow-Methods: POST");
 
 require_once 'db.php';
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/shift_helper.php';
 
 $data = json_decode(file_get_contents("php://input"), true);
 
@@ -58,7 +59,9 @@ try {
         $user['store_name'] = $ownedStores[0]['store_name'];
     }
 
-    if ($user['role'] !== 'super_admin' && $user['role'] !== 'store_owner' && (!$store_id || $store_id <= 0)) {
+    // Managers are allowed before their first branch exists: they log in,
+    // add the branch, and login.php adopts it on the next sign-in.
+    if (!in_array($user['role'], ['super_admin', 'store_owner', 'manager'], true) && (!$store_id || $store_id <= 0)) {
         echo json_encode(["success" => false, "message" => "This account is not assigned to a valid store."]);
         exit();
     }
@@ -71,6 +74,16 @@ try {
     session_regenerate_id(true);
     auth_store_identity($user);
 
+    // Staff-tier accounts (cashier & inventory) open their shift automatically on
+    // the first login of the day - there is no Start Shift button anywhere.
+    $dailyShift = null;
+    $shiftAutoStarted = false;
+    if (in_array($user['role'], ['staff', 'inventory_checker'], true) && $store_id > 0) {
+        $shiftResult = shift_start_daily_shift($conn, (int)$user['id'], (int)$store_id);
+        $dailyShift = $shiftResult['shift'];
+        $shiftAutoStarted = (bool)$shiftResult['started'];
+    }
+
     $must_change = in_array($user['must_change_password'], [true, 1, '1', 't', 'true'], true);
 
     echo json_encode([
@@ -78,6 +91,8 @@ try {
         "message" => "Login successful",
         "role" => $user['role'],
         "must_change_password" => $must_change,
+        "shift" => $dailyShift,
+        "shift_auto_started" => $shiftAutoStarted,
         "user" => [
             "id" => (int)$user['id'],
             "username" => $user['username'],

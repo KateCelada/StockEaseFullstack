@@ -25,7 +25,7 @@ if ($callerId > 0 && empty($callerRole)) {
     }
 }
 
-$allowedCallers = ['super_admin', 'store_owner', 'manager', 'store_admin'];
+$allowedCallers = ['super_admin', 'manager', 'store_admin'];
 if (!in_array($callerRole, $allowedCallers, true)) {
     // If session active, test standard auth
     if (isset($_SESSION['user_id'])) {
@@ -45,14 +45,25 @@ if ($requestedStoreId <= 0 && isset($_SESSION['store_id'])) {
     $requestedStoreId = (int)$_SESSION['store_id'];
 }
 
+// Strict hierarchy: staff accounts are branch-level and can only be Cashier or Inventory.
+if ($callerRole === 'store_admin' && isset($_SESSION['store_id']) && !empty($_SESSION['store_id'])) {
+    // Store admins can only onboard staff into their own assigned branch
+    $requestedStoreId = (int)$_SESSION['store_id'];
+}
+
 $fullName = trim($data['full_name'] ?? '');
 $username = trim($data['username'] ?? '');
 $email    = trim($data['email'] ?? '');
 $password = trim($data['password'] ?? '');
-$role     = trim($data['role'] ?? 'staff'); // 'staff' (Cashier) or 'inventory_checker'
+$role     = trim($data['role'] ?? 'staff'); // staff tier: 'staff' (Cashier) or 'inventory_checker' (Inventory)
 
-if (!in_array($role, ['staff', 'cashier', 'inventory_checker'], true)) {
+// Only the two staff classifications exist under the strict 5-role model
+if ($role === 'cashier') {
     $role = 'staff';
+}
+if (!in_array($role, ['staff', 'inventory_checker'], true)) {
+    echo json_encode(["success" => false, "message" => "Staff accounts can only be assigned as Cashier or Inventory."]);
+    exit;
 }
 
 if (empty($fullName) || empty($username) || empty($password)) {
@@ -63,6 +74,20 @@ if (empty($fullName) || empty($username) || empty($password)) {
 if ($requestedStoreId <= 0) {
     echo json_encode(["success" => false, "message" => "A valid store branch assignment is required."]);
     exit;
+}
+
+// Managers may only onboard staff into their own branches
+if ($callerRole === 'manager') {
+    $stCheck = $conn->prepare("SELECT id FROM stores WHERE id = :sid AND (owner_id = :uid OR manager_id = :uid OR id = :assigned)");
+    $stCheck->execute([
+        'sid' => $requestedStoreId,
+        'uid' => $callerId,
+        'assigned' => isset($_SESSION['store_id']) ? (int)$_SESSION['store_id'] : 0
+    ]);
+    if (!$stCheck->fetchColumn()) {
+        echo json_encode(["success" => false, "message" => "You can only add staff to your own branches."]);
+        exit;
+    }
 }
 
 try {
@@ -96,7 +121,7 @@ try {
     ]);
     $newUser = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    $roleDisplayName = ($role === 'inventory_checker') ? 'Inventory Checker' : 'Cashier / Staff';
+    $roleDisplayName = ($role === 'inventory_checker') ? 'Inventory Staff' : 'Cashier';
 
     // Log in audit log
     try {

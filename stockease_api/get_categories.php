@@ -7,7 +7,7 @@ require_once __DIR__ . '/auth.php';
 
 $requestedStoreId = isset($_GET['store_id']) ? intval($_GET['store_id']) : 0;
 $identity = auth_require_user($conn);
-auth_require_roles($identity, ['super_admin', 'store_admin']);
+auth_require_roles($identity, ['super_admin', 'store_admin', 'manager', 'staff']);
 $store_id = auth_resolve_store_context($conn, $identity, $requestedStoreId, true);
 
 try {

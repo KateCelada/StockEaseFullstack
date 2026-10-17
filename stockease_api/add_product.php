@@ -25,6 +25,9 @@ $productName = trim($data['product_name'] ?? '');
 $price = isset($data['price']) ? (float)$data['price'] : -1;
 $costPrice = isset($data['cost_price']) ? (float)$data['cost_price'] : 0.00;
 $stock = isset($data['stock']) ? (int)$data['stock'] : -1;
+// Low stock alert threshold: stock at or below this value triggers the indicator
+$minStock = isset($data['min_stock']) && $data['min_stock'] !== '' ? (int)$data['min_stock'] : 10;
+$minStock = max(0, $minStock);
 
 if ($productName === '' || $price < 0 || $stock < 0 || $costPrice < 0) {
     echo json_encode([
@@ -65,9 +68,9 @@ try {
     }
 
     $stmt = $conn->prepare("INSERT INTO products
-        (store_id, category_id, category, product_name, price, cost_price, stock)
-        VALUES (:store_id, :category_id, :category, :product_name, :price, :cost_price, :stock)
-        RETURNING id, store_id, product_name, category, category_id, price, cost_price, stock, created_at");
+        (store_id, category_id, category, product_name, price, cost_price, stock, min_stock)
+        VALUES (:store_id, :category_id, :category, :product_name, :price, :cost_price, :stock, :min_stock)
+        RETURNING id, store_id, product_name, category, category_id, price, cost_price, stock, min_stock, created_at");
     $stmt->bindValue(':store_id', $storeId, PDO::PARAM_INT);
     $stmt->bindValue(':category_id', $categoryId, $categoryId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
     $stmt->bindValue(':category', $categoryName !== '' ? $categoryName : 'General', PDO::PARAM_STR);
@@ -75,6 +78,7 @@ try {
     $stmt->bindValue(':price', $price);
     $stmt->bindValue(':cost_price', $costPrice);
     $stmt->bindValue(':stock', $stock, PDO::PARAM_INT);
+    $stmt->bindValue(':min_stock', $minStock, PDO::PARAM_INT);
     $stmt->execute();
 
     $newProduct = $stmt->fetch(PDO::FETCH_ASSOC);

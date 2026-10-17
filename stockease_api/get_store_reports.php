@@ -106,18 +106,35 @@ try {
     $topProductsStmt->execute($params);
     $topProducts = $topProductsStmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // 4. Daily Sales Breakdown
-    $dailyStmt = $conn->prepare("
-        SELECT 
-            TO_CHAR(t.created_at, 'YYYY-MM-DD') AS sale_date,
-            COALESCE(SUM(t.total_amount), 0.0) AS daily_sales,
-            COUNT(t.id) AS transaction_count
-        FROM transactions t
-        WHERE $whereSql
-        GROUP BY TO_CHAR(t.created_at, 'YYYY-MM-DD')
-        ORDER BY sale_date DESC
-        LIMIT 7
-    ");
+    // 4. Sales breakdown that feeds the line chart.
+    // A single day is bucketed by hour so "Today" shows real intra-day progress,
+    // longer ranges are bucketed by day (no 7-day cap) so "This Week" / "This Month"
+    // actually draw the whole selected period.
+    $isSingleDay = !empty($startDate) && !empty($endDate) && $startDate === $endDate;
+    if ($isSingleDay) {
+        $dailyStmt = $conn->prepare("
+            SELECT 
+                TO_CHAR(t.created_at, 'HH24:00') AS sale_date,
+                COALESCE(SUM(t.total_amount), 0.0) AS daily_sales,
+                COUNT(t.id) AS transaction_count
+            FROM transactions t
+            WHERE $whereSql
+            GROUP BY TO_CHAR(t.created_at, 'HH24:00')
+            ORDER BY sale_date DESC
+        ");
+    } else {
+        $dailyStmt = $conn->prepare("
+            SELECT 
+                TO_CHAR(t.created_at, 'YYYY-MM-DD') AS sale_date,
+                COALESCE(SUM(t.total_amount), 0.0) AS daily_sales,
+                COUNT(t.id) AS transaction_count
+            FROM transactions t
+            WHERE $whereSql
+            GROUP BY TO_CHAR(t.created_at, 'YYYY-MM-DD')
+            ORDER BY sale_date DESC
+            LIMIT 92
+        ");
+    }
     $dailyStmt->execute($params);
     $dailySales = $dailyStmt->fetchAll(PDO::FETCH_ASSOC);
 
