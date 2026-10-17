@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- StockEase type scale. Use textAppearance instead of hardcoded textSize (STOCK-003).
+         Typefaces: Inter (SIL OFL) — semibold for headings, bold for metrics, medium for
+         labels/buttons, regular for body. -->
+    <style name="TextAppearance.StockEase.Display" parent="TextAppearance.Material3.DisplaySmall">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:fontFamily">@font/inter_heading</item>
+        <item name="android:letterSpacing">-0.02</item>
+    </style>
+
+    <style name="TextAppearance.StockEase.Title" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:fontFamily">@font/inter_title</item>
+        <item name="android:letterSpacing">-0.01</item>
+    </style>
+
+    <style name="TextAppearance.StockEase.Section" parent="TextAppearance.Material3.TitleSmall">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:fontFamily">@font/inter_title</item>
+        <item name="android:letterSpacing">-0.005</item>
+    </style>
+
+    <style name="TextAppearance.StockEase.Body" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/slate_700</item>
+        <item name="android:fontFamily">@font/inter_text</item>
+    </style>
+
+    <style name="TextAppearance.StockEase.Label" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:fontFamily">@font/inter_label</item>
+    </style>
+
+    <style name="TextAppearance.StockEase.Caption" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textColor">@color/text_muted</item>
+        <item name="android:fontFamily">@font/inter_text</item>
+    </style>
+
+    <style name="TextAppearance.StockEase.Metric" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:fontFamily">@font/inter_heading</item>
+        <item name="android:letterSpacing">-0.02</item>
+        <!-- Tabular figures so peso columns line up -->
+        <item name="android:fontFeatureSettings">tnum</item>
+    </style>
+
+    <!-- Buttons: use MaterialButton + these styles (STOCK-004). -->
+    <style name="Widget.StockEase.Button.Primary" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/primary</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="fontFamily">@font/inter_label</item>
+        <item name="cornerRadius">@dimen/radius_s</item>
+        <item name="android:minHeight">@dimen/btn_height</item>
+    </style>
+
+    <style name="Widget.StockEase.Button.Secondary" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="strokeColor">@color/card_border</item>
+        <item name="android:textColor">@color/slate_700</item>
+        <item name="fontFamily">@font/inter_label</item>
+        <item name="cornerRadius">@dimen/radius_s</item>
+        <item name="android:minHeight">@dimen/btn_height</item>
+    </style>
+
+    <style name="Widget.StockEase.Button.Danger" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="strokeColor">@color/danger_bg</item>
+        <item name="android:textColor">@color/danger_text</item>
+        <item name="fontFamily">@font/inter_label</item>
+        <item name="cornerRadius">@dimen/radius_s</item>
+        <item name="android:minHeight">@dimen/btn_height</item>
+    </style>
+
+    <!-- Filled positive action; used where a second colour has to read as
+         "recommended" rather than "primary" (e.g. the yearly plan). -->
+    <style name="Widget.StockEase.Button.Success" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/success_strong</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="fontFamily">@font/inter_label</item>
+        <item name="cornerRadius">@dimen/radius_s</item>
+        <item name="android:minHeight">@dimen/btn_height</item>
+    </style>
+
+    <!-- Cards: 12dp radius, 1dp border stroke + 2dp elevation (STOCK-009). -->
+    <style name="Widget.StockEase.Card" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardBackgroundColor">@color/card_background</item>
+        <item name="cardCornerRadius">@dimen/radius_m</item>
+        <item name="cardElevation">@dimen/card_elevation</item>
+        <item name="strokeColor">@color/card_border</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+
+    <!-- Metric card: same surface, plus a press ripple so stat cards read as tappable. -->
+    <style name="Widget.StockEase.CardMetric" parent="Widget.StockEase.Card">
+        <item name="rippleColor">@color/card_ripple</item>
+    </style>
+
+    <!-- Inputs: TextInputLayout wrapper + 52dp height, 8dp radius. -->
+    <style name="Widget.StockEase.Input" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxBackgroundColor">@color/card_background</item>
+        <item name="boxStrokeColor">@color/input_border</item>
+        <item name="hintTextColor">@color/text_secondary</item>
+    </style>
+
+    <!-- Filter/date chip: the quiet pill used above tables and charts. -->
+    <style name="Widget.StockEase.Chip" parent="Widget.AppCompat.Button">
+        <item name="android:fontFamily">@font/inter_label</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:paddingLeft">12dp</item>
+        <item name="android:paddingRight">12dp</item>
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
+    </style>
+</resources>

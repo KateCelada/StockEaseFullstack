@@ -1,0 +1,34 @@
+# Android / Gradle
+.gradle/
+build/
+app/build/
+local.properties
+*.iml
+
+# Android Studio
+.idea/
+
+# Codex working / backup files
+.codex_backups/
+.codex_staging/
+
+# Project archives
+*.zip
+
+# Database backups
+*.dump
+*.backup
+*.bak
+
+# Logs
+*.log
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# ui-check: keep the tooling, drop the generated/transient output
+tools/ui-check/migration-backup/
+tools/ui-check/__pycache__/
+tools/ui-check/baseline-report.json
+tools/ui-check/baseline-report.md

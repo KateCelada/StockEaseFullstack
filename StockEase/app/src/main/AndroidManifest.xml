@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:name=".StockEaseApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.StockEase"
+        android:usesCleartextTraffic="true">
+
+        <!-- Launcher Activity -->
+        <activity
+            android:name=".LoginActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Registered Secondary Activities -->
+        <activity
+            android:name=".RegisterActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".SuperAdminDashboardActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".BusinessProgressActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".UsersActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".DashboardActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".InventoryActivity"
+            android:exported="false"
+            android:label="Inventory Management" />
+
+        <activity
+            android:name=".ProfileActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".StoreAdminDashboardActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ProductsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".StaffActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".POSActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".CashierDashboardActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".InventoryDashboardActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".TransactionHistoryActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ReportsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".LowStockActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".StoreAdminsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".StoresActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ReceiptActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".AuditLogsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".SubscriptionActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".StockTransfersActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".StockEaseInsightsActivity"
+            android:exported="false" />
+
+    </application>
+
+</manifest>

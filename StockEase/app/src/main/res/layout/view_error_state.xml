@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Shared error state: ring icon + honest sentence + retry.
+     Distinct from the empty state on purpose: a failed load is not the
+     same thing as an empty dataset, and conflating them would tell the
+     user their data is gone when it was never fetched.
+     Populate with StateViews.bindError(root, title, message, listener). -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <ImageView
+        android:id="@+id/ivErrorIcon"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:contentDescription="@string/cd_error_state"
+        android:src="@drawable/ic_error_state" />
+
+    <TextView
+        android:id="@+id/tvErrorTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:text="@string/state_error_title"
+        android:textAppearance="@style/TextAppearance.StockEase.Section"
+        android:textColor="@color/text_primary" />
+
+    <TextView
+        android:id="@+id/tvErrorMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:maxWidth="320dp"
+        android:text="@string/state_error_message"
+        android:textAppearance="@style/TextAppearance.StockEase.Body"
+        android:textColor="@color/text_secondary" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnErrorRetry"
+        style="@style/Widget.StockEase.Button.Primary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/state_action_retry" />
+</LinearLayout>

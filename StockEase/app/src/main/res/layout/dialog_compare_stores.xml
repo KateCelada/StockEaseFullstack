@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/card_background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Store Comparison Tool"
+            android:textColor="@color/text_primary"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Title" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Select two branch stores to compare performance side-by-side"
+            android:textColor="@color/text_secondary"
+
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="16dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+        <!-- Store Selection Dropdowns -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginEnd="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Branch Store A"
+                    android:textColor="@color/brand_accent"
+
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+                <Spinner
+                    android:id="@+id/spinnerCompareStoreA"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:background="@color/app_background"
+                    android:paddingHorizontal="8dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Branch Store B"
+                    android:textColor="@color/success_text"
+
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+                <Spinner
+                    android:id="@+id/spinnerCompareStoreB"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:background="@color/app_background"
+                    android:paddingHorizontal="8dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Comparison Table Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/sidebar_bg"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.2"
+                android:text="METRIC"
+                android:textColor="@color/white"
+
+                android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+            <TextView
+                android:id="@+id/tvCompareColA"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:text="STORE A"
+                android:textColor="@color/brand_accent"
+
+                android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+            <TextView
+                android:id="@+id/tvCompareColB"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:text="STORE B"
+                android:textColor="@color/success"
+
+                android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+        </LinearLayout>
+
+        <!-- Metric Row 1: Today's Sales -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
+            android:background="@color/card_background"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.2"
+                android:text="Today's Sales"
+                android:textColor="@color/text_primary"
+
+                android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+            <TextView
+                android:id="@+id/tvCompareSalesA"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:text="₱0.00"
+                android:textColor="@color/text_primary"
+
+                android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+            <TextView
+                android:id="@+id/tvCompareSalesB"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:text="₱0.00"
+                android:textColor="@color/text_primary"
+
+                android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+        </LinearLayout>
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/app_background" />
+
+        <!-- Metric Row 2: Transactions -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
+            android:background="@color/card_background"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.2"
+                android:text="Transactions"
+                android:textColor="@color/text_primary"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+            <TextView
+                android:id="@+id/tvCompareTxA"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:text="0"
+                android:textColor="@color/text_primary"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+            <TextView
+                android:id="@+id/tvCompareTxB"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:text="0"
+                android:textColor="@color/text_primary"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+        </LinearLayout>
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/app_background" />
+
+        <!-- Metric Row 3: Average Basket Size -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
+            android:background="@color/card_background"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.2"
+                android:text="Avg Basket"
+                android:textColor="@color/text_primary"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+            <TextView
+                android:id="@+id/tvCompareAvgA"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:text="₱0.00"
+                android:textColor="@color/text_primary"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+            <TextView
+                android:id="@+id/tvCompareAvgB"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:text="₱0.00"
+                android:textColor="@color/text_primary"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+        </LinearLayout>
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/app_background" />
+
+        <!-- Metric Row 4: Assigned Staff -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
+            android:background="@color/card_background"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.2"
+                android:text="Assigned Staff"
+                android:textColor="@color/text_primary"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+            <TextView
+                android:id="@+id/tvCompareStaffA"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:text="0"
+                android:textColor="@color/text_primary"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+            <TextView
+                android:id="@+id/tvCompareStaffB"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:text="0"
+                android:textColor="@color/text_primary"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+        </LinearLayout>
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/app_background" />
+
+        <!-- Metric Row 5: Location -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp"
+            android:background="@color/card_background"
+            android:orientation="horizontal"
+            android:layout_marginBottom="20dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.2"
+                android:text="Location"
+                android:textColor="@color/text_primary"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+            <TextView
+                android:id="@+id/tvCompareLocA"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:text="—"
+                android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+            <TextView
+                android:id="@+id/tvCompareLocB"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:text="—"
+                android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCompareClose"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Close"
+            android:textColor="@color/white"  style="@style/Widget.StockEase.Button.Primary" />
+
+    </LinearLayout>
+</ScrollView>

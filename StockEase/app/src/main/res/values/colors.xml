@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Core Brand Palette -->
+    <color name="primary">#2563EB</color>
+    <color name="primary_dark">#1D4ED8</color>
+    <color name="primary_light">#EFF6FF</color>
+    
+    <!-- Sidebar & Executive Dark Slate -->
+    <color name="sidebar_bg">#0F172A</color>
+    <color name="sidebar_item_active">#1E293B</color>
+    <color name="sidebar_text">#94A3B8</color>
+    
+    <!-- Backgrounds & Surfaces -->
+    <color name="app_background">#F8FAFC</color>
+    <color name="card_background">#FFFFFF</color>
+    <color name="card_border">#E2E8F0</color>
+    <color name="card_subtle_bg">#F1F5F9</color>
+    
+    <!-- Typography -->
+    <color name="text_primary">#0F172A</color>
+    <color name="text_secondary">#64748B</color>
+    <color name="text_muted">#94A3B8</color>
+    
+    <!-- Status & Semantic Accents -->
+    <color name="success">#10B981</color>
+    <color name="success_bg">#ECFDF5</color>
+    <color name="success_text">#047857</color>
+    
+    <color name="danger">#EF4444</color>
+    <color name="danger_bg">#FEF2F2</color>
+    <color name="danger_text">#B91C1C</color>
+    
+    <color name="warning">#F59E0B</color>
+    <color name="warning_bg">#FFFBEB</color>
+    <color name="warning_text">#B45309</color>
+    
+    <color name="purple_bg">#F5F3FF</color>
+    <color name="purple_text">#6D28D9</color>
+
+    <!-- Extended StockEase tokens (consolidate legacy hardcoded hex here) -->
+    <color name="slate_700">#334155</color>
+    <color name="slate_600">#475569</color>
+    <color name="input_border">#CBD5E1</color>
+    <color name="success_strong">#059669</color>
+    <color name="profit">#16A34A</color>
+    <color name="danger_strong">#DC2626</color>
+    <color name="brand_accent">#7C4DFF</color>
+    <color name="primary_ink">#1E40AF</color>
+    <color name="badge_amber_bg">#FEF3C7</color>
+    <color name="overlay_scrim">#44000000</color>
+    <color name="transparent">#00000000</color>
+
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- Phase 0 tokens: surfaces, strokes and sidebar detail -->
+    <color name="card_ripple">#140F172A</color>
+    <color name="sidebar_divider">#1E293B</color>
+</resources>

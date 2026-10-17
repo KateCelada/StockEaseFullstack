@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Push transition: screen underneath shifts a third to the left, 200ms. -->
+<translate xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="200"
+    android:fromXDelta="0%"
+    android:toXDelta="-30%"
+    android:interpolator="@android:interpolator/fast_out_slow_in" />

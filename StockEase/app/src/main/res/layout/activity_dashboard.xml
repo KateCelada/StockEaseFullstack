@@ -1,0 +1,743 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_background"
+    android:orientation="horizontal">
+
+    <!-- Left navigation -->
+    <LinearLayout
+        android:layout_width="232dp"
+        android:layout_height="match_parent"
+        android:background="@color/sidebar_bg"
+        android:orientation="vertical"
+        android:padding="@dimen/space_16">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/space_24"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:background="@drawable/bg_btn_primary"
+                android:gravity="center"
+                android:text="@string/brand_initial"
+                android:textAppearance="@style/TextAppearance.StockEase.Section"
+                android:textColor="@color/white" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/space_8"
+                android:text="@string/login_brand"
+                android:textAppearance="@style/TextAppearance.StockEase.Section"
+                android:textColor="@color/white" />
+        </LinearLayout>
+
+        <!-- SECTION HEADER: OVERVIEW -->
+        <LinearLayout
+            android:id="@+id/navHeaderOverview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="OVERVIEW"
+                android:letterSpacing="0.08"
+                android:textColor="@color/sidebar_text"
+
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+            <TextView
+                android:id="@+id/navArrowOverview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/sidebar_text"
+
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navSectionOverviewItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="4dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnNavDashboard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/nav_dashboard"
+            app:icon="@drawable/ic_nav_dashboard_white"
+            app:iconGravity="textStart"
+            app:iconTint="@color/white"
+            style="@style/Widget.StockEase.Button.Primary" />
+        </LinearLayout>
+
+        <!-- SECTION HEADER: MANAGEMENT -->
+        <LinearLayout
+            android:id="@+id/navHeaderManagement"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="MANAGEMENT"
+                android:letterSpacing="0.08"
+                android:textColor="@color/sidebar_text"
+
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+            <TextView
+                android:id="@+id/navArrowManagement"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/sidebar_text"
+
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navSectionManagementItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="4dp">
+
+        <TextView
+            android:id="@+id/btnNavPos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/space_8"
+            android:drawableStart="@drawable/ic_nav_sales"
+            android:drawablePadding="@dimen/space_8"
+            android:drawableTint="@color/text_muted"
+            android:padding="@dimen/space_12"
+            android:text="@string/nav_pos"
+            android:textAppearance="@style/TextAppearance.StockEase.Body"
+            android:textColor="@color/sidebar_text" />
+
+        <TextView
+            android:id="@+id/btnNavInventory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_nav_inventory"
+            android:drawablePadding="@dimen/space_8"
+            android:drawableTint="@color/text_muted"
+            android:padding="@dimen/space_12"
+            android:text="@string/nav_inventory"
+            android:textAppearance="@style/TextAppearance.StockEase.Body"
+            android:textColor="@color/sidebar_text" />
+        </LinearLayout>
+
+        <!-- SECTION HEADER: ANALYTICS -->
+        <LinearLayout
+            android:id="@+id/navHeaderAnalytics"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="ANALYTICS"
+                android:letterSpacing="0.08"
+                android:textColor="@color/sidebar_text"
+
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+            <TextView
+                android:id="@+id/navArrowAnalytics"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/sidebar_text"
+
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navSectionAnalyticsItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:id="@+id/btnNavTransactions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/ic_nav_sales"
+                android:drawablePadding="@dimen/space_8"
+                android:drawableTint="@color/text_muted"
+                android:padding="@dimen/space_12"
+                android:text="Transactions"
+                android:textAppearance="@style/TextAppearance.StockEase.Body"
+                android:textColor="@color/sidebar_text" />
+        </LinearLayout>
+
+        <!-- SECTION HEADER: SYSTEM -->
+        <LinearLayout
+            android:id="@+id/navHeaderSystem"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="SYSTEM"
+                android:letterSpacing="0.08"
+                android:textColor="@color/sidebar_text"
+
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+            <TextView
+                android:id="@+id/navArrowSystem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/sidebar_text"
+
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navSectionSystemItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:id="@+id/btnNavSettings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableStart="@drawable/ic_nav_settings"
+                android:drawablePadding="@dimen/space_8"
+                android:drawableTint="@color/text_muted"
+                android:padding="@dimen/space_12"
+                android:text="Settings"
+                android:textAppearance="@style/TextAppearance.StockEase.Body"
+                android:textColor="@color/sidebar_text" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="@color/sidebar_divider" />
+
+        <TextView
+            android:id="@+id/btnNavLogout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/ic_nav_logout"
+            android:drawablePadding="@dimen/space_8"
+            android:drawableTint="@color/text_muted"
+            android:padding="@dimen/space_12"
+            android:text="@string/nav_logout"
+            android:textAppearance="@style/TextAppearance.StockEase.Body"
+            android:textColor="@color/sidebar_text"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true" />
+    </LinearLayout>
+
+    <!-- Main content -->
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:padding="@dimen/space_16">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/space_16">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/dashboard_title"
+                        android:textAppearance="@style/TextAppearance.StockEase.Title" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/space_4"
+                        android:text="@string/dashboard_shift"
+                        android:textAppearance="@style/TextAppearance.StockEase.Label" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/btnNavProfile"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:gravity="end"
+                    android:text="@string/dashboard_profile"
+                    android:textAppearance="@style/TextAppearance.StockEase.Label" />
+            </RelativeLayout>
+
+            <!-- Metric cards -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/space_16"
+                android:orientation="horizontal"
+                android:weightSum="4">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardMetricSales"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/space_8"
+                    android:layout_weight="1"
+                    style="@style/Widget.StockEase.Card">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/space_12">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/metric_sales"
+                            android:textAppearance="@style/TextAppearance.StockEase.Caption" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/space_4"
+                            android:text="@string/demo_sales"
+                            android:textAppearance="@style/TextAppearance.StockEase.Metric" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardMetricTxns"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/space_8"
+                    android:layout_weight="1"
+                    style="@style/Widget.StockEase.Card">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/space_12">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/metric_txns"
+                            android:textAppearance="@style/TextAppearance.StockEase.Caption" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/space_4"
+                            android:text="@string/demo_txns"
+                            android:textAppearance="@style/TextAppearance.StockEase.Metric" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardMetricItems"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/space_8"
+                    android:layout_weight="1"
+                    style="@style/Widget.StockEase.Card">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/space_12">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/metric_items"
+                            android:textAppearance="@style/TextAppearance.StockEase.Caption" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/space_4"
+                            android:text="@string/demo_items"
+                            android:textAppearance="@style/TextAppearance.StockEase.Metric" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardMetricTime"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    style="@style/Widget.StockEase.Card">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/space_12">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/metric_time"
+                            android:textAppearance="@style/TextAppearance.StockEase.Caption" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/space_4"
+                            android:text="@string/demo_time"
+                            android:textAppearance="@style/TextAppearance.StockEase.Metric" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <!-- Sales summary + top sellers -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="160dp"
+                android:layout_marginBottom="@dimen/space_16"
+                android:orientation="horizontal">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardSalesSummary"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="@dimen/space_8"
+                    android:layout_weight="2"
+                    style="@style/Widget.StockEase.Card">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="@dimen/space_12">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/sales_summary"
+                            android:textAppearance="@style/TextAppearance.StockEase.Section" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:background="@drawable/bg_pill_header"
+                            android:paddingHorizontal="@dimen/space_12"
+                            android:paddingVertical="@dimen/space_4"
+                            android:text="@string/sales_today"
+                            android:textAppearance="@style/TextAppearance.StockEase.Caption" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:text="@string/demo_chart"
+                            android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                    </RelativeLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardTopSellers"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    style="@style/Widget.StockEase.Card">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:padding="@dimen/space_12">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="@dimen/space_8"
+                            android:text="@string/top_sellers"
+                            android:textAppearance="@style/TextAppearance.StockEase.Section" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/demo_item_a"
+                                android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/demo_qty_a"
+                                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/space_4"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/demo_item_b"
+                                android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/demo_qty_b"
+                                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/space_4"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/demo_item_c"
+                                android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/demo_qty_c"
+                                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <!-- Recent transactions -->
+            <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardRecentTxns"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/Widget.StockEase.Card">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/space_12">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/space_12"
+                        android:text="@string/recent_txns"
+                        android:textAppearance="@style/TextAppearance.StockEase.Section" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:weightSum="4">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/col_invoice"
+                            android:textAppearance="@style/TextAppearance.StockEase.Caption" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/col_customer"
+                            android:textAppearance="@style/TextAppearance.StockEase.Caption" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/col_total"
+                            android:textAppearance="@style/TextAppearance.StockEase.Caption" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/col_time"
+                            android:textAppearance="@style/TextAppearance.StockEase.Caption" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginVertical="@dimen/space_8"
+                        android:background="@color/card_border" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingVertical="@dimen/space_4"
+                        android:weightSum="4">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/demo_inv_a"
+                            android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/demo_cust_a"
+                            android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/demo_total_a"
+                            android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/demo_time_a"
+                            android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingVertical="@dimen/space_4"
+                        android:weightSum="4">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/demo_inv_b"
+                            android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/demo_cust_b"
+                            android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/demo_total_b"
+                            android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/demo_time_b"
+                            android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingVertical="@dimen/space_4"
+                        android:weightSum="4">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/demo_inv_c"
+                            android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/demo_cust_c"
+                            android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/demo_total_c"
+                            android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/demo_time_c"
+                            android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="12dp"
+    android:background="@color/sidebar_bg"
+    android:gravity="center_vertical"
+    android:layout_marginBottom="4dp">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvPosProductName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Section" />
+
+        <TextView
+            android:id="@+id/tvPosProductStock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_muted"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvPosProductPrice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/success"
+
+        android:textStyle="bold"
+        android:layout_marginEnd="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnAddToCart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="+ Add"
+
+        android:textColor="@color/white"  android:textAppearance="@style/TextAppearance.StockEase.Label" style="@style/Widget.StockEase.Button.Primary" />
+
+</LinearLayout>

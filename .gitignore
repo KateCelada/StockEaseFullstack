@@ -1,8 +1,6 @@
 # ---- Android app (StockEase) ----
-# Its own independent git repo with its own GitHub remote
-# (github.com/KateCelada/StockEase). It lives in this folder for convenience
-# but is tracked separately -- not a submodule, not part of this repo.
-StockEase/
+# Merged into this repo (single-repo layout: app + API + web).
+# The app's own StockEase/.gitignore still excludes its build artifacts.
 *.apk
 *.aab
 

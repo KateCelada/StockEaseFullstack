@@ -1,0 +1,25 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.StockEase" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primary_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/brand_accent</item>
+        <item name="android:colorBackground">@color/app_background</item>
+        <item name="colorSurface">@color/card_background</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorError">@color/danger</item>
+        <!-- Default typeface for anything not styled explicitly -->
+        <item name="fontFamily">@font/inter_text</item>
+        <item name="android:fontFamily">@font/inter_text</item>
+        <!-- Default text appearances point at the StockEase scale. -->
+        <item name="textAppearanceDisplaySmall">@style/TextAppearance.StockEase.Display</item>
+        <item name="textAppearanceTitleLarge">@style/TextAppearance.StockEase.Title</item>
+        <item name="textAppearanceTitleSmall">@style/TextAppearance.StockEase.Section</item>
+        <item name="textAppearanceBodyMedium">@style/TextAppearance.StockEase.Body</item>
+        <item name="textAppearanceLabelMedium">@style/TextAppearance.StockEase.Label</item>
+        <item name="textAppearanceLabelSmall">@style/TextAppearance.StockEase.Caption</item>
+    </style>
+
+    <style name="Theme.StockEase" parent="Base.Theme.StockEase" />
+</resources>

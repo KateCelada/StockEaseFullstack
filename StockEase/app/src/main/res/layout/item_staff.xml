@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="16dp"
+    android:gravity="center_vertical"
+    android:background="@drawable/bg_card_white"
+    android:layout_marginBottom="8dp">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvStaffName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Staff Name"
+            android:textColor="@color/text_primary"
+
+            android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+        <TextView
+            android:id="@+id/tvStaffRole"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cashier"
+            android:textColor="@color/primary"
+
+            android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvStaffUsername"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.5"
+        android:text="@username"
+        android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+    <TextView
+        android:id="@+id/tvStaffEmail"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.5"
+        android:text="Email"
+        android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+    <TextView
+        android:id="@+id/tvStaffStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Active"
+        android:textColor="@color/success"
+
+        android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+</LinearLayout>

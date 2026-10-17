@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:background="@color/card_background">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Edit Profile"
+
+
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Title" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Update your personal details. Role, branch and ID number are managed by your administrator."
+
+            android:textColor="@color/text_secondary"
+            android:layout_marginBottom="16dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Full Name"
+
+            android:textStyle="bold"
+            android:textColor="@color/slate_600"
+            android:layout_marginBottom="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+        <EditText
+            android:id="@+id/etEditFullName"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_input_field"
+            android:hint="e.g. Juan Dela Cruz"
+            android:textColorHint="@color/text_muted"
+            android:textColor="@color/text_primary"
+
+            android:inputType="textPersonName"
+            android:paddingHorizontal="12dp"
+            android:layout_marginBottom="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Email Address"
+
+            android:textStyle="bold"
+            android:textColor="@color/slate_600"
+            android:layout_marginBottom="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+        <EditText
+            android:id="@+id/etEditEmail"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_input_field"
+            android:hint="you@example.com"
+            android:textColorHint="@color/text_muted"
+            android:textColor="@color/text_primary"
+
+            android:inputType="textEmailAddress"
+            android:paddingHorizontal="12dp"
+            android:layout_marginBottom="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Phone Number"
+
+            android:textStyle="bold"
+            android:textColor="@color/slate_600"
+            android:layout_marginBottom="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+        <EditText
+            android:id="@+id/etEditPhone"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_input_field"
+            android:hint="09XX XXX XXXX"
+            android:textColorHint="@color/text_muted"
+            android:textColor="@color/text_primary"
+
+            android:inputType="phone"
+            android:paddingHorizontal="12dp"
+            android:layout_marginBottom="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Address"
+
+            android:textStyle="bold"
+            android:textColor="@color/slate_600"
+            android:layout_marginBottom="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+        <EditText
+            android:id="@+id/etEditAddress"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_input_field"
+            android:hint="Street, City"
+            android:textColorHint="@color/text_muted"
+            android:textColor="@color/text_primary"
+
+            android:inputType="textPostalAddress"
+            android:paddingHorizontal="12dp"
+            android:layout_marginBottom="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Occupation"
+
+            android:textStyle="bold"
+            android:textColor="@color/slate_600"
+            android:layout_marginBottom="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+        <EditText
+            android:id="@+id/etEditOccupation"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_input_field"
+            android:hint="e.g. Cashier"
+            android:textColorHint="@color/text_muted"
+            android:textColor="@color/text_primary"
+
+            android:inputType="text"
+            android:paddingHorizontal="12dp"
+            android:layout_marginBottom="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sex"
+
+            android:textStyle="bold"
+            android:textColor="@color/slate_600"
+            android:layout_marginBottom="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+        <EditText
+            android:id="@+id/etEditSex"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:background="@drawable/bg_input_field"
+            android:hint="Male / Female"
+            android:textColorHint="@color/text_muted"
+            android:textColor="@color/text_primary"
+
+            android:inputType="text"
+            android:paddingHorizontal="12dp"
+            android:layout_marginBottom="20dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCancelEditProfile"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="Cancel"
+                style="@style/Widget.StockEase.Button.Secondary"
+                android:textColor="@color/text_secondary"
+
+                android:layout_marginEnd="8dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+            <com.google.android.material.button.MaterialButton style="@style/Widget.StockEase.Button.Primary"
+                android:id="@+id/btnSaveEditProfile"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:text="Save Changes"
+                android:textColor="@color/white"
+
+                android:paddingHorizontal="16dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

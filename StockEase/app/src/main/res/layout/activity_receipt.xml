@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_background"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Paper Receipt Container -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@color/card_background"
+        android:elevation="4dp"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <!-- Store Header -->
+        <TextView
+            android:id="@+id/tvStoreHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:gravity="center"
+            android:text="@string/receipt_store_header"
+            android:textColor="@color/text_primary"
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+        <!-- Top Dashed Line -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:gravity="center"
+            android:text="------------------------------------------"
+            android:textColor="@color/text_primary"
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+        <!-- Transaction Details -->
+        <TextView
+            android:id="@+id/tvReceiptTxId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:text="TRANS #: 000000"
+            android:textColor="@color/text_primary"
+            android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+        <TextView
+            android:id="@+id/tvReceiptDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:text="DATE   : 2026-09-23 08:43:00"
+            android:textColor="@color/text_primary"
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+        <TextView
+            android:id="@+id/tvCashier"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:text="@string/receipt_cashier_unknown"
+            android:textColor="@color/text_primary"
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+        <!-- Middle Dashed Line -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:gravity="center"
+            android:text="------------------------------------------"
+            android:textColor="@color/text_primary"
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+        <!-- Itemized List Header -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:text="QTY  ITEM DESCRIPTION             PRICE"
+            android:textColor="@color/text_primary"
+            android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:gravity="center"
+            android:text="- - - - - - - - - - - - - - - - - - - - -"
+            android:textColor="@color/text_primary"
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+        <!-- Purchased Items List -->
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:scrollbars="none">
+
+            <TextView
+                android:id="@+id/tvReceiptItems"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="monospace"
+                android:lineSpacingExtra="3dp"
+
+                android:textColor="@color/text_primary"
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
+        </ScrollView>
+
+        <!-- Bottom Dashed Line -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:gravity="center"
+            android:text="------------------------------------------"
+            android:textColor="@color/text_primary"
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+        <!-- Total Breakdown -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="monospace"
+                android:text="TOTAL AMOUNT:"
+                android:textColor="@color/text_primary"
+                android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+            <TextView
+                android:id="@+id/tvReceiptTotal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="monospace"
+
+                android:textColor="@color/text_primary"
+                android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="monospace"
+                android:text="PAYMENT TYPE:"
+                android:textColor="@color/text_primary"
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="monospace"
+                android:text="CASH"
+                android:textColor="@color/text_primary"
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
+        </LinearLayout>
+
+        <!-- Receipt Footer / Barcode Visual -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:fontFamily="monospace"
+            android:gravity="center"
+            android:text="=========================================="
+            android:textColor="@color/text_primary"
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:fontFamily="monospace"
+            android:gravity="center"
+            android:text="||| | |||| | |||||| || | |||| ||| ||"
+            android:textColor="@color/text_primary"
+android:textAppearance="@style/TextAppearance.StockEase.Section" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:fontFamily="monospace"
+            android:gravity="center"
+            android:text="THANK YOU FOR SHOPPING!\nPLEASE COME AGAIN"
+            android:textColor="@color/text_primary"
+android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+    </LinearLayout>
+
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="12dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnVoidFromReceipt"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:text="Void Transaction"
+            android:textColor="@color/white"  style="@style/Widget.StockEase.Button.Secondary" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnNewSale"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:text="New Sale"
+            android:textColor="@color/white"  style="@style/Widget.StockEase.Button.Primary" />
+    </LinearLayout>
+
+</LinearLayout>

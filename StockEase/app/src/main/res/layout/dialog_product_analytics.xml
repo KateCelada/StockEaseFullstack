@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="@color/card_background">
+
+    <!-- Header -->
+    <TextView
+        android:id="@+id/tvAnalyticsProductName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Product Performance"
+
+
+        android:textColor="@color/text_primary"  android:textAppearance="@style/TextAppearance.StockEase.Title" />
+
+    <TextView
+        android:id="@+id/tvAnalyticsCategory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Category: General"
+
+        android:textColor="@color/text_secondary"
+        android:layout_marginBottom="16dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+    <!-- Progressive Total Earnings Cards -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="12dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/primary_light"
+            android:padding="12dp"
+            android:orientation="vertical"
+            android:layout_marginEnd="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Progressive Gross (Earned)"
+
+                android:textColor="@color/primary_ink"  android:textAppearance="@style/TextAppearance.StockEase.Caption" />
+
+            <TextView
+                android:id="@+id/tvAnalyticsProgressiveGross"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₱0.00"
+
+                android:textStyle="bold"
+                android:textColor="@color/primary_dark"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/success_bg"
+            android:padding="12dp"
+            android:orientation="vertical"
+            android:layout_marginStart="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Progressive Net (Profit)"
+
+                android:textColor="@color/success_text"  android:textAppearance="@style/TextAppearance.StockEase.Caption" />
+
+            <TextView
+                android:id="@+id/tvAnalyticsProgressiveNet"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₱0.00"
+
+                android:textStyle="bold"
+                android:textColor="@color/success_strong"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Total Units Sold Badge -->
+    <TextView
+        android:id="@+id/tvAnalyticsTotalSold"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Total Sold: 0 units"
+
+        android:textColor="@color/slate_600"
+        android:layout_marginBottom="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+    <!-- Unit Price & Cost Details -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="12dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/app_background"
+            android:padding="12dp"
+            android:orientation="vertical"
+            android:layout_marginEnd="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cost Price"
+
+                android:textColor="@color/text_secondary"  android:textAppearance="@style/TextAppearance.StockEase.Caption" />
+
+            <TextView
+                android:id="@+id/tvAnalyticsCost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₱0.00"
+
+                android:textStyle="bold"
+                android:textColor="@color/slate_700"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/app_background"
+            android:padding="12dp"
+            android:orientation="vertical"
+            android:layout_marginStart="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Selling Price"
+
+                android:textColor="@color/text_secondary"  android:textAppearance="@style/TextAppearance.StockEase.Caption" />
+
+            <TextView
+                android:id="@+id/tvAnalyticsPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="₱0.00"
+
+                android:textStyle="bold"
+                android:textColor="@color/primary"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/success_bg"
+            android:padding="12dp"
+            android:orientation="vertical"
+            android:layout_marginEnd="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Net Profit / Item"
+
+                android:textColor="@color/success_text"  android:textAppearance="@style/TextAppearance.StockEase.Caption" />
+
+            <TextView
+                android:id="@+id/tvAnalyticsProfit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="+₱0.00"
+
+                android:textStyle="bold"
+                android:textColor="@color/profit"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/primary_light"
+            android:padding="12dp"
+            android:orientation="vertical"
+            android:layout_marginStart="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Gross Margin"
+
+                android:textColor="@color/primary_ink"  android:textAppearance="@style/TextAppearance.StockEase.Caption" />
+
+            <TextView
+                android:id="@+id/tvAnalyticsMargin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0.0%"
+
+                android:textStyle="bold"
+                android:textColor="@color/primary"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Line Chart Title -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Estimated Earnings / Sales Trend"
+
+        android:textStyle="bold"
+        android:textColor="@color/text_primary"
+        android:layout_marginBottom="8dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+    <!-- Line Chart Component -->
+    <com.example.stockease.SimpleLineChartView
+        android:id="@+id/chartProductTrend"
+        android:layout_width="match_parent"
+        android:layout_height="140dp"
+        android:background="@color/app_background"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/btnDownloadTrendChart"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/card_subtle_bg"
+        android:gravity="center"
+        android:padding="6dp"
+        android:text="⤓ Save Chart as PNG"
+        android:textColor="@color/primary"
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_marginBottom="16dp"
+        android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+    <!-- Action Buttons: Edit Prices & Restock -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="12dp">
+
+        <Button
+            android:id="@+id/btnEditProductDetails"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:text="Edit Prices"
+
+            android:textColor="@color/primary"
+            android:background="@drawable/bg_badge_blue"
+            android:layout_marginEnd="8dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+        <Button
+            android:id="@+id/btnRestockProduct"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:text="Add Stock"
+
+            android:textColor="@color/success_strong"
+            android:background="@drawable/bg_badge_emerald"
+            android:layout_marginStart="8dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton style="@style/Widget.StockEase.Button.Primary"
+        android:id="@+id/btnCloseAnalytics"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:text="Close"
+        android:textColor="@color/white"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+</LinearLayout>

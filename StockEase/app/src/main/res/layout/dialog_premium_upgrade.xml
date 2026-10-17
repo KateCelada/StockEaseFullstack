@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_card_white"
+    android:padding="24dp">
+
+    <!-- Feature Badge & Title -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="12dp">
+
+        <TextView
+            android:id="@+id/tvPremiumFeatureTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Feature (Premium)"
+            android:textColor="@color/text_primary"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Title" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_badge_blue"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:text="Premium"
+            android:textColor="@color/primary"
+
+            android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+    </LinearLayout>
+
+    <!-- Explanation -->
+    <TextView
+        android:id="@+id/tvPremiumFeatureExplanation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="This feature is available with StockEase Premium. Upgrade your plan to unlock multi-store inventory transfers, smart analytics, and advanced insights."
+        android:textColor="@color/text_secondary"
+
+        android:lineSpacingExtra="3dp"
+        android:layout_marginBottom="24dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancelUpgrade"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="Cancel"
+            style="@style/Widget.StockEase.Button.Secondary"
+            android:textColor="@color/text_secondary"
+
+            android:layout_marginEnd="8dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnViewPremium"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="View Premium"
+
+            android:textColor="@color/white"
+            android:paddingHorizontal="16dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" style="@style/Widget.StockEase.Button.Primary" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:background="@color/app_background">
+
+    <!-- Persistent navigation (shared across all main screens) -->
+    <include layout="@layout/view_sidebar" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+    <!-- Top App Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@color/sidebar_bg"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="16dp">
+
+        <ImageButton
+            android:id="@+id/btnSubBack"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_arrow_back"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:tint="#FFFFFF"
+            android:contentDescription="Back"
+            android:layout_marginEnd="12dp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="StockEase Subscription"
+            android:textColor="@color/white"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Section" />
+
+        <TextView
+            android:id="@+id/tvSubHeaderBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_badge_emerald"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:text="Active Plan"
+            android:textColor="@color/success_strong"
+
+            android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <!-- Section 1: Current Plan Overview Card -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_card_white"
+                android:orientation="vertical"
+                android:padding="20dp"
+                android:layout_marginBottom="24dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="CURRENT PLAN DETAILS"
+                    android:textColor="@color/text_secondary"
+
+                    android:textStyle="bold"
+                    android:layout_marginBottom="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:id="@+id/tvCurrentPlanTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="StockEase Free"
+                        android:textColor="@color/text_primary"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Title" />
+
+                    <TextView
+                        android:id="@+id/tvCurrentStatusBadge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_badge_gray"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="4dp"
+                        android:text="Active"
+                        android:textColor="@color/slate_700"
+
+                        android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:background="@color/app_background"
+                    android:padding="12dp"
+                    android:layout_marginBottom="16dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Billing Interval"
+                            android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+                        <TextView
+                            android:id="@+id/tvBillingPeriod"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="None (Free)"
+                            android:textColor="@color/text_primary"
+
+                            android:textStyle="bold"
+                            android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/card_border"
+                        android:layout_marginHorizontal="12dp" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Renewal / Expiration"
+                            android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+                        <TextView
+                            android:id="@+id/tvExpirationDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="No expiration"
+                            android:textColor="@color/text_primary"
+
+                            android:textStyle="bold"
+                            android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvPlanAccessSummary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Standard operational access: POS checkout, local product and inventory tracking, and sales history."
+                    android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+            </LinearLayout>
+
+            <!-- Section 2: Plans Comparison -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="AVAILABLE TIERS"
+                android:textColor="@color/text_secondary"
+
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="24dp">
+
+                <!-- Tier 1: Free -->
+                <LinearLayout
+                    android:id="@+id/cardTierFree"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_card_white"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:layout_marginEnd="8dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="FREE"
+                        android:textColor="@color/text_secondary"
+
+                        android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="₱0"
+                        android:textColor="@color/text_primary"
+
+
+                        android:layout_marginVertical="8dp"  android:textAppearance="@style/TextAppearance.StockEase.Title" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Standard retail store operations."
+                        android:textColor="@color/text_secondary"
+
+                        android:layout_marginBottom="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/card_subtle_bg" android:layout_marginBottom="12dp" />
+
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Full POS Checkout" android:textColor="@color/slate_700" android:layout_marginBottom="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Inventory Management" android:textColor="@color/slate_700" android:layout_marginBottom="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Low Stock Alerts" android:textColor="@color/slate_700" android:layout_marginBottom="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Staff Accounts" android:textColor="@color/slate_700" android:layout_marginBottom="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Standard Sales Reports" android:textColor="@color/slate_700"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+                </LinearLayout>
+
+                <!-- Tier 2: Premium Monthly -->
+                <LinearLayout
+                    android:id="@+id/cardTierMonthly"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_card_white"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:layout_marginEnd="8dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="PREMIUM MONTHLY"
+                        android:textColor="@color/primary"
+
+                        android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="₱699 / mo"
+                        android:textColor="@color/text_primary"
+
+
+                        android:layout_marginVertical="8dp"  android:textAppearance="@style/TextAppearance.StockEase.Title" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Full multi-branch control &amp; analytics."
+                        android:textColor="@color/text_secondary"
+
+                        android:layout_marginBottom="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/card_subtle_bg" android:layout_marginBottom="12dp" />
+
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Everything in Free" android:textColor="@color/slate_700" android:layout_marginBottom="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Multi-Store Stock Transfers" android:textColor="@color/primary" android:textStyle="bold" android:layout_marginBottom="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="StockEase Insights" android:textColor="@color/primary" android:textStyle="bold" android:layout_marginBottom="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Transfer Recommendations" android:textColor="@color/primary" android:textStyle="bold" android:layout_marginBottom="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Multi-Store Comparison" android:textColor="@color/primary" android:textStyle="bold" android:layout_marginBottom="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+                    <com.google.android.material.button.MaterialButton style="@style/Widget.StockEase.Button.Primary"
+                        android:id="@+id/btnApplyMonthly"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp"
+                        android:layout_marginTop="16dp"
+                        android:text="Apply (₱699/mo)"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white"
+
+                        android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+                </LinearLayout>
+
+                <!-- Tier 3: Premium Yearly (Value Option) -->
+                <LinearLayout
+                    android:id="@+id/cardTierYearly"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_card_white"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="PREMIUM YEARLY"
+                            android:textColor="@color/success_strong"
+
+                            android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_badge_emerald"
+                            android:paddingHorizontal="8dp"
+                            android:paddingVertical="4dp"
+                            android:text="BEST VALUE"
+                            android:textColor="@color/success_strong"
+
+                            android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Caption" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="₱6,990 / yr"
+                        android:textColor="@color/text_primary"
+
+
+                        android:layout_marginTop="8dp"  android:textAppearance="@style/TextAppearance.StockEase.Title" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Save ₱1,398 vs monthly billing"
+                        android:textColor="@color/success_strong"
+
+                        android:textStyle="bold"
+                        android:layout_marginBottom="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+                    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/card_subtle_bg" android:layout_marginBottom="12dp" />
+
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Everything in Monthly" android:textColor="@color/slate_700" android:layout_marginBottom="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="1 Full Year Coverage" android:textColor="@color/success_strong" android:textStyle="bold" android:layout_marginBottom="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Priority System Reports" android:textColor="@color/slate_700" android:layout_marginBottom="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Uninterrupted Operations" android:textColor="@color/slate_700" android:layout_marginBottom="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+                    <com.google.android.material.button.MaterialButton style="@style/Widget.StockEase.Button.Success"
+                        android:id="@+id/btnApplyYearly"
+                        android:layout_width="match_parent"
+                        android:layout_height="44dp"
+                        android:layout_marginTop="16dp"
+                        android:text="Apply (₱6,990/yr)"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white"
+
+                        android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+    </LinearLayout>
+
+</LinearLayout>

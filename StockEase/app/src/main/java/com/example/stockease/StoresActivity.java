@@ -1,0 +1,396 @@
+package com.example.stockease;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class StoresActivity extends AppCompatActivity {
+
+    public static final String EXTRA_SELECTION_MODE = "selection_mode";
+    public static final String EXTRA_SELECTION_TARGET = "selection_target";
+    public static final String TARGET_PRODUCTS = "products";
+    public static final String TARGET_TRANSACTIONS = "transactions";
+    public static final String TARGET_REPORTS = "reports";
+
+    private RecyclerView rvStores;
+    private View emptyStores;
+    private View errorStores;
+    private View loadingStores;
+    private Button btnAddStore;
+    private TextView tvStoresTitle, tvStoresSubtitle;
+    private StoreAdapter adapter;
+    private List<StoreAdapter.StoreItem> storeList;
+    private boolean selectionMode;
+    private String selectionTarget = "";
+    private int userId = -1;
+    private String role = "";
+    private String fullName = "";
+
+    private static final String FETCH_STORES_URL = ApiConfig.getUrl("manage_stores.php?action=fetch");
+    private static final String ADD_STORE_URL = ApiConfig.getUrl("manage_stores.php?action=add");
+    private static final String ARCHIVE_STORE_URL = ApiConfig.getUrl("manage_stores.php?action=archive");
+    private static final String DELETE_STORE_URL = ApiConfig.getUrl("manage_stores.php?action=delete");
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_stores);
+        SidebarNav.attach(this, "stores");
+
+        selectionMode = getIntent().getBooleanExtra(EXTRA_SELECTION_MODE, false);
+        selectionTarget = getIntent().getStringExtra(EXTRA_SELECTION_TARGET);
+        userId = getIntent().getIntExtra("user_id", -1);
+        role = getIntent().getStringExtra("role");
+        fullName = getIntent().getStringExtra("full_name");
+
+        boolean isSuperAdmin = "super_admin".equals(role);
+        boolean isStoreOwner = "store_owner".equals(role);
+
+        // Store owners get view-only access to the branches they own; every
+        // other role is bounced to login.
+        if (userId <= 0 || (!isSuperAdmin && !isStoreOwner)) {
+            returnToLogin("Store management and selection are available only to Super Admin and Store Owner accounts.");
+            return;
+        }
+
+        if (selectionMode
+                && !TARGET_PRODUCTS.equals(selectionTarget)
+                && !TARGET_TRANSACTIONS.equals(selectionTarget)
+                && !TARGET_REPORTS.equals(selectionTarget)) {
+            Toast.makeText(this, "Invalid store-selection destination", Toast.LENGTH_LONG).show();
+            ScreenTransitions.finish(StoresActivity.this);
+            return;
+        }
+
+        rvStores = findViewById(R.id.rvStores);
+        loadingStores = findViewById(R.id.loadingStores);
+        emptyStores = findViewById(R.id.emptyStores);
+        errorStores = findViewById(R.id.errorStores);
+        StateViews.bindError(errorStores, null, null, v -> loadStores());
+        StateViews.bindEmpty(emptyStores,
+                getString(R.string.empty_stores_title),
+                getString(R.string.empty_stores_msg), null, null);
+        btnAddStore = findViewById(R.id.btnAddStore);
+        tvStoresTitle = findViewById(R.id.tvStoresTitle);
+        tvStoresSubtitle = findViewById(R.id.tvStoresSubtitle);
+
+        storeList = new ArrayList<>();
+        adapter = new StoreAdapter(storeList, selectionMode ? this::handleStoreSelected : this::showStoreActionsDialog);
+
+        if (rvStores != null) {
+            rvStores.setLayoutManager(new LinearLayoutManager(this));
+            rvStores.setAdapter(adapter);
+        }
+
+        if (selectionMode) {
+            if (btnAddStore != null) btnAddStore.setVisibility(View.GONE);
+            if (tvStoresTitle != null) tvStoresTitle.setText("Select Store");
+            if (tvStoresSubtitle != null) {
+                if (TARGET_PRODUCTS.equals(selectionTarget)) {
+                    tvStoresSubtitle.setText("Choose a store to view its products");
+                } else if (TARGET_REPORTS.equals(selectionTarget)) {
+                    tvStoresSubtitle.setText("Choose a store to view performance reports");
+                } else {
+                    tvStoresSubtitle.setText("Choose a store to view its sales history");
+                }
+            }
+        } else if (btnAddStore != null) {
+            if (isSuperAdmin) {
+                btnAddStore.setOnClickListener(v -> showAddStoreDialog());
+            } else {
+                // Store owners have view-only access; branch creation stays
+                // with the Super Admin (managers add branches from their app).
+                btnAddStore.setVisibility(View.GONE);
+            }
+        }
+
+        loadStores();
+
+        ViewFeedbackUtil.attachAll(findViewById(android.R.id.content));
+    }
+
+    private void showAddStoreDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_add_store, null);
+        builder.setView(dialogView);
+
+        AlertDialog dialog = builder.create();
+
+        EditText etDialogStoreName = dialogView.findViewById(R.id.etDialogStoreName);
+        EditText etDialogLocation = dialogView.findViewById(R.id.etDialogLocation);
+        Button btnSaveStore = dialogView.findViewById(R.id.btnSaveStore);
+        Button btnCancel = dialogView.findViewById(R.id.btnCancel);
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        btnSaveStore.setOnClickListener(v -> {
+            String storeName = etDialogStoreName.getText().toString().trim();
+            String location = etDialogLocation.getText().toString().trim();
+
+            if (TextUtils.isEmpty(storeName)) {
+                etDialogStoreName.setError("Store name is required");
+                return;
+            }
+
+            saveStoreToDatabase(storeName, location, dialog);
+        });
+
+        dialog.show();
+    }
+
+    private void saveStoreToDatabase(String storeName, String location, AlertDialog dialog) {
+        RequestQueue queue = ApiSession.getRequestQueue(this);
+
+        JSONObject postData = new JSONObject();
+        try {
+            postData.put("store_name", storeName);
+            postData.put("location", location);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.POST,
+                ADD_STORE_URL,
+                postData,
+                response -> {
+                    try {
+                        if (response.getBoolean("success")) {
+                            Toast.makeText(StoresActivity.this, "Store added successfully!", Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                            loadStores(); // Refresh stores list dynamically
+                        } else {
+                            Toast.makeText(StoresActivity.this, response.optString("message", "Failed to add store"), Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                },
+                error -> {
+                    if (ApiSession.handleAuthError(StoresActivity.this, error)) return;
+                    Toast.makeText(StoresActivity.this, "Network error. Try again.", Toast.LENGTH_SHORT).show();
+                }
+        );
+
+        queue.add(request);
+    }
+
+    private void loadStores() {
+        RequestQueue queue = ApiSession.getRequestQueue(this);
+
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.GET, FETCH_STORES_URL, null,
+                response -> {
+                    StateViews.hideLoading(loadingStores);
+                    StateViews.setErrorVisible(errorStores, false);
+                    try {
+                        if (response.getBoolean("success")) {
+                            storeList.clear();
+                            JSONArray arr = response.getJSONArray("stores");
+                            for (int i = 0; i < arr.length(); i++) {
+                                JSONObject obj = arr.getJSONObject(i);
+                                storeList.add(new StoreAdapter.StoreItem(
+                                        obj.getInt("id"),
+                                        obj.optString("store_name", "Unnamed Store"),
+                                        obj.optString("location", "No Location"),
+                                        obj.optString("status", "Active"),
+                                        obj.optInt("admin_count", 0)
+                                    ));
+                            }
+                            if (adapter != null) {
+                                adapter.notifyDataSetChanged();
+                            }
+                            updateEmptyState();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                },
+                error -> {
+                    StateViews.hideLoading(loadingStores);
+                    ApiSession.handleAuthError(StoresActivity.this, error);
+                    showStoresError();
+                }
+        );
+
+        queue.add(request);
+    }
+
+    /** Swaps list ↔ empty state so a fresh account with no stores reads as intentional. */
+    private void updateEmptyState() {
+        boolean empty = storeList == null || storeList.isEmpty();
+        if (emptyStores != null) {
+            StateViews.setEmptyVisible(emptyStores, empty);
+        }
+        if (rvStores != null) {
+            rvStores.setVisibility(empty ? View.INVISIBLE : View.VISIBLE);
+        }
+    }
+
+    private void handleStoreSelected(StoreAdapter.StoreItem store) {
+        if (!selectionMode || store == null || store.getId() <= 0) {
+            Toast.makeText(this, "Invalid store selection", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Class<?> destination;
+        if (TARGET_PRODUCTS.equals(selectionTarget)) {
+            destination = ProductsActivity.class;
+        } else if (TARGET_REPORTS.equals(selectionTarget)) {
+            destination = ReportsActivity.class;
+        } else {
+            destination = TransactionHistoryActivity.class;
+        }
+
+        Intent intent = new Intent(this, destination);
+        intent.putExtra("store_id", store.getId());
+        intent.putExtra("selected_store_name", store.getStoreName());
+        intent.putExtra("user_id", userId);
+        intent.putExtra("role", role);
+        intent.putExtra("full_name", fullName);
+        ScreenTransitions.open(StoresActivity.this, intent);
+        ScreenTransitions.finish(StoresActivity.this);
+    }
+
+    private void showStoreActionsDialog(StoreAdapter.StoreItem store) {
+        if (store == null || store.getId() <= 0) return;
+
+        // Store owners get a read-only view of their own branches; archiving
+        // and deleting stay Super Admin actions.
+        if (!"super_admin".equals(role)) {
+            new AlertDialog.Builder(this)
+                    .setTitle(store.getStoreName())
+                    .setMessage("Location: " + store.getLocation()
+                            + "\nStatus: " + store.getStatus()
+                            + "\n\nRead-only access — only the Super Admin can archive or delete branches.")
+                    .setPositiveButton("OK", null)
+                    .show();
+            return;
+        }
+
+        boolean isArchived = "Archived".equalsIgnoreCase(store.getStatus());
+        String archiveOption = isArchived ? "Restore / Activate Store" : "Archive Store";
+        String[] options = {archiveOption, "Delete Store Permanently"};
+
+        new AlertDialog.Builder(this)
+                .setTitle(store.getStoreName())
+                .setItems(options, (dialog, which) -> {
+                    if (which == 0) {
+                        toggleArchiveStore(store, isArchived ? "Active" : "Archived");
+                    } else if (which == 1) {
+                        confirmDeleteStore(store);
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void toggleArchiveStore(StoreAdapter.StoreItem store, String targetStatus) {
+        JSONObject body = new JSONObject();
+        try {
+            body.put("store_id", store.getId());
+            body.put("status", targetStatus);
+        } catch (JSONException e) {
+            return;
+        }
+
+        RequestQueue queue = ApiSession.getRequestQueue(this);
+        JsonObjectRequest req = new JsonObjectRequest(
+                Request.Method.POST,
+                ARCHIVE_STORE_URL,
+                body,
+                response -> {
+                    if (response.optBoolean("success", false)) {
+                        Toast.makeText(this, response.optString("message", "Store updated"), Toast.LENGTH_SHORT).show();
+                        loadStores();
+                    } else {
+                        Toast.makeText(this, response.optString("message", "Failed to update store"), Toast.LENGTH_SHORT).show();
+                    }
+                },
+                error -> {
+                    if (ApiSession.handleAuthError(this, error)) return;
+                    Toast.makeText(this, "Failed to update store", Toast.LENGTH_SHORT).show();
+                }
+        );
+        queue.add(req);
+    }
+
+    private void confirmDeleteStore(StoreAdapter.StoreItem store) {
+        new AlertDialog.Builder(this)
+                .setTitle("Delete Store")
+                .setMessage("Are you sure you want to permanently delete \"" + store.getStoreName() + "\"? All associated inventory, transactions, and assignments will be deleted.")
+                .setPositiveButton("Delete Permanently", (dialog, which) -> {
+                    JSONObject body = new JSONObject();
+                    try {
+                        body.put("store_id", store.getId());
+                    } catch (JSONException e) {
+                        return;
+                    }
+
+                    RequestQueue queue = ApiSession.getRequestQueue(this);
+                    JsonObjectRequest req = new JsonObjectRequest(
+                            Request.Method.POST,
+                            DELETE_STORE_URL,
+                            body,
+                            response -> {
+                                if (response.optBoolean("success", false)) {
+                                    Toast.makeText(this, response.optString("message", "Store deleted"), Toast.LENGTH_SHORT).show();
+                                    loadStores();
+                                } else {
+                                    Toast.makeText(this, response.optString("message", "Failed to delete store"), Toast.LENGTH_SHORT).show();
+                                }
+                            },
+                            error -> {
+                                if (ApiSession.handleAuthError(this, error)) return;
+                                Toast.makeText(this, "Failed to delete store", Toast.LENGTH_SHORT).show();
+                            }
+                    );
+                    queue.add(req);
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void returnToLogin(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        ScreenTransitions.open(StoresActivity.this, intent);
+        ScreenTransitions.finish(StoresActivity.this);
+    }
+
+    /**
+     * A load failed. Shows the error state with a working retry instead of
+     * leaving a blank screen, which a user cannot tell apart from an empty
+     * list or a broken app.
+     */
+    private void showStoresError() {
+        if (emptyStores != null) {
+            StateViews.setEmptyVisible(emptyStores, false);
+        }
+        StateViews.setErrorVisible(errorStores, true);
+    }
+
+}

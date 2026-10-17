@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@color/card_background">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Register Store Admin"
+
+
+        android:textColor="@color/text_primary"
+        android:layout_marginBottom="16dp"  android:textAppearance="@style/TextAppearance.StockEase.Title" />
+
+    <EditText
+        android:id="@+id/etAdminFullName"
+        android:layout_width="match_parent"
+        android:layout_height="42dp"
+        android:background="@drawable/bg_input_field"
+        android:hint="Full Name"
+        android:textColorHint="@color/text_muted"
+        android:textColor="@color/text_primary"
+
+        android:inputType="textPersonName"
+        android:paddingHorizontal="12dp"
+        android:layout_marginBottom="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+    <EditText
+        android:id="@+id/etAdminUsername"
+        android:layout_width="match_parent"
+        android:layout_height="42dp"
+        android:background="@drawable/bg_input_field"
+        android:hint="Username"
+        android:textColorHint="@color/text_muted"
+        android:textColor="@color/text_primary"
+
+        android:inputType="text"
+        android:paddingHorizontal="12dp"
+        android:layout_marginBottom="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+    <EditText
+        android:id="@+id/etAdminPassword"
+        android:layout_width="match_parent"
+        android:layout_height="42dp"
+        android:background="@drawable/bg_input_field"
+        android:hint="Password (min. 8 chars, letter + number)"
+        android:textColorHint="@color/text_muted"
+        android:textColor="@color/text_primary"
+
+        android:inputType="textPassword"
+        android:paddingHorizontal="12dp"
+        android:layout_marginBottom="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+    <include
+        android:id="@+id/pwStrengthMeter"
+        layout="@layout/view_password_strength"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Account Role:"
+        android:textColor="@color/text_secondary"
+
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+    <Spinner
+        android:id="@+id/spAdminRole"
+        android:layout_width="match_parent"
+        android:layout_height="42dp"
+        android:background="@drawable/bg_input_field"
+        android:paddingHorizontal="12dp"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Assign to Store Branch:"
+        android:textColor="@color/text_secondary"
+
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+    <Spinner
+        android:id="@+id/spAssignStore"
+        android:layout_width="match_parent"
+        android:layout_height="42dp"
+        android:background="@drawable/bg_input_field"
+        android:paddingHorizontal="12dp"
+        android:layout_marginBottom="24dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancelAdmin"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="Cancel"
+            style="@style/Widget.StockEase.Button.Secondary"
+            android:textColor="@color/text_secondary"
+
+            android:layout_marginEnd="8dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSaveAdmin"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="Create Account"
+
+            android:textColor="@color/white"  android:textAppearance="@style/TextAppearance.StockEase.Body" style="@style/Widget.StockEase.Button.Primary" />
+    </LinearLayout>
+</LinearLayout>

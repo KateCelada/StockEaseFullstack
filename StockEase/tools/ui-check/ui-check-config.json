@@ -1,0 +1,20 @@
+{
+  "rules": {
+    "STOCK-001": { "severity": "error", "enabled": true, "description": "Hardcoded hex color instead of @color token or ?attr" },
+    "STOCK-002": { "severity": "error", "enabled": true, "description": "Emoji / geometric glyph used as icon" },
+    "STOCK-003": { "severity": "warning", "enabled": true, "description": "Hardcoded textSize without textAppearance" },
+    "STOCK-004": { "severity": "warning", "enabled": true, "description": "Legacy Button with backgroundTint; use MaterialButton + StockEase style" },
+    "STOCK-005": { "severity": "warning", "enabled": true, "description": "ImageView/ImageButton missing contentDescription" },
+    "STOCK-006": { "severity": "warning", "enabled": true, "description": "Hardcoded android:text literal instead of @string" },
+    "STOCK-007": { "severity": "warning", "enabled": true, "description": "Framework @android:color used instead of StockEase token" },
+    "STOCK-008": { "severity": "warning", "enabled": true, "description": "Off-grid spacing (not a multiple of 4dp)" },
+    "STOCK-009": { "severity": "warning", "enabled": true, "description": "Flat low-elevation white card (AI-template tell)" },
+    "STOCK-010": { "severity": "error", "enabled": true, "description": "Hardcoded hex color inside drawable/*.xml" }
+  },
+  "gridDp": 4,
+  "allowlist": {
+    "STOCK-006": ["₱0.00", "₱5,900", "Total: "],
+    "STOCK-008": []
+  },
+  "failOn": ["error"]
+}

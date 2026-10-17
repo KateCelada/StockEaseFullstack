@@ -1,0 +1,809 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:background="@color/app_background">
+
+    <!-- Left Enterprise Navigation Sidebar -->
+    <LinearLayout
+        android:layout_width="230dp"
+        android:layout_height="match_parent"
+        android:background="@color/sidebar_bg"
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="16dp">
+
+        <!-- App Brand Logo -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="24dp">
+
+            <TextView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:background="@drawable/bg_btn_primary"
+                android:text="S"
+                android:textColor="@color/white"
+
+
+                android:gravity="center"
+                android:layout_marginEnd="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Section" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="StockEase"
+                android:textColor="@color/white"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Title" />
+        </LinearLayout>
+
+        <!-- SECTION HEADER: OVERVIEW -->
+        <LinearLayout
+            android:id="@+id/navHeaderOverview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="OVERVIEW"
+                android:letterSpacing="0.08"
+                android:textColor="@color/sidebar_text"
+
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+            <TextView
+                android:id="@+id/navArrowOverview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/sidebar_text"
+
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navSectionOverviewItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="4dp">
+
+        <LinearLayout
+            android:id="@+id/navAuditDashboard"
+            android:layout_width="match_parent"
+            android:layout_height="38dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginBottom="16dp"
+            android:background="?attr/selectableItemBackground">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_nav_dashboard"
+                android:layout_marginEnd="12dp"  android:contentDescription="@string/cd_nav_icon" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Dashboard"
+                android:textColor="@color/sidebar_text"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+        </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- SECTION HEADER: MANAGEMENT -->
+        <LinearLayout
+            android:id="@+id/navHeaderManagement"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="MANAGEMENT"
+                android:letterSpacing="0.08"
+                android:textColor="@color/sidebar_text"
+
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+            <TextView
+                android:id="@+id/navArrowManagement"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/sidebar_text"
+
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navSectionManagementItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="4dp">
+
+        <LinearLayout
+            android:id="@+id/navAuditStores"
+            android:layout_width="match_parent"
+            android:layout_height="38dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginBottom="4dp"
+            android:background="?attr/selectableItemBackground">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_nav_stores"
+                android:layout_marginEnd="12dp"  android:contentDescription="@string/cd_nav_icon" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Stores"
+                android:textColor="@color/sidebar_text"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navAuditUsers"
+            android:layout_width="match_parent"
+            android:layout_height="38dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginBottom="4dp"
+            android:background="?attr/selectableItemBackground">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_nav_users"
+                android:layout_marginEnd="12dp"  android:contentDescription="@string/cd_nav_icon" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Users"
+                android:textColor="@color/sidebar_text"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navAuditAdmins"
+            android:layout_width="match_parent"
+            android:layout_height="38dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginBottom="16dp"
+            android:background="?attr/selectableItemBackground">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_nav_admins"
+                android:layout_marginEnd="12dp"  android:contentDescription="@string/cd_nav_icon" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Store Admins"
+                android:textColor="@color/sidebar_text"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+        </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- SECTION HEADER: ANALYTICS -->
+        <LinearLayout
+            android:id="@+id/navHeaderAnalytics"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="ANALYTICS"
+                android:letterSpacing="0.08"
+                android:textColor="@color/sidebar_text"
+
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+            <TextView
+                android:id="@+id/navArrowAnalytics"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/sidebar_text"
+
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navSectionAnalyticsItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="4dp">
+
+        <LinearLayout
+            android:id="@+id/navAuditReports"
+            android:layout_width="match_parent"
+            android:layout_height="38dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginBottom="4dp"
+            android:background="?attr/selectableItemBackground">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_nav_reports"
+                android:layout_marginEnd="12dp"  android:contentDescription="@string/cd_nav_icon" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Reports"
+                android:textColor="@color/sidebar_text"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+        </LinearLayout>
+
+        <!-- Active Menu Item: Audit Logs -->
+        <LinearLayout
+            android:id="@+id/navAuditAuditLogs"
+            android:layout_width="match_parent"
+            android:layout_height="38dp"
+            android:background="@drawable/bg_nav_item_active"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="12dp"
+            android:layout_marginBottom="16dp">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_nav_inventory"
+                android:layout_marginEnd="12dp"  android:contentDescription="@string/cd_nav_icon" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Audit Logs"
+                android:textColor="@color/white"
+
+                android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+        </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- SECTION HEADER: SYSTEM -->
+        <LinearLayout
+            android:id="@+id/navHeaderSystem"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="4dp"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="SYSTEM"
+                android:letterSpacing="0.08"
+                android:textColor="@color/sidebar_text"
+
+                android:textStyle="bold"
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+            <TextView
+                android:id="@+id/navArrowSystem"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/sidebar_text"
+
+                android:textAppearance="@style/TextAppearance.StockEase.Label" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/navSectionSystemItems"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="4dp">
+
+        <LinearLayout
+            android:id="@+id/navAuditSettings"
+            android:layout_width="match_parent"
+            android:layout_height="38dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_nav_settings"
+                android:layout_marginEnd="12dp"  android:contentDescription="@string/cd_nav_icon" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Settings"
+                android:textColor="@color/sidebar_text"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+        </LinearLayout>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <!-- Bottom User Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingVertical="12dp"
+            android:background="@drawable/bg_nav_item_active"
+            android:paddingHorizontal="12dp"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:id="@+id/tvAuditAvatarInitials"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="@drawable/bg_avatar_circle"
+                android:gravity="center"
+                android:text="SA"
+                android:textColor="@color/white"
+
+                android:textStyle="bold"
+                android:layout_marginEnd="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvAuditProfileName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="System Super Admin"
+                    android:textColor="@color/white"
+
+                    android:textStyle="bold"
+                    android:singleLine="true"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Super Administrator"
+                    android:textColor="@color/sidebar_text"
+  android:textAppearance="@style/TextAppearance.StockEase.Caption" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:background="@color/sidebar_divider" />
+
+        <LinearLayout
+            android:id="@+id/navAuditLogout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="8dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@drawable/ic_nav_logout"
+                android:layout_marginEnd="12dp"  android:contentDescription="@string/cd_nav_icon" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Log out"
+                android:textColor="@color/sidebar_text"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Main Workspace Area -->
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <!-- Page Header -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="20dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Audit Logs"
+                        android:textColor="@color/text_primary"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Title" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Review administrative events, security actions, and operational audit trail"
+                        android:textColor="@color/text_secondary"
+
+                        android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAuditRefresh"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:text="Refresh"
+
+                    android:textColor="@color/white"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="0dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" style="@style/Widget.StockEase.Button.Primary" />
+            </LinearLayout>
+
+            <!-- Filters & Search Toolbar -->
+            <LinearLayout
+                android:id="@+id/cardAuditFilters"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_card_white"
+                android:padding="12dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp">
+
+                <!-- Search Input Container -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="38dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_input_field"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="12dp"
+                    android:layout_marginEnd="12dp">
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_search"
+                        android:layout_marginEnd="8dp"  android:contentDescription="@string/cd_nav_icon" />
+
+                    <EditText
+                        android:id="@+id/etAuditSearch"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@null"
+                        android:hint="Search by user, action, target, or store..."
+                        android:textColor="@color/text_primary"
+                        android:textColorHint="@color/text_muted"
+
+                        android:singleLine="true"
+                        android:imeOptions="actionSearch"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+                </LinearLayout>
+
+                <!-- Filter Spinner -->
+                <Spinner
+                    android:id="@+id/spinnerAuditActionFilter"
+                    android:layout_width="180dp"
+                    android:layout_height="38dp"
+                    android:background="@drawable/bg_input_field"
+                    android:paddingHorizontal="8dp" />
+            </LinearLayout>
+
+            <!-- Date Filter Buttons Row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Date Filter:"
+                    android:textColor="@color/text_secondary"
+
+                    android:textStyle="bold"
+                    android:layout_marginEnd="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAuditFilterAll"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:text="All"
+
+                    android:textColor="@color/white"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="0dp"
+                    android:layout_marginEnd="8dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" style="@style/Widget.StockEase.Button.Primary" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAuditFilterToday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:text="Today"
+
+                    android:textColor="@color/slate_600"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="0dp"
+                    android:layout_marginEnd="8dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" style="@style/Widget.StockEase.Button.Secondary" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAuditFilterWeek"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:text="This Week"
+
+                    android:textColor="@color/slate_600"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="0dp"
+                    android:layout_marginEnd="8dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" style="@style/Widget.StockEase.Button.Secondary" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAuditFilterMonth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:text="This Month"
+
+                    android:textColor="@color/slate_600"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="0dp"
+                    android:layout_marginEnd="8dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" style="@style/Widget.StockEase.Button.Secondary" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAuditFilterCustom"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:text="Custom"
+
+                    android:textColor="@color/slate_600"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="0dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" style="@style/Widget.StockEase.Button.Secondary" />
+            </LinearLayout>
+
+            <!-- Audit Logs Data Table Card -->
+            <LinearLayout
+                android:id="@+id/cardAuditTable"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_card_white"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- Table Header (44dp height) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:paddingHorizontal="16dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:background="@color/app_background">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.4"
+                        android:text="DATE &amp; TIME"
+                        android:textColor="@color/text_secondary"
+
+                        android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.4"
+                        android:text="USER"
+                        android:textColor="@color/text_secondary"
+
+                        android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.0"
+                        android:text="ROLE"
+                        android:textColor="@color/text_secondary"
+
+                        android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.4"
+                        android:text="ACTION"
+                        android:textColor="@color/text_secondary"
+
+                        android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.2"
+                        android:text="STORE / SCOPE"
+                        android:textColor="@color/text_secondary"
+
+                        android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2.6"
+                        android:text="DETAILS"
+                        android:textColor="@color/text_secondary"
+
+                        android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/card_border" />
+
+                <!-- Status / Empty Indicator -->
+                <TextView
+                    android:id="@+id/tvAuditLogsStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Loading audit logs..."
+                    android:textColor="@color/text_secondary"
+
+                    android:gravity="center"
+                    android:padding="32dp"
+                    android:visibility="gone"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+                <!-- Dynamic Audit Rows -->
+                <LinearLayout
+                    android:id="@+id/llAuditLogRows"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+
+                <!-- Pagination footer -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingTop="12dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnAuditPrevPage"
+                        style="@style/Widget.StockEase.Button.Secondary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:enabled="false"
+                        android:text="Prev"
+                        android:textAllCaps="false"
+                        android:textColor="@color/slate_600"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="0dp"
+                        android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+                    <TextView
+                        android:id="@+id/tvAuditPageInfo"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="Page 1 of 1"
+                        android:textColor="@color/text_secondary"
+                        android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnAuditNextPage"
+                        style="@style/Widget.StockEase.Button.Secondary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:text="Next"
+                        android:textAllCaps="false"
+                        android:textColor="@color/slate_600"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="0dp"
+                        android:textAppearance="@style/TextAppearance.StockEase.Label" />
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

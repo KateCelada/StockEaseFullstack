@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:background="@color/app_background">
+
+    <!-- Persistent navigation (shared across all main screens) -->
+    <include layout="@layout/view_sidebar" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+    <!-- Top App Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@color/sidebar_bg"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="16dp">
+
+        <ImageButton
+            android:id="@+id/btnInsightsBack"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_arrow_back"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:tint="#FFFFFF"
+            android:contentDescription="Back"
+            android:layout_marginEnd="12dp" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Store Insights"
+                android:textColor="@color/white"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Section" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Velocity, stockout risks &amp; transfer opportunities"
+                android:textColor="@color/text_muted"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Prominent Date Range Filter Bar (Fully Visible) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/sidebar_item_active"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:paddingVertical="8dp"
+        android:paddingHorizontal="16dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:background="@color/sidebar_bg"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="4dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnRange7d"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="7 Days"
+
+                android:textColor="@color/text_muted"
+                android:paddingHorizontal="16dp"
+                android:minWidth="0dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" style="@style/Widget.StockEase.Button.Secondary" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnRange30d"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="30 Days"
+
+                android:textColor="@color/white"
+                android:paddingHorizontal="16dp"
+                android:minWidth="0dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" style="@style/Widget.StockEase.Button.Primary" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnRangeMonth"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="This Month"
+
+                android:textColor="@color/text_muted"
+                android:paddingHorizontal="16dp"
+                android:minWidth="0dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" style="@style/Widget.StockEase.Button.Secondary" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- Loading / Error Message -->
+            <TextView
+                android:id="@+id/tvInsightsLoadingStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Calculating inventory velocity and store trends..."
+                android:textColor="@color/text_secondary"
+
+                android:gravity="center"
+                android:padding="24dp"
+                android:visibility="gone"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+            <!-- Section 1: Overview KPIs -->
+            <LinearLayout
+                android:id="@+id/containerInsightsOverview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_card_white"
+                android:orientation="horizontal"
+                android:paddingVertical="16dp"
+                android:layout_marginBottom="20dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Period Sales"
+                        android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+                    <TextView
+                        android:id="@+id/tvInsightsTotalSales"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="₱0.00"
+                        android:textColor="@color/text_primary"
+
+
+                        android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Title" />
+                </LinearLayout>
+
+                <View android:layout_width="1dp" android:layout_height="match_parent" android:background="@color/card_border" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Transactions"
+                        android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+                    <TextView
+                        android:id="@+id/tvInsightsTransactions"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textColor="@color/text_primary"
+
+
+                        android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Title" />
+                </LinearLayout>
+
+                <View android:layout_width="1dp" android:layout_height="match_parent" android:background="@color/card_border" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Avg. Order"
+                        android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+                    <TextView
+                        android:id="@+id/tvInsightsAvgOrder"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="₱0.00"
+                        android:textColor="@color/text_primary"
+
+
+                        android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Title" />
+                </LinearLayout>
+
+                <View android:layout_width="1dp" android:layout_height="match_parent" android:background="@color/card_border" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Units Sold"
+                        android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+                    <TextView
+                        android:id="@+id/tvInsightsUnitsSold"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textColor="@color/text_primary"
+
+
+                        android:layout_marginTop="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Title" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Section 2: Transfer Opportunities (Signature Feature) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_card_white"
+                android:orientation="vertical"
+                android:padding="20dp"
+                android:layout_marginBottom="20dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Transfer Opportunities"
+                        android:textColor="@color/text_primary"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Section" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_badge_blue"
+                        android:paddingHorizontal="8dp"
+                        android:paddingVertical="4dp"
+                        android:text="Smart Recommendation"
+                        android:textColor="@color/primary"
+
+                        android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Caption" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Identifies inventory imbalances where one store faces potential stockout while another holds surplus coverage."
+                    android:textColor="@color/text_secondary"
+
+                    android:layout_marginBottom="16dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+                <!-- Container for Transfer Recommendation Cards -->
+                <LinearLayout
+                    android:id="@+id/llTransferOpportunities"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </LinearLayout>
+
+            <!-- Section 3: Stockout Risks & Fast/Slow Moving -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="20dp">
+
+                <!-- Stockout Risk Card -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_card_white"
+                    android:orientation="vertical"
+                    android:padding="16dp"
+                    android:layout_marginEnd="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Stockout Risk (Under 7 Days)"
+                        android:textColor="@color/danger_strong"
+
+                        android:textStyle="bold"
+                        android:layout_marginBottom="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+                    <LinearLayout
+                        android:id="@+id/llStockoutRisks"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+                </LinearLayout>
+
+                <!-- Fast-Moving Card -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_card_white"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Fast-Moving Items"
+                        android:textColor="@color/success_strong"
+
+                        android:textStyle="bold"
+                        android:layout_marginBottom="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+                    <LinearLayout
+                        android:id="@+id/llFastMoving"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Section 4: Store Comparison Table -->
+            <LinearLayout
+                android:id="@+id/cardStoreComparison"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_card_white"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Store Performance Comparison"
+                    android:textColor="@color/text_primary"
+
+
+                    android:layout_marginBottom="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Section" />
+
+                <!-- Table Header -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:background="@color/app_background"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="12dp">
+
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1.8" android:text="STORE" android:textColor="@color/text_secondary" android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1.2" android:gravity="end" android:text="SALES" android:textColor="@color/text_secondary" android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="0.8" android:gravity="end" android:text="ORDERS" android:textColor="@color/text_secondary" android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1.0" android:gravity="end" android:text="AVG ORDER" android:textColor="@color/text_secondary" android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="0.8" android:gravity="end" android:text="UNITS" android:textColor="@color/text_secondary" android:textStyle="bold"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+                </LinearLayout>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/card_border" />
+
+                <LinearLayout
+                    android:id="@+id/llStoreComparisonRows"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+    </LinearLayout>
+
+</LinearLayout>

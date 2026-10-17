@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="@color/sidebar_bg">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add New Staff Member"
+        android:textColor="@color/white"
+
+
+        android:layout_marginBottom="16dp"  android:textAppearance="@style/TextAppearance.StockEase.Title" />
+
+    <EditText
+        android:id="@+id/etFullName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Full Name"
+        android:textColor="@color/white"
+        android:textColorHint="@color/text_secondary"
+        android:layout_marginBottom="12dp" />
+
+    <EditText
+        android:id="@+id/etUsername"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Username"
+        android:textColor="@color/white"
+        android:textColorHint="@color/text_secondary"
+        android:layout_marginBottom="12dp" />
+
+    <EditText
+        android:id="@+id/etEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Email (Optional)"
+        android:inputType="textEmailAddress"
+        android:textColor="@color/white"
+        android:textColorHint="@color/text_secondary"
+        android:layout_marginBottom="12dp" />
+
+    <EditText
+        android:id="@+id/etPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Password (min. 8 chars, letter + number)"
+        android:inputType="textPassword"
+        android:textColor="@color/white"
+        android:textColorHint="@color/text_secondary"
+        android:layout_marginBottom="4dp" />
+
+    <include
+        android:id="@+id/pwStrengthMeter"
+        layout="@layout/view_password_strength"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Staff Role — choose Cashier or Inventory:"
+        android:textColor="@color/text_muted"
+
+        android:layout_marginBottom="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+    <Spinner
+        android:id="@+id/spinnerStaffRole"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:background="#3B4256"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"
+        android:layout_marginBottom="16dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSaveStaff"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Register Staff"
+        android:textColor="@color/white"  style="@style/Widget.StockEase.Button.Primary" />
+
+</LinearLayout>

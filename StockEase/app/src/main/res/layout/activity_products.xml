@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:background="@color/app_background">
+
+    <!-- Persistent navigation (shared across all main screens) -->
+    <include layout="@layout/view_sidebar" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+    <!-- Header & Action Row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:layout_marginBottom="12dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Inventory &amp; Products"
+                android:textColor="@color/text_primary"
+
+  android:textAppearance="@style/TextAppearance.StockEase.Title" />
+
+            <TextView
+                android:id="@+id/tvProductCountSubtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Search, filter by category, and track catalog profits"
+                android:textColor="@color/text_secondary"
+  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAddProduct"
+            style="@style/Widget.StockEase.Button.Primary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/products_add_action"
+            android:paddingHorizontal="16dp" />
+    </LinearLayout>
+
+    <!-- Unified Search and Category Filter Table Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="12dp">
+
+        <!-- Search Input -->
+        <EditText
+            android:id="@+id/etSearchProduct"
+            android:layout_width="0dp"
+            android:layout_height="42dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_input_field"
+            android:hint="Search products by name..."
+            android:textColorHint="@color/text_muted"
+            android:textColor="@color/text_primary"
+
+            android:paddingHorizontal="12dp"
+            android:singleLine="true"
+            android:layout_marginEnd="8dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+        <!-- Category Dropdown Filter -->
+        <Spinner
+            android:id="@+id/spinnerFilterCategory"
+            android:layout_width="160dp"
+            android:layout_height="42dp"
+            android:background="@drawable/bg_input_field"
+            android:paddingHorizontal="8dp" />
+    </LinearLayout>
+
+    <!-- Table Header Legend -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="8dp"
+        android:background="@color/card_border">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="PRODUCT / CATEGORY"
+
+            android:textStyle="bold"
+            android:textColor="@color/text_secondary"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="STOCK"
+
+            android:textStyle="bold"
+            android:gravity="center"
+            android:textColor="@color/text_secondary"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.2"
+            android:text="COST / PRICE"
+
+            android:textStyle="bold"
+            android:gravity="end"
+            android:textColor="@color/text_secondary"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+    </LinearLayout>
+
+    <!-- Full Product List Table -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="4dp">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvProducts"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <include
+            android:id="@+id/loadingProducts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="visible"
+            layout="@layout/view_loading_state" />
+
+        <include
+            android:id="@+id/emptyProducts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            layout="@layout/view_empty_state" />
+
+        <include
+            android:id="@+id/errorProducts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            layout="@layout/view_error_state" />
+    </FrameLayout>
+
+    <!-- Table pagination -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingTop="8dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnProductsPrev"
+            style="@style/Widget.StockEase.Button.Secondary"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="Prev"
+            android:textAllCaps="false"
+            android:textColor="@color/slate_600"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="0dp"
+            android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+        <TextView
+            android:id="@+id/tvProductsPage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Page 1 of 1"
+            android:textColor="@color/text_secondary"
+            android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnProductsNext"
+            style="@style/Widget.StockEase.Button.Secondary"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="Next"
+            android:textAllCaps="false"
+            android:textColor="@color/slate_600"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="0dp"
+            android:textAppearance="@style/TextAppearance.StockEase.Label" />
+    </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Product Category"
+        android:textColor="@color/slate_700"
+        android:textStyle="bold"
+
+        android:layout_marginBottom="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+    <!-- AutoComplete Category with Dropdown + Autofill -->
+    <AutoCompleteTextView
+        android:id="@+id/actvCategory"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:hint="Type or select category (e.g. Beverages, Snacks)"
+        android:completionThreshold="1"
+        android:inputType="textCapWords"
+        android:paddingHorizontal="12dp"
+        android:background="@drawable/bg_input_field"
+
+        android:layout_marginBottom="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Product Name"
+        android:textColor="@color/slate_700"
+        android:textStyle="bold"
+
+        android:layout_marginBottom="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+    <EditText
+        android:id="@+id/etProductName"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:hint="Enter product name"
+        android:inputType="textCapWords"
+        android:paddingHorizontal="12dp"
+        android:background="@drawable/bg_input_field"
+
+        android:layout_marginBottom="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="12dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginEnd="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cost Price (₱)"
+                android:textColor="@color/slate_700"
+                android:textStyle="bold"
+
+                android:layout_marginBottom="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+            <EditText
+                android:id="@+id/etProductCostPrice"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:hint="0.00"
+                android:inputType="numberDecimal"
+                android:paddingHorizontal="12dp"
+                android:background="@drawable/bg_input_field"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Selling Price (₱)"
+                android:textColor="@color/slate_700"
+                android:textStyle="bold"
+
+                android:layout_marginBottom="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+            <EditText
+                android:id="@+id/etProductPrice"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:hint="0.00"
+                android:inputType="numberDecimal"
+                android:paddingHorizontal="12dp"
+                android:background="@drawable/bg_input_field"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Initial Stock Quantity"
+        android:textColor="@color/slate_700"
+        android:textStyle="bold"
+
+        android:layout_marginBottom="4dp"  android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+    <EditText
+        android:id="@+id/etProductQuantity"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:hint="0"
+        android:inputType="number"
+        android:paddingHorizontal="12dp"
+        android:background="@drawable/bg_input_field"
+  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Minimum Stock (low stock alert)"
+        android:textColor="@color/slate_700"
+        android:textStyle="bold"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="4dp"
+        android:textAppearance="@style/TextAppearance.StockEase.Label" />
+
+    <EditText
+        android:id="@+id/etProductMinStock"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:hint="10"
+        android:inputType="number"
+        android:paddingHorizontal="12dp"
+        android:background="@drawable/bg_input_field"
+        android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+</LinearLayout>

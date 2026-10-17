@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@color/card_background">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Register New Store"
+
+
+        android:textColor="@color/text_primary"
+        android:layout_marginBottom="16dp"  android:textAppearance="@style/TextAppearance.StockEase.Title" />
+
+    <EditText
+        android:id="@+id/etDialogStoreName"
+        android:layout_width="match_parent"
+        android:layout_height="42dp"
+        android:background="@drawable/bg_input_field"
+        android:hint="Store Branch Name (e.g. Northern Branch)"
+        android:textColorHint="@color/text_muted"
+        android:textColor="@color/text_primary"
+
+        android:inputType="text"
+        android:paddingHorizontal="12dp"
+        android:layout_marginBottom="12dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+    <EditText
+        android:id="@+id/etDialogLocation"
+        android:layout_width="match_parent"
+        android:layout_height="42dp"
+        android:background="@drawable/bg_input_field"
+        android:hint="Location / Address"
+        android:textColorHint="@color/text_muted"
+        android:textColor="@color/text_primary"
+
+        android:inputType="text"
+        android:paddingHorizontal="12dp"
+        android:layout_marginBottom="24dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancel"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="Cancel"
+            style="@style/Widget.StockEase.Button.Secondary"
+            android:textColor="@color/text_secondary"
+
+            android:layout_marginEnd="8dp"  android:textAppearance="@style/TextAppearance.StockEase.Body" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSaveStore"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="Save Store"
+
+            android:textColor="@color/white"  android:textAppearance="@style/TextAppearance.StockEase.Body" style="@style/Widget.StockEase.Button.Primary" />
+    </LinearLayout>
+</LinearLayout>
