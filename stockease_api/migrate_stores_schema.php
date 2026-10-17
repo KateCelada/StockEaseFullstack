@@ -27,5 +27,7 @@ try {
 
     echo json_encode(["success" => true, "message" => "Database columns updated successfully."]);
 } catch (Exception $e) {
-    echo json_encode(["success" => false, "error" => $e->getMessage()]);
+    error_log('migrate_stores_schema caught exception: ' . $e->getMessage());
+    echo json_encode(["success" => false, "error" => "Unexpected server error. Details were written to the server log."]);
 }
+

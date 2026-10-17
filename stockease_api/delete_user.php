@@ -60,5 +60,7 @@ try {
         $conn->rollBack();
     }
     http_response_code(500);
-    echo json_encode(["success" => false, "message" => "Failed to delete account: " . $e->getMessage()]);
+    error_log('delete_user caught exception: ' . $e->getMessage());
+    echo json_encode(["success" => false, "message" => "Failed to delete account. Please try again."]);
 }
+

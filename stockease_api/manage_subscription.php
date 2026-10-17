@@ -526,7 +526,7 @@ if ($action === 'simulate_checkout' || $action === 'update_plan') {
         echo json_encode([
             'success' => false,
             'message' => 'Failed to update subscription',
-            'error' => $e->getMessage()
+            'error' => 'Unexpected server error. Details were written to the server log.'
         ]);
         exit;
     }

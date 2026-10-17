@@ -95,6 +95,8 @@ try {
     ]);
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(["success" => false, "message" => "Unable to add product: " . $e->getMessage()]);
+    error_log('add_product caught exception: ' . $e->getMessage());
+    echo json_encode(["success" => false, "message" => "Unable to add product. Please try again."]);
 }
 ?>
+

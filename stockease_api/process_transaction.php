@@ -183,7 +183,8 @@ try {
     if ($conn->inTransaction()) {
         $conn->rollBack();
     }
-    echo json_encode(["success" => false, "message" => $e->getMessage()]);
+    error_log('process_transaction caught exception: ' . $e->getMessage());
+    echo json_encode(["success" => false, "message" => "An unexpected error occurred. Please try again."]);
 } catch (PDOException $e) {
     if ($conn->inTransaction()) {
         $conn->rollBack();
@@ -198,3 +199,4 @@ try {
     echo json_encode(["success" => false, "message" => "Unable to complete transaction"]);
 }
 ?>
+

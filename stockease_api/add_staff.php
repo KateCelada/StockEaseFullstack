@@ -155,5 +155,7 @@ try {
     ]);
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(["success" => false, "message" => "Unable to add staff account: " . $e->getMessage()]);
+    error_log('add_staff caught exception: ' . $e->getMessage());
+    echo json_encode(["success" => false, "message" => "Unable to add staff account. Please try again."]);
 }
+

@@ -102,5 +102,7 @@ try {
     ]);
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(["success" => false, "message" => "Database error updating product: " . $e->getMessage()]);
+    error_log('update_product caught exception: ' . $e->getMessage());
+    echo json_encode(["success" => false, "message" => "Database error updating product. Please try again."]);
 }
+

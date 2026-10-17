@@ -1173,7 +1173,7 @@ try {
     echo json_encode([
         'success' => false,
         'message' => 'An error occurred during transfer processing',
-        'error' => $e->getMessage()
+        'error' => 'Unexpected server error. Details were written to the server log.'
     ]);
     exit;
 }

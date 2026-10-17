@@ -128,6 +128,8 @@ try {
 
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(["success" => false, "message" => "Unable to load audit logs", "error" => $e->getMessage()]);
+    error_log('get_audit_logs caught exception: ' . $e->getMessage());
+    echo json_encode(["success" => false, "message" => "Unable to load audit logs", "error" => "Unexpected server error. Details were written to the server log."]);
 }
 ?>
+

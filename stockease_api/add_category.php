@@ -72,7 +72,8 @@ try {
     http_response_code(500);
     echo json_encode([
         "success" => false,
-        "message" => "Database error creating category: " . $e->getMessage()
+        "message" => "Database error creating category. Please try again."
     ]);
 }
 ?>
+

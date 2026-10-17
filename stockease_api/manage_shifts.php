@@ -175,7 +175,7 @@ try {
     echo json_encode([
         'success' => false,
         'message' => 'An error occurred while processing the shift',
-        'error' => $e->getMessage()
+        'error' => 'Unexpected server error. Details were written to the server log.'
     ]);
     exit();
 }

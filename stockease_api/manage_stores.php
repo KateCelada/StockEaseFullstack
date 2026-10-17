@@ -68,7 +68,8 @@ if ($action === 'fetch') {
         echo json_encode(["success" => true, "stores" => $stores]);
     } catch (PDOException $e) {
         http_response_code(500);
-        echo json_encode(["success" => false, "message" => "Unable to load stores: " . $e->getMessage()]);
+        error_log('manage_stores caught exception: ' . $e->getMessage());
+        echo json_encode(["success" => false, "message" => "Unable to load stores. Please try again."]);
     }
     exit();
 }
@@ -257,7 +258,8 @@ if ($action === 'add') {
             $conn->rollBack();
         }
         http_response_code(500);
-        echo json_encode(["success" => false, "message" => "Unable to add store: " . $e->getMessage()]);
+        error_log('manage_stores caught exception: ' . $e->getMessage());
+        echo json_encode(["success" => false, "message" => "Unable to add store. Please try again."]);
     }
     exit();
 }
@@ -286,7 +288,8 @@ if ($action === 'update_description') {
         echo json_encode(["success" => true, "message" => "Store description updated successfully."]);
     } catch (PDOException $e) {
         http_response_code(500);
-        echo json_encode(["success" => false, "message" => "Unable to update store description: " . $e->getMessage()]);
+        error_log('manage_stores caught exception: ' . $e->getMessage());
+        echo json_encode(["success" => false, "message" => "Unable to update store description. Please try again."]);
     }
     exit();
 }
@@ -336,7 +339,8 @@ if ($action === 'archive') {
         echo json_encode(["success" => true, "message" => "Store has been " . strtolower($status) . "."]);
     } catch (PDOException $e) {
         http_response_code(500);
-        echo json_encode(["success" => false, "message" => "Unable to archive store: " . $e->getMessage()]);
+        error_log('manage_stores caught exception: ' . $e->getMessage());
+        echo json_encode(["success" => false, "message" => "Unable to archive store. Please try again."]);
     }
     exit();
 }
@@ -368,10 +372,12 @@ if ($action === 'delete') {
             $conn->rollBack();
         }
         http_response_code(500);
-        echo json_encode(["success" => false, "message" => "Unable to delete store: " . $e->getMessage()]);
+        error_log('manage_stores caught exception: ' . $e->getMessage());
+        echo json_encode(["success" => false, "message" => "Unable to delete store. Please try again."]);
     }
     exit();
 }
 
 echo json_encode(["success" => false, "message" => "Invalid action parameter."]);
+
 

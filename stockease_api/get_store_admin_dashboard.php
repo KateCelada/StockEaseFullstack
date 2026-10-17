@@ -173,6 +173,8 @@ try {
 
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(["success" => false, "message" => "Unable to load dashboard: " . $e->getMessage()]);
+    error_log('get_store_admin_dashboard caught exception: ' . $e->getMessage());
+    echo json_encode(["success" => false, "message" => "Unable to load dashboard. Please try again."]);
 }
 ?>
+

@@ -143,7 +143,7 @@ if ($action === 'create') {
         ]);
     } catch (RuntimeException $e) {
         if ($conn->inTransaction()) $conn->rollBack();
-        echo json_encode(["success" => false, "message" => $e->getMessage()]);
+        echo json_encode(["success" => false, "message" => "An unexpected error occurred. Please try again."]);
     } catch (PDOException $e) {
         if ($conn->inTransaction()) $conn->rollBack();
         http_response_code(500);

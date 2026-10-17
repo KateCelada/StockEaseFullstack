@@ -319,7 +319,7 @@ try {
     echo json_encode([
         'success' => false,
         'message' => 'Unable to calculate inventory insights',
-        'error' => $e->getMessage()
+        'error' => 'Unexpected server error. Details were written to the server log.'
     ]);
     exit;
 }
