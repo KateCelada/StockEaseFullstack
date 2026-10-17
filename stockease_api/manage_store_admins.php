@@ -5,6 +5,7 @@ header("Access-Control-Allow-Methods: GET, POST");
 
 require_once 'db.php';
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/password_policy.php';
 
 $identity = auth_require_user($conn);
 // Strict hierarchy: managers create store admins, store owners create managers, super admin may do both
@@ -17,7 +18,10 @@ if ($action === 'fetch') {
     try {
         if ($identity['role'] === 'manager' || $identity['role'] === 'store_owner') {
             // Managers and store owners see the leadership (store admins / managers) of their own branches
-            $query = "SELECT u.id, u.full_name, u.username, u.email, u.role, s.store_name 
+            $query = "SELECT u.id, u.full_name, u.username, u.email, u.role, u.store_id, u.is_active,
+                             COALESCE(s.store_name,
+                                      CASE WHEN u.store_id IS NULL THEN 'No branch assigned'
+                                           ELSE CONCAT('Branch #', u.store_id) END) AS store_name 
                       FROM users u 
                       LEFT JOIN stores s ON u.store_id = s.id 
                       WHERE u.role IN ('store_admin', 'manager')
@@ -29,7 +33,10 @@ if ($action === 'fetch') {
                 'assigned' => (int)($identity['store_id'] ?? 0)
             ]);
         } else {
-            $query = "SELECT u.id, u.full_name, u.username, u.email, u.role, s.store_name 
+            $query = "SELECT u.id, u.full_name, u.username, u.email, u.role, u.store_id, u.is_active,
+                             COALESCE(s.store_name,
+                                      CASE WHEN u.store_id IS NULL THEN 'No branch assigned'
+                                           ELSE CONCAT('Branch #', u.store_id) END) AS store_name 
                       FROM users u 
                       LEFT JOIN stores s ON u.store_id = s.id 
                       WHERE u.role IN ('store_admin', 'manager')
@@ -38,6 +45,13 @@ if ($action === 'fetch') {
             $stmt->execute();
         }
         $admins = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($admins as &$admin) {
+            // MySQL returns 0/1 - expose a real boolean so the web panel's
+            // active/inactive badge matches what PostgreSQL used to send.
+            $admin['is_active'] = in_array($admin['is_active'], [true, 1, '1', 't', 'true'], true);
+            $admin['store_id'] = $admin['store_id'] !== null ? (int)$admin['store_id'] : null;
+        }
+        unset($admin);
 
         echo json_encode(["success" => true, "admins" => $admins]);
     } catch (PDOException $e) {
@@ -93,6 +107,12 @@ if ($action === 'add') {
 
     if (empty($full_name) || empty($user_name) || empty($pass_word)) {
         echo json_encode(["success" => false, "message" => "All required fields must be filled."]);
+        exit();
+    }
+
+    // Password strength policy (same rules as the app and web panel meters)
+    if (!password_is_acceptable($pass_word)) {
+        password_policy_fail($pass_word);
         exit();
     }
 

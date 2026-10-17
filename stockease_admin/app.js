@@ -35,6 +35,7 @@ const app = {
     this.setupNavigation();
     this.setupModalEvents();
     this.setupFormSubmissions();
+    this.setupPasswordMeters();
     this.loadSubscription();
     this.loadDashboardData();
   },
@@ -905,6 +906,11 @@ const app = {
           payload.new_owner_username = document.getElementById('new-business-owner-username')?.value.trim();
           payload.new_owner_email = document.getElementById('new-business-owner-email')?.value.trim();
           payload.new_owner_password = document.getElementById('new-business-owner-password')?.value.trim();
+          // Same rule the API enforces - fail early with a friendly hint
+          if (payload.new_owner_password && !this.passwordIsAcceptable(payload.new_owner_password)) {
+            this.showToast(this.passwordRequirementText(), 'error');
+            return;
+          }
         } else if (ownerId) {
           payload.owner_id = parseInt(ownerId, 10);
         }
@@ -1006,6 +1012,12 @@ const app = {
         const password = document.getElementById('admin-password').value;
         const storeId = parseInt(document.getElementById('admin-store-select').value, 10);
         const role = (document.getElementById('admin-role-select')?.value) || 'store_admin';
+
+        // Same rule the API enforces - fail early with a friendly hint
+        if (!this.passwordIsAcceptable(password)) {
+          this.showToast(this.passwordRequirementText(), 'error');
+          return;
+        }
 
         try {
           const res = await fetch('../stockease_api/manage_store_admins.php?action=add', {
@@ -1815,7 +1827,7 @@ const app = {
           <td style="font-weight: 600;">${this.escape(a.full_name)}</td>
           <td>@${this.escape(a.username)}</td>
           <td style="color: #64748B;">${this.escape(a.email || '—')}</td>
-          <td style="font-weight: 600;">${this.escape(a.store_name || 'Branch ' + a.store_id)}</td>
+          <td style="font-weight: 600;">${this.escape(a.store_name || (a.store_id ? 'Branch ' + a.store_id : 'Unassigned'))}</td>
           <td style="text-align: center;">
             <span class="badge ${a.is_active ? 'badge-success' : 'badge-danger'}">${a.is_active ? 'Active' : 'Inactive'}</span>
           </td>
@@ -2569,6 +2581,60 @@ const app = {
     btn.title = show ? 'Hide password' : 'Show password';
     btn.setAttribute('aria-label', btn.title);
     btn.setAttribute('aria-pressed', show ? 'true' : 'false');
+  },
+
+  // ---- Password strength (mirrors stockease_api/password_policy.php) ----
+  passwordScore(pw) {
+    if (!pw) return 0;
+    let score = 0;
+    if (pw.length >= 8) score++;
+    if (pw.length >= 12) score++;
+    if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score++;
+    if (/\d/.test(pw)) score++;
+    if (/[^A-Za-z0-9]/.test(pw)) score++;
+    if (pw.length < 8) score = Math.min(score, 1);
+    return Math.max(0, Math.min(4, score));
+  },
+
+  passwordLabel(score) {
+    return ['Too weak', 'Weak', 'Fair', 'Strong', 'Very strong'][score] || 'Too weak';
+  },
+
+  passwordIsAcceptable(pw) {
+    return !!pw && pw.length >= 8 && /[A-Za-z]/.test(pw) && /\d/.test(pw);
+  },
+
+  passwordRequirementText() {
+    return 'Password must be at least 8 characters and include a letter and a number.';
+  },
+
+  setupPasswordMeters() {
+    this.bindPasswordMeter('admin-password', 'admin-password-meter');
+    this.bindPasswordMeter('new-business-owner-password', 'new-business-owner-password-meter');
+  },
+
+  bindPasswordMeter(inputId, meterId) {
+    const input = document.getElementById(inputId);
+    const meter = document.getElementById(meterId);
+    if (!input || !meter) return;
+    const bar = meter.querySelector('.pw-meter-bar');
+    const label = meter.querySelector('.pw-meter-label');
+    const colors = ['#DC2626', '#EF4444', '#F59E0B', '#10B981', '#059669'];
+    const update = () => {
+      const score = this.passwordScore(input.value);
+      if (bar) {
+        bar.style.width = (score * 25) + '%';
+        bar.style.backgroundColor = colors[score];
+      }
+      if (label) {
+        label.textContent = input.value
+          ? `Password strength: ${this.passwordLabel(score)}`
+          : `Password strength: — (${this.passwordRequirementText()})`;
+        label.style.color = input.value ? colors[score] : '#64748B';
+      }
+    };
+    input.addEventListener('input', update);
+    update();
   },
 
   escape(str) {

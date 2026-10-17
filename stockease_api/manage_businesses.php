@@ -6,6 +6,7 @@ header("Access-Control-Allow-Methods: GET, POST");
 
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/password_policy.php';
 
 $identity = auth_require_user($conn);
 
@@ -85,6 +86,13 @@ if ($action === 'add') {
 
     if (!$createNewOwner && ($newOwnerName !== '' || $newOwnerUsername !== '')) {
         echo json_encode(['success' => false, 'message' => 'Provide both the owner full name and username to create a new store owner account.']);
+        exit();
+    }
+
+    // Password strength policy (empty falls back to the temporary bootstrap
+    // password that the new owner must change on first login)
+    if ($createNewOwner && $newOwnerPassword !== '' && !password_is_acceptable(trim($newOwnerPassword))) {
+        password_policy_fail(trim($newOwnerPassword));
         exit();
     }
 

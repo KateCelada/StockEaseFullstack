@@ -5,6 +5,7 @@ header("Access-Control-Allow-Methods: POST");
 
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/password_policy.php';
 
 $rawInput = file_get_contents("php://input");
 $data = json_decode($rawInput, true);
@@ -68,6 +69,12 @@ if (!in_array($role, ['staff', 'inventory_checker'], true)) {
 
 if (empty($fullName) || empty($username) || empty($password)) {
     echo json_encode(["success" => false, "message" => "Please fill in all required fields (Name, Username, Password)."]);
+    exit;
+}
+
+// Password strength policy (same rules as the app and web panel meters)
+if (!password_is_acceptable($password)) {
+    password_policy_fail($password);
     exit;
 }
 

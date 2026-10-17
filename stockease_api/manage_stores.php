@@ -5,6 +5,7 @@ header("Access-Control-Allow-Methods: GET, POST");
 
 require_once 'db.php';
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/password_policy.php';
 
 $identity = auth_require_user($conn);
 auth_require_roles($identity, ['super_admin', 'store_admin', 'manager', 'store_owner']);
@@ -94,6 +95,16 @@ if ($action === 'add') {
     if (empty($store_name)) {
         echo json_encode(["success" => false, "message" => "Store name is required."]);
         exit();
+    }
+
+    // Password strength policy for the accounts created alongside the branch.
+    // An empty password falls back to the temporary bootstrap password, which
+    // the account is forced to change on first login.
+    foreach (['new_owner_password', 'new_manager_password'] as $pwdField) {
+        if (!empty($data[$pwdField]) && !password_is_acceptable(trim($data[$pwdField]))) {
+            password_policy_fail(trim($data[$pwdField]));
+            exit();
+        }
     }
 
     try {

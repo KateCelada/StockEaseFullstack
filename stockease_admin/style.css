@@ -622,6 +622,29 @@ tbody tr:last-child td {
   color: #0F172A;
 }
 
+/* Password strength meter (mirrors the API's password_policy.php scoring) */
+.pw-meter {
+  margin-top: 6px;
+}
+.pw-meter-track {
+  height: 5px;
+  border-radius: 4px;
+  background: #E2E8F0;
+  overflow: hidden;
+}
+.pw-meter-bar {
+  height: 100%;
+  width: 0%;
+  border-radius: 4px;
+  background: transparent;
+  transition: width 0.2s ease, background-color 0.2s ease;
+}
+.pw-meter-label {
+  margin-top: 3px;
+  font-size: 11px;
+  color: #64748B;
+}
+
 /* Filter Toolbar */
 .toolbar {
   display: flex;

@@ -5,6 +5,7 @@ header("Access-Control-Allow-Methods: POST");
 
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/password_policy.php';
 
 $rawBody = file_get_contents('php://input');
 $jsonBody = json_decode($rawBody, true);
@@ -31,6 +32,12 @@ if (empty($currentPassword) || empty($newPassword)) {
 
 if (strlen($newPassword) < 6) {
     echo json_encode(['success' => false, 'message' => 'New password must be at least 6 characters long.']);
+    exit;
+}
+
+// Password strength policy (same rules as the app and web panel meters)
+if (!password_is_acceptable($newPassword)) {
+    password_policy_fail($newPassword);
     exit;
 }
 
@@ -76,7 +83,7 @@ try {
         $user['role'],
         'PASSWORD_CHANGED',
         "User #{$user['id']} ({$user['username']})",
-        $identity['store_name'] ?? 'System',
+        'System',
         'User successfully changed their account password.'
     ]);
 

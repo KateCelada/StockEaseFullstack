@@ -3,6 +3,7 @@ header("Content-Type: application/json; charset=UTF-8");
 
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/password_policy.php';
 
 $identity = auth_require_user($conn);
 auth_require_roles($identity, ['store_admin', 'manager', 'super_admin']);
@@ -21,6 +22,12 @@ if ($fullName === '' || $username === '' || $email === '' || $password === '') {
         "success" => false,
         "message" => "Full name, username, email, password, and a valid store ID are required"
     ]);
+    exit;
+}
+
+// Password strength policy (same rules as the app and the web panel meters)
+if (!password_is_acceptable($password)) {
+    password_policy_fail($password);
     exit;
 }
 
