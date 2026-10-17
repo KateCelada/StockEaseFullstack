@@ -36,6 +36,7 @@ const app = {
     this.setupModalEvents();
     this.setupFormSubmissions();
     this.setupPasswordMeters();
+    this.setupManualSaleForm();
     this.loadSubscription();
     this.loadDashboardData();
   },
@@ -1992,6 +1993,210 @@ const app = {
     });
   },
 
+  // ---- Other Sales: manual (non-POS) sales + voided/refunded transactions ----
+  renderOtherSales(other) {
+    const totalEl = document.getElementById('rep-other-total');
+    const countEl = document.getElementById('rep-other-count');
+    const voidTotalEl = document.getElementById('rep-voided-total');
+    const voidCountEl = document.getElementById('rep-voided-count');
+    const tbody = document.getElementById('tbody-other-sales');
+    if (!totalEl || !tbody) return;
+
+    const peso = v => '₱' + parseFloat(v || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
+    totalEl.textContent = peso(other.manual_sales_total);
+    if (countEl) countEl.textContent = (other.manual_sales_count || 0) + ' manual transaction(s)';
+    if (voidTotalEl) voidTotalEl.textContent = peso(other.voided_total);
+    if (voidCountEl) voidCountEl.textContent = (other.voided_count || 0) + ' voided / refunded transaction(s)';
+
+    const entries = other.entries || [];
+    if (entries.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #64748B; padding: 16px;">No manual sales or voided transactions in this period.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = entries.map(e => {
+      const isVoided = (e.status || '').toLowerCase() === 'voided';
+      const badge = isVoided
+        ? '<span class="badge badge-danger" style="font-size: 10px;">Voided</span>'
+        : '<span class="badge badge-success" style="font-size: 10px;">Completed</span>';
+      const items = (e.items_summary || '').split('\n').map(l => this.escape(l)).join('<br>');
+      return `
+        <tr>
+          <td style="color: #64748B;">#${e.id}</td>
+          <td>${this.escape((e.created_at || '').substring(0, 16))}</td>
+          <td style="font-size: 12px;">${items || '—'}</td>
+          <td>${this.escape(e.recorded_by || '—')}</td>
+          <td>${this.escape(e.payment_type || '—')}</td>
+          <td>${badge}</td>
+          <td class="text-right" style="font-weight: 700;">${peso(e.total_amount)}</td>
+        </tr>`;
+    }).join('');
+  },
+
+  async openManualSaleModal() {
+    const storeId = this.currentReportStoreId;
+    if (!storeId) {
+      this.showToast('Select a branch first', 'error');
+      return;
+    }
+
+    this.manualSaleItems = [];
+    this.renderManualSaleItems();
+    const notesEl = document.getElementById('ms-notes');
+    if (notesEl) notesEl.value = '';
+    const payEl = document.getElementById('ms-payment');
+    if (payEl) payEl.selectedIndex = 0;
+    this.openModal('modal-manual-sale');
+
+    const sel = document.getElementById('ms-product');
+    if (sel) sel.innerHTML = '<option value="">Loading products...</option>';
+    try {
+      const res = await fetch(`../stockease_api/get_products.php?store_id=${storeId}`, { credentials: 'include' });
+      const data = await res.json();
+      const prods = data.products || [];
+      if (sel) {
+        sel.innerHTML = prods.length
+          ? prods.map(p => `<option value="${p.id}" data-price="${parseFloat(p.price || 0)}" data-stock="${parseInt(p.stock, 10) || 0}">${this.escape(p.product_name)} (stock: ${parseInt(p.stock, 10) || 0})</option>`).join('')
+          : '<option value="">No products in this branch</option>';
+      }
+    } catch (e) {
+      if (sel) sel.innerHTML = '<option value="">Failed to load products</option>';
+    }
+  },
+
+  setupManualSaleForm() {
+    const btnOpen = document.getElementById('btn-record-manual-sale');
+    if (btnOpen) btnOpen.addEventListener('click', () => this.openManualSaleModal());
+
+    const addBtn = document.getElementById('btn-ms-add');
+    if (addBtn) addBtn.addEventListener('click', () => this.addManualSaleItem());
+
+    const prodSel = document.getElementById('ms-product');
+    if (prodSel) {
+      prodSel.addEventListener('change', () => {
+        const opt = prodSel.options[prodSel.selectedIndex];
+        const price = document.getElementById('ms-price');
+        if (opt && price) price.value = opt.getAttribute('data-price') || '';
+      });
+    }
+
+    const form = document.getElementById('form-manual-sale');
+    if (form) {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await this.submitManualSale();
+      });
+    }
+  },
+
+  addManualSaleItem() {
+    const prodSel = document.getElementById('ms-product');
+    const qtyEl = document.getElementById('ms-qty');
+    const priceEl = document.getElementById('ms-price');
+    if (!prodSel || !prodSel.value) {
+      this.showToast('Select a product first', 'error');
+      return;
+    }
+
+    const opt = prodSel.options[prodSel.selectedIndex];
+    const productId = parseInt(prodSel.value, 10);
+    const qty = parseInt(qtyEl && qtyEl.value, 10) || 0;
+    const price = parseFloat(priceEl && priceEl.value);
+    const stock = parseInt(opt.getAttribute('data-stock'), 10) || 0;
+
+    if (qty <= 0) {
+      this.showToast('Quantity must be at least 1', 'error');
+      return;
+    }
+    if (!isFinite(price) || price < 0) {
+      this.showToast('Enter a valid unit price', 'error');
+      return;
+    }
+
+    this.manualSaleItems = this.manualSaleItems || [];
+    const existing = this.manualSaleItems.find(i => i.product_id === productId);
+    const newQty = (existing ? existing.quantity : 0) + qty;
+    if (newQty > stock) {
+      this.showToast(`Only ${stock} unit(s) of this product are in stock`, 'error');
+      return;
+    }
+
+    if (existing) {
+      existing.quantity = newQty;
+      existing.unit_price = price;
+    } else {
+      this.manualSaleItems.push({ product_id: productId, name: opt.textContent, quantity: qty, unit_price: price });
+    }
+
+    this.renderManualSaleItems();
+  },
+
+  renderManualSaleItems() {
+    const box = document.getElementById('ms-items');
+    const totalEl = document.getElementById('ms-total');
+    if (!box) return;
+
+    const items = this.manualSaleItems || [];
+    if (items.length === 0) {
+      box.innerHTML = '<span style="color: #64748B;">No items added yet.</span>';
+      if (totalEl) totalEl.textContent = '₱0.00';
+      return;
+    }
+
+    let total = 0;
+    box.innerHTML = items.map((it, idx) => {
+      total += it.quantity * it.unit_price;
+      return `<div style="display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #F1F5F9;">
+        <span>${it.quantity} × ${this.escape(it.name)} @ ₱${it.unit_price.toFixed(2)}</span>
+        <span><strong>₱${(it.quantity * it.unit_price).toFixed(2)}</strong>
+          <a href="#" data-idx="${idx}" class="ms-remove" style="color: #DC2626; margin-left: 8px;" title="Remove">✕</a></span>
+      </div>`;
+    }).join('');
+
+    box.querySelectorAll('.ms-remove').forEach(a => {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.manualSaleItems.splice(parseInt(a.getAttribute('data-idx'), 10), 1);
+        this.renderManualSaleItems();
+      });
+    });
+
+    if (totalEl) totalEl.textContent = '₱' + total.toLocaleString('en-US', { minimumFractionDigits: 2 });
+  },
+
+  async submitManualSale() {
+    const storeId = this.currentReportStoreId;
+    if (!storeId) return;
+
+    this.manualSaleItems = this.manualSaleItems || [];
+    if (this.manualSaleItems.length === 0) {
+      this.showToast('Add at least one item to the sale', 'error');
+      return;
+    }
+
+    try {
+      const res = await fetch('../stockease_api/manage_manual_sales.php?action=create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          store_id: parseInt(storeId, 10),
+          payment_type: (document.getElementById('ms-payment') || {}).value || 'Cash',
+          notes: ((document.getElementById('ms-notes') || {}).value || '').trim(),
+          items: this.manualSaleItems.map(i => ({ product_id: i.product_id, quantity: i.quantity, unit_price: i.unit_price }))
+        })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.message);
+
+      this.showToast(data.message || 'Manual sale recorded', 'success');
+      this.closeModals();
+      this.loadReports();
+    } catch (err) {
+      this.showToast(err.message || 'Failed to record the manual sale', 'error');
+    }
+  },
+
   async loadReports() {
     let storeId = this.currentReportStoreId;
     if (!storeId && this.stores.length > 0) {
@@ -2035,6 +2240,9 @@ const app = {
       document.getElementById('rep-total-tx').textContent = s.transaction_count || 0;
       document.getElementById('rep-avg-order').textContent = '₱' + (s.average_transaction || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
       document.getElementById('rep-units-sold').textContent = s.products_sold || 0;
+
+      // Other Sales (manual, non-POS + voided/refunded)
+      this.renderOtherSales(data.other_sales || {});
 
       // Payment Methods
       const payContainer = document.getElementById('container-payment-methods');

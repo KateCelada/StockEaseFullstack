@@ -789,6 +789,41 @@ $currentUsername = htmlspecialchars($_SESSION['username'] ?? 'admin', ENT_QUOTES
             </div>
           </div>
         </div>
+
+        <!-- Other Sales: manual (non-POS) sales + voided/refunded transactions -->
+        <div class="card" style="margin-top: 20px;">
+          <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div class="card-title">🧾 Other Sales (Non-POS)</div>
+              <div class="card-subtitle">Sales recorded manually and voided/refunded transactions, tracked separately from POS sales</div>
+            </div>
+            <button id="btn-record-manual-sale" class="btn btn-primary btn-sm">+ Record Manual Sale</button>
+          </div>
+          <div class="stats-grid" style="margin-bottom: 12px;">
+            <div class="stat-card">
+              <div class="stat-header"><span class="stat-title">Manual Sales</span></div>
+              <div id="rep-other-total" class="stat-value">&mdash;</div>
+              <div id="rep-other-count" style="color: #64748B; font-size: 11px;">&mdash;</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-header"><span class="stat-title">Voided / Refunded</span></div>
+              <div id="rep-voided-total" class="stat-value">&mdash;</div>
+              <div id="rep-voided-count" style="color: #64748B; font-size: 11px;">&mdash;</div>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table id="table-other-sales">
+              <thead>
+                <tr>
+                  <th>#</th><th>Date</th><th>Items</th><th>Recorded By</th><th>Payment</th><th>Status</th><th class="text-right">Amount</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-other-sales">
+                <tr><td colspan="7" style="text-align: center; color: #64748B; padding: 16px;">Select a branch to view other sales.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </section>
 
       <!-- ================= SECTION: SECURITY AUDIT LOGS ================= -->
@@ -1184,6 +1219,51 @@ $currentUsername = htmlspecialchars($_SESSION['username'] ?? 'admin', ENT_QUOTES
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" onclick="app.closeModals()">Cancel</button>
         <button type="submit" class="btn btn-primary">Submit Transfer Request</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Record Manual (Other) Sale -->
+<div id="modal-manual-sale" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">🧾 Record Manual Sale</div>
+        <div class="card-subtitle" style="font-size: 12px; color: #64748B;">Sales made outside the POS (phone orders, bulk deals, delivery). Stock levels are adjusted automatically.</div>
+      </div>
+      <button class="modal-close" onclick="app.closeModals()">&times;</button>
+    </div>
+    <form id="form-manual-sale">
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="ms-payment">Payment Method</label>
+          <select id="ms-payment" class="form-select">
+            <option>Cash</option>
+            <option>GCash</option>
+            <option>Bank Transfer</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Add Item</label>
+          <div style="display: grid; grid-template-columns: 1fr 76px 110px auto; gap: 8px;">
+            <select id="ms-product" class="form-select"><option value="">Select a product...</option></select>
+            <input type="number" id="ms-qty" class="form-control" min="1" value="1" title="Quantity">
+            <input type="number" id="ms-price" class="form-control" min="0" step="0.01" placeholder="Unit price" title="Unit price">
+            <button type="button" id="btn-ms-add" class="btn btn-secondary">Add</button>
+          </div>
+          <div id="ms-items" style="margin-top: 8px; font-size: 12px;"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="ms-notes">Notes (optional)</label>
+          <textarea id="ms-notes" class="form-control" rows="2" placeholder="e.g. Bulk order via phone, delivered by owner"></textarea>
+        </div>
+        <div style="font-weight: 700; font-size: 14px;">Total: <span id="ms-total">₱0.00</span></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="app.closeModals()">Cancel</button>
+        <button type="submit" class="btn btn-primary">Record Sale</button>
       </div>
     </form>
   </div>

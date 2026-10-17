@@ -4,11 +4,19 @@ The four redesign phases changed ~200 things and **none of it has ever rendered 
 device**. This is the single biggest remaining risk. Walk this list once on an
 emulator or device before calling the work done.
 
-**Before you start:** run the profile migration (already applied to `stockease_manual`,
-idempotent — safe to re-run):
+**Before you start:** StockEase runs on **MySQL/MariaDB (XAMPP) only** — the old
+PostgreSQL migration scripts (`apply_*.php`) are retired and now print a notice
+without touching the database. Schema and seed live in:
 
 ```
-C:\xampp\php\php.exe C:\xampp\htdocs\stockease_api\StockEaseFullstack\stockease_api\apply_profile_fields_migration.php
+stockease_api\schema_mysql.sql   (import first)
+stockease_api\seed_mysql.sql     (import second)
+```
+
+```
+C:\xampp\mysql\bin\mysql.exe -u root -e "CREATE DATABASE IF NOT EXISTS stockease CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;"
+C:\xampp\mysql\bin\mysql.exe -u root stockease < stockease_api\schema_mysql.sql
+C:\xampp\mysql\bin\mysql.exe -u root stockease < stockease_api\seed_mysql.sql
 ```
 
 **Test matrix:** walk steps 1–10 once in **light**, then repeat the marked steps in
@@ -22,17 +30,27 @@ C:\xampp\php\php.exe C:\xampp\htdocs\stockease_api\StockEaseFullstack\stockease_
       token is still referenced somewhere).
 - [ ] Login screen renders with Inter, not the system font.
 
-## 2. Sidebar accordion — every dashboard screen
+## 2. Sidebar accordion — every screen
 
-Sidebar-bearing screens: `DashboardActivity`, `CashierDashboardActivity`,
+Own-dashboard sidebars: `DashboardActivity`, `CashierDashboardActivity`,
 `StoreAdminDashboardActivity`, `SuperAdminDashboardActivity`, `ProfileActivity`,
-`StockTransfersActivity`, `TransactionHistoryActivity`, `AuditLogsActivity`,
-`BusinessProgressActivity`, `StockEaseInsightsActivity`, `SubscriptionActivity`.
+`AuditLogsActivity`.
+
+Shared sidebar (`view_sidebar.xml` + `SidebarNav.attach(...)`): `POSActivity`,
+`InventoryActivity`, `LowStockActivity`, `ProductsActivity`,
+`TransactionHistoryActivity`, `ReportsActivity`, `StockTransfersActivity`,
+`StaffActivity`, `StoreAdminsActivity`, `StoresActivity`, `UsersActivity`,
+`StockEaseInsightsActivity`, `BusinessProgressActivity`, `SubscriptionActivity`,
+`SettingsActivity`.
 
 - [ ] Open each; the sidebar renders with **dark slate background** and light text.
+- [ ] **Navigate via the sidebar to any screen and back — the sidebar is still
+      there on every screen** (panelist request: it used to exist on only 7 layouts).
 - [ ] Tapping a group expands/collapses it — chevron flips `▸` → `▾`.
 - [ ] Exactly **one** group open at a time (accordion, not independent toggles).
 - [ ] Current screen's item is visually marked active.
+- [ ] Role gating: staff don't see Reports/Transfers/Staff/Branches; inventory
+      checkers don't see POS; managers/store owners see Staff/Store Admins/Branches.
 - [ ] **Dark mode:** sidebar still reads correctly (this was the `sidebar_bg` ≡
       `text_primary` swap — a no-op in light, the actual fix in dark).
 
@@ -41,7 +59,7 @@ Sidebar-bearing screens: `DashboardActivity`, `CashierDashboardActivity`,
 - [ ] Open Profile: fields populate from `get_user_profile.php`, no crash.
 - [ ] Edit phone / address / occupation / sex; Save.
 - [ ] **Reopen the app and re-open Profile** — values persisted (proves the write
-      path through `update_profile.php` → PostgreSQL, not just local state).
+      path through `update_profile.php` → MySQL, not just local state).
 - [ ] If save fails, the error is a readable message, not a raw SQL error.
 
 ## 4. Skeleton → content transition (7 list screens)

@@ -156,6 +156,45 @@ try {
         $transferMetrics = $transStmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    // 5. "Other Sales" - sales recorded outside the POS (source = 'manual'),
+    //    plus voided/refunded transactions that the main summary excludes.
+    $rangeSql = "";
+    if ($startDate && $endDate) {
+        $rangeSql = " AND t.created_at >= :start_date AND t.created_at <= :end_date";
+    } elseif ($startDate) {
+        $rangeSql = " AND t.created_at >= :start_date";
+    }
+
+    $otherStmt = $conn->prepare("
+        SELECT
+            COALESCE(SUM(CASE WHEN t.source = 'manual' AND (t.status IS NULL OR t.status = 'completed') THEN t.total_amount END), 0.0) AS manual_sales_total,
+            COALESCE(SUM(CASE WHEN t.source = 'manual' AND (t.status IS NULL OR t.status = 'completed') THEN 1 ELSE 0 END), 0) AS manual_sales_count,
+            COALESCE(SUM(CASE WHEN LOWER(t.status) = 'voided' THEN t.total_amount END), 0.0) AS voided_total,
+            COALESCE(SUM(CASE WHEN LOWER(t.status) = 'voided' THEN 1 ELSE 0 END), 0) AS voided_count
+        FROM transactions t
+        WHERE t.store_id = :store_id$rangeSql
+    ");
+    $otherStmt->execute($params);
+    $otherRow = $otherStmt->fetch(PDO::FETCH_ASSOC);
+
+    // Recent other-sales entries (manual sales and voided refunds) with item lines
+    $otherListStmt = $conn->prepare("
+        SELECT t.id, t.total_amount, t.payment_type, t.status, t.source, t.created_at,
+               COALESCE(u.full_name, 'Unknown user') AS recorded_by,
+               GROUP_CONCAT(CONCAT(ti.quantity, 'x ', COALESCE(p.product_name, 'Item')) SEPARATOR '\n') AS items_summary
+        FROM transactions t
+        LEFT JOIN users u ON t.user_id = u.id
+        LEFT JOIN transaction_items ti ON ti.transaction_id = t.id
+        LEFT JOIN products p ON ti.product_id = p.id
+        WHERE t.store_id = :store_id
+          AND (t.source = 'manual' OR LOWER(t.status) = 'voided')$rangeSql
+        GROUP BY t.id, t.total_amount, t.payment_type, t.status, t.source, t.created_at, u.full_name
+        ORDER BY t.created_at DESC
+        LIMIT 50
+    ");
+    $otherListStmt->execute($params);
+    $otherEntries = $otherListStmt->fetchAll(PDO::FETCH_ASSOC);
+
     echo json_encode([
         "success" => true,
         "is_premium" => $isPremium,
@@ -175,6 +214,13 @@ try {
             "products_sold" => $totalProductsSold
         ],
         "transfer_metrics" => $transferMetrics,
+        "other_sales" => [
+            "manual_sales_total" => round((float)($otherRow['manual_sales_total'] ?? 0.0), 2),
+            "manual_sales_count" => (int)($otherRow['manual_sales_count'] ?? 0),
+            "voided_total" => round((float)($otherRow['voided_total'] ?? 0.0), 2),
+            "voided_count" => (int)($otherRow['voided_count'] ?? 0),
+            "entries" => $otherEntries
+        ],
         "payment_methods" => $paymentMethods,
         "top_products" => $topProducts,
         "daily_sales" => $dailySales
