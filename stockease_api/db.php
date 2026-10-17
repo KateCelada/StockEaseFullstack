@@ -49,7 +49,12 @@ $options = [
     PDO::ATTR_EMULATE_PREPARES => true
 ];
 
-// TLS for managed MySQL (Railway, Aiven, ...). Local XAMPP needs none.
+// TLS for managed MySQL (TiDB Serverless, Railway, Aiven, ...).
+// Local XAMPP needs none. Two ways to supply the CA:
+//   1. DB_SSL_CA=<path>   - file path (absolute, or relative to this folder /
+//                           the repo root, e.g. "tidb-ca.pem" committed at repo root)
+//   2. MYSQL_CERT=<PEM>   - the certificate content itself (Railway exposes
+//                           the CA there); written to a temp file.
 $railwayCert = getenv('MYSQL_CERT');
 $sslCa       = getenv('DB_SSL_CA');
 if ($railwayCert !== false && $railwayCert !== '') {
@@ -59,7 +64,12 @@ if ($railwayCert !== false && $railwayCert !== '') {
     }
     $options[PDO::MYSQL_ATTR_SSL_CA] = $caFile;
 } elseif ($sslCa !== false && $sslCa !== '') {
-    $options[PDO::MYSQL_ATTR_SSL_CA] = $sslCa;
+    foreach ([$sslCa, __DIR__ . '/' . $sslCa, dirname(__DIR__) . '/' . $sslCa] as $candidate) {
+        if (is_file($candidate)) {
+            $options[PDO::MYSQL_ATTR_SSL_CA] = $candidate;
+            break;
+        }
+    }
 }
 if ($env('DB_SSL_NO_VERIFY') === '1') {
     $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
