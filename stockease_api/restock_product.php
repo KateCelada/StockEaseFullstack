@@ -28,14 +28,28 @@ if ($productId <= 0 || $addQuantity <= 0) {
 try {
     $stmt = $conn->prepare("UPDATE products 
                            SET stock = stock + :qty 
-                           WHERE id = :id AND store_id = :store_id 
-                           RETURNING id, product_name, stock");
+                           WHERE id = :id AND store_id = :store_id");
     $stmt->execute([
         'qty' => $addQuantity,
         'id' => $productId,
         'store_id' => $storeId
     ]);
-    $updated = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($stmt->rowCount() < 1) {
+        // MySQL's UPDATE reports 0 rows when the row exists but the value is
+        // unchanged - confirm the product exists before returning a 404.
+        $check = $conn->prepare("SELECT id FROM products WHERE id = :id AND store_id = :store_id");
+        $check->execute(['id' => $productId, 'store_id' => $storeId]);
+        if (!$check->fetchColumn()) {
+            http_response_code(404);
+            echo json_encode(["success" => false, "message" => "Product not found in this store"]);
+            exit;
+        }
+    }
+
+    $fetch = $conn->prepare("SELECT id, product_name, stock FROM products WHERE id = :id");
+    $fetch->execute(['id' => $productId]);
+    $updated = $fetch->fetch(PDO::FETCH_ASSOC);
 
     if (!$updated) {
         http_response_code(404);

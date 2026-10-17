@@ -108,8 +108,7 @@ try {
 
     $stmt = $conn->prepare("
         INSERT INTO users (full_name, username, email, password, role, store_id, is_active, must_change_password)
-        VALUES (:full_name, :username, :email, :password, :role, :store_id, true, true)
-        RETURNING id, full_name, username, role, store_id
+        VALUES (:full_name, :username, :email, :password, :role, :store_id, 1, 1)
     ");
     $stmt->execute([
         'full_name' => $fullName,
@@ -119,7 +118,10 @@ try {
         'role'      => $role,
         'store_id'  => $requestedStoreId
     ]);
-    $newUser = $stmt->fetch(PDO::FETCH_ASSOC);
+    $newUserId = (int)$conn->lastInsertId();
+    $newUserStmt = $conn->prepare("SELECT id, full_name, username, role, store_id FROM users WHERE id = :id");
+    $newUserStmt->execute(['id' => $newUserId]);
+    $newUser = $newUserStmt->fetch(PDO::FETCH_ASSOC);
 
     $roleDisplayName = ($role === 'inventory_checker') ? 'Inventory Staff' : 'Cashier';
 

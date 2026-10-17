@@ -30,7 +30,7 @@ if ($action === 'fetch') {
     if ($identity['role'] === 'store_admin') {
         $prStmt = $conn->prepare("
             SELECT id, plan, billing_period, price, status, payment_reference, notes, rejection_reason,
-                   to_char(created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at
+                   created_at as created_at
             FROM subscription_requests
             WHERE user_id = :uid AND status = 'pending'
             ORDER BY id DESC LIMIT 1
@@ -40,7 +40,7 @@ if ($action === 'fetch') {
 
         $lastStmt = $conn->prepare("
             SELECT id, plan, billing_period, price, status, rejection_reason,
-                   to_char(reviewed_at, 'YYYY-MM-DD HH24:MI:SS') as reviewed_at
+                   reviewed_at as reviewed_at
             FROM subscription_requests
             WHERE user_id = :uid
             ORDER BY id DESC LIMIT 1
@@ -57,7 +57,7 @@ if ($action === 'fetch') {
                    sr.store_id, COALESCE(s.store_name, 'Unassigned') as store_name,
                    sr.plan, sr.billing_period, sr.price, sr.status,
                    sr.payment_reference, sr.notes,
-                   to_char(sr.created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at
+                   sr.created_at as created_at
             FROM subscription_requests sr
             JOIN users u ON sr.user_id = u.id
             LEFT JOIN stores s ON sr.store_id = s.id
@@ -122,7 +122,6 @@ if ($action === 'apply' || $action === 'request') {
         $insStmt = $conn->prepare("
             INSERT INTO subscription_requests (user_id, store_id, plan, billing_period, price, status, payment_reference, notes)
             VALUES (:uid, :sid, 'premium', :period, :price, 'pending', :ref, :notes)
-            RETURNING id
         ");
         $insStmt->execute([
             'uid' => $identity['user_id'],
@@ -132,7 +131,7 @@ if ($action === 'apply' || $action === 'request') {
             'ref' => $paymentRef,
             'notes' => $notes
         ]);
-        $requestId = (int)$insStmt->fetchColumn();
+        $requestId = (int)$conn->lastInsertId();
     }
 
     // Audit log
@@ -196,18 +195,18 @@ if ($action === 'approve_request') {
     }
 
     $period = strtolower($req['billing_period']);
-    $now = new DateTime('now', new DateTimeZone('UTC'));
-    $startsAt = $now->format('Y-m-d H:i:sP');
+    $now = new DateTime('now');
+    $startsAt = $now->format('Y-m-d H:i:s');
 
     if ($period === 'yearly') {
         $renewDate = clone $now;
         $renewDate->modify('+1 year');
-        $expiresAt = $renewDate->format('Y-m-d H:i:sP');
+        $expiresAt = $renewDate->format('Y-m-d H:i:s');
     } else {
         // Monthly
         $renewDate = clone $now;
         $renewDate->modify('+1 month');
-        $expiresAt = $renewDate->format('Y-m-d H:i:sP');
+        $expiresAt = $renewDate->format('Y-m-d H:i:s');
     }
 
     // 1. Mark request as approved
@@ -226,12 +225,12 @@ if ($action === 'approve_request') {
     $subStmt = $conn->prepare("
         INSERT INTO subscriptions (owner_user_id, plan, billing_period, status, starts_at, expires_at, updated_at)
         VALUES (:owner_id, 'premium', :period, 'active', :starts_at, :expires_at, CURRENT_TIMESTAMP)
-        ON CONFLICT (owner_user_id) DO UPDATE SET
+        ON DUPLICATE KEY UPDATE
             plan = 'premium',
-            billing_period = EXCLUDED.billing_period,
+            billing_period = VALUES(billing_period),
             status = 'active',
-            starts_at = EXCLUDED.starts_at,
-            expires_at = EXCLUDED.expires_at,
+            starts_at = VALUES(starts_at),
+            expires_at = VALUES(expires_at),
             updated_at = CURRENT_TIMESTAMP
     ");
     $subStmt->execute([
@@ -367,7 +366,6 @@ if ($action === 'simulate_checkout' || $action === 'update_plan') {
             $insStmt = $conn->prepare("
                 INSERT INTO subscription_requests (user_id, store_id, plan, billing_period, price, status, payment_reference, notes)
                 VALUES (:uid, :sid, 'premium', :period, :price, 'pending', :ref, :notes)
-                RETURNING id
             ");
             $insStmt->execute([
                 'uid' => $identity['user_id'],
@@ -377,7 +375,7 @@ if ($action === 'simulate_checkout' || $action === 'update_plan') {
                 'ref' => $paymentRef,
                 'notes' => $notes
             ]);
-            $requestId = (int)$insStmt->fetchColumn();
+            $requestId = (int)$conn->lastInsertId();
         }
 
         // Audit log
@@ -435,8 +433,8 @@ if ($action === 'simulate_checkout' || $action === 'update_plan') {
 
     $ownerUserId = subscription_get_owner_user_id($conn, $identity);
 
-    $now = new DateTime('now', new DateTimeZone('UTC'));
-    $startsAt = $now->format('Y-m-d H:i:sP');
+    $now = new DateTime('now');
+    $startsAt = $now->format('Y-m-d H:i:s');
     $expiresAt = null;
     $trialEndsAt = null;
 
@@ -444,23 +442,23 @@ if ($action === 'simulate_checkout' || $action === 'update_plan') {
         if ($targetStatus === 'trial') {
             $trialDate = clone $now;
             $trialDate->modify('+14 days');
-            $trialEndsAt = $trialDate->format('Y-m-d H:i:sP');
+            $trialEndsAt = $trialDate->format('Y-m-d H:i:s');
             $expiresAt = $trialEndsAt;
         } elseif ($targetPeriod === 'yearly') {
             $renewDate = clone $now;
             $renewDate->modify('+1 year');
-            $expiresAt = $renewDate->format('Y-m-d H:i:sP');
+            $expiresAt = $renewDate->format('Y-m-d H:i:s');
         } else {
             // Monthly
             $renewDate = clone $now;
             $renewDate->modify('+1 month');
-            $expiresAt = $renewDate->format('Y-m-d H:i:sP');
+            $expiresAt = $renewDate->format('Y-m-d H:i:s');
         }
 
         if ($targetStatus === 'expired') {
             $pastDate = clone $now;
             $pastDate->modify('-1 day');
-            $expiresAt = $pastDate->format('Y-m-d H:i:sP');
+            $expiresAt = $pastDate->format('Y-m-d H:i:s');
         }
     }
 
@@ -470,13 +468,13 @@ if ($action === 'simulate_checkout' || $action === 'update_plan') {
         $stmt = $conn->prepare("
             INSERT INTO subscriptions (owner_user_id, plan, billing_period, status, starts_at, expires_at, trial_ends_at, updated_at)
             VALUES (:owner_id, :plan, :period, :status, :starts_at, :expires_at, :trial_ends_at, CURRENT_TIMESTAMP)
-            ON CONFLICT (owner_user_id) DO UPDATE SET
-                plan = EXCLUDED.plan,
-                billing_period = EXCLUDED.billing_period,
-                status = EXCLUDED.status,
-                starts_at = EXCLUDED.starts_at,
-                expires_at = EXCLUDED.expires_at,
-                trial_ends_at = EXCLUDED.trial_ends_at,
+            ON DUPLICATE KEY UPDATE
+                plan = VALUES(plan),
+                billing_period = VALUES(billing_period),
+                status = VALUES(status),
+                starts_at = VALUES(starts_at),
+                expires_at = VALUES(expires_at),
+                trial_ends_at = VALUES(trial_ends_at),
                 updated_at = CURRENT_TIMESTAMP
         ");
 

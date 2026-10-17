@@ -133,15 +133,14 @@ try {
 
     $transactionStmt = $conn->prepare("INSERT INTO transactions
         (store_id, user_id, total_amount, payment_type, status)
-        VALUES (:store_id, :user_id, :total_amount, :payment_type, 'completed')
-        RETURNING id");
+        VALUES (:store_id, :user_id, :total_amount, :payment_type, 'completed')");
     $transactionStmt->execute([
         'store_id' => $storeId,
         'user_id' => $userId,
         'total_amount' => $calculatedTotal,
         'payment_type' => $paymentType
     ]);
-    $transactionId = (int)$transactionStmt->fetchColumn();
+    $transactionId = (int)$conn->lastInsertId();
 
     $itemStmt = $conn->prepare("INSERT INTO transaction_items
         (transaction_id, product_id, quantity, unit_price, cost_price)

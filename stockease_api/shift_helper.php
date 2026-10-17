@@ -18,7 +18,7 @@ function shift_close_stale_shifts(PDO $conn, int $userId): void
         $stmt = $conn->prepare("
             UPDATE staff_shifts
             SET status = 'ended', ended_at = CURRENT_TIMESTAMP
-            WHERE user_id = :uid AND status = 'active' AND started_at::date < CURRENT_DATE
+            WHERE user_id = :uid AND status = 'active' AND DATE(started_at) < CURRENT_DATE
         ");
         $stmt->execute(['uid' => $userId]);
     } catch (PDOException $e) {
@@ -36,8 +36,8 @@ function shift_get_active_shift(PDO $conn, int $userId): ?array
     try {
         $stmt = $conn->prepare("
             SELECT ss.id, ss.user_id, ss.store_id, ss.status,
-                   to_char(ss.started_at, 'YYYY-MM-DD HH24:MI:SS') AS started_at,
-                   to_char(ss.ended_at, 'YYYY-MM-DD HH24:MI:SS') AS ended_at
+                   ss.started_at AS started_at,
+                   ss.ended_at AS ended_at
             FROM staff_shifts ss
             WHERE ss.user_id = :uid AND ss.status = 'active'
             ORDER BY ss.id DESC
@@ -73,11 +73,15 @@ function shift_start_daily_shift(PDO $conn, int $userId, int $storeId): array
         $stmt = $conn->prepare("
             INSERT INTO staff_shifts (user_id, store_id, status, started_at)
             VALUES (:uid, :sid, 'active', CURRENT_TIMESTAMP)
-            RETURNING id, user_id, store_id, status,
-                      to_char(started_at, 'YYYY-MM-DD HH24:MI:SS') AS started_at
         ");
         $stmt->execute(['uid' => $userId, 'sid' => $storeId]);
-        $shift = $stmt->fetch(PDO::FETCH_ASSOC);
+        $newShiftId = (int)$conn->lastInsertId();
+        $fetchStmt = $conn->prepare("
+            SELECT id, user_id, store_id, status, started_at
+            FROM staff_shifts WHERE id = :id
+        ");
+        $fetchStmt->execute(['id' => $newShiftId]);
+        $shift = $fetchStmt->fetch(PDO::FETCH_ASSOC);
         return ['started' => true, 'shift' => $shift ?: null];
     } catch (PDOException $e) {
         return ['started' => false, 'shift' => null];
@@ -97,11 +101,14 @@ function shift_end_active_shift(PDO $conn, int $userId): ?array
             UPDATE staff_shifts
             SET status = 'ended', ended_at = CURRENT_TIMESTAMP
             WHERE id = :id AND user_id = :uid AND status = 'active'
-            RETURNING id, to_char(started_at, 'YYYY-MM-DD HH24:MI:SS') AS started_at,
-                      to_char(ended_at, 'YYYY-MM-DD HH24:MI:SS') AS ended_at
         ");
         $stmt->execute(['id' => (int)$shift['id'], 'uid' => $userId]);
-        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+        $closedStmt = $conn->prepare("
+            SELECT id, started_at, ended_at
+            FROM staff_shifts WHERE id = :id
+        ");
+        $closedStmt->execute(['id' => (int)$shift['id']]);
+        return $closedStmt->fetch(PDO::FETCH_ASSOC) ?: null;
     } catch (PDOException $e) {
         return null;
     }

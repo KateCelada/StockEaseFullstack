@@ -49,7 +49,6 @@ function get_or_create_destination_product(PDO $conn, int $toStoreId, int $sourc
     $createStmt = $conn->prepare("
         INSERT INTO products (store_id, product_name, category, category_id, price, cost_price, stock, min_stock)
         VALUES (:store_id, :name, :category, :category_id, :price, :cost_price, 0, :min_stock)
-        RETURNING id
     ");
     $createStmt->execute([
         'store_id' => $toStoreId,
@@ -61,7 +60,33 @@ function get_or_create_destination_product(PDO $conn, int $toStoreId, int $sourc
         'min_stock' => $src['min_stock'] ?? 10
     ]);
 
-    return (int)$createStmt->fetchColumn();
+    return (int)$conn->lastInsertId();
+}
+
+/**
+ * Records one step of a transfer's life cycle in transfer_events so the
+ * requesting store admin can watch the request travel through approval,
+ * dispatch and arrival. Logging must never break the transfer itself.
+ *
+ * Events: requested | approved | dispatched | received | declined | cancelled | completed
+ */
+function transfer_log_event(PDO $conn, int $transferId, string $event, ?array $identity, string $note = ''): void
+{
+    try {
+        $stmt = $conn->prepare("
+            INSERT INTO transfer_events (transfer_id, event, actor_id, actor_name, note)
+            VALUES (:transfer_id, :event, :actor_id, :actor_name, :note)
+        ");
+        $stmt->execute([
+            'transfer_id' => $transferId,
+            'event' => $event,
+            'actor_id' => $identity['user_id'] ?? null,
+            'actor_name' => (string)($identity['full_name'] ?? ''),
+            'note' => $note
+        ]);
+    } catch (Throwable $e) {
+        // Non-fatal: the transfer status itself is the source of truth.
+    }
 }
 
 try {
@@ -107,11 +132,11 @@ try {
                    st.to_store_id, st_dest.store_name AS to_store_name,
                    st.requested_by, u.full_name AS requested_by_name,
                    st.status, st.notes,
-                   to_char(st.created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at,
-                   to_char(st.dispatched_at, 'YYYY-MM-DD HH24:MI:SS') AS dispatched_at,
-                   to_char(st.received_at, 'YYYY-MM-DD HH24:MI:SS') AS received_at,
-                   to_char(st.completed_at, 'YYYY-MM-DD HH24:MI:SS') AS completed_at,
-                   to_char(st.declined_at, 'YYYY-MM-DD HH24:MI:SS') AS declined_at,
+                   st.created_at AS created_at,
+                   st.dispatched_at AS dispatched_at,
+                   st.received_at AS received_at,
+                   st.completed_at AS completed_at,
+                   st.declined_at AS declined_at,
                    COALESCE(st.decline_reason, '') AS decline_reason,
                    COALESCE(COUNT(sti.id), 0) AS total_items,
                    COALESCE(SUM(sti.quantity), 0) AS total_quantity,
@@ -150,11 +175,11 @@ try {
                    st.to_store_id, st_dest.store_name AS to_store_name,
                    st.requested_by, u.full_name AS requested_by_name,
                    st.status, st.notes,
-                   to_char(st.created_at, 'YYYY-MM-DD HH24:MI:SS') AS created_at,
-                   to_char(st.dispatched_at, 'YYYY-MM-DD HH24:MI:SS') AS dispatched_at,
-                   to_char(st.received_at, 'YYYY-MM-DD HH24:MI:SS') AS received_at,
-                   to_char(st.completed_at, 'YYYY-MM-DD HH24:MI:SS') AS completed_at,
-                   to_char(st.declined_at, 'YYYY-MM-DD HH24:MI:SS') AS declined_at,
+                   st.created_at AS created_at,
+                   st.dispatched_at AS dispatched_at,
+                   st.received_at AS received_at,
+                   st.completed_at AS completed_at,
+                   st.declined_at AS declined_at,
                    COALESCE(st.decline_reason, '') AS decline_reason
             FROM stock_transfers st
             LEFT JOIN stores sf ON st.from_store_id = sf.id
@@ -195,7 +220,130 @@ try {
         $items = $itemsStmt->fetchAll(PDO::FETCH_ASSOC);
 
         $transfer['items'] = $items;
+
+        $eventsStmt = $conn->prepare("
+            SELECT id, event, actor_id, actor_name, note, created_at
+            FROM transfer_events
+            WHERE transfer_id = :id
+            ORDER BY id ASC
+        ");
+        $eventsStmt->execute(['id' => $transferId]);
+        $transfer['events'] = $eventsStmt->fetchAll(PDO::FETCH_ASSOC);
+
         echo json_encode(['success' => true, 'transfer' => $transfer]);
+        exit;
+    }
+
+    if ($action === 'timeline') {
+        // Full life cycle of one transfer: requested -> approved -> dispatched
+        // -> received, with the person and timestamp of every step.
+        $transferId = (int)($_GET['id'] ?? $_GET['transfer_id'] ?? 0);
+        if ($transferId <= 0) {
+            auth_json_error(400, 'Invalid transfer ID');
+        }
+
+        $stmt = $conn->prepare("
+            SELECT st.id, st.status, st.from_store_id, sf.store_name AS from_store_name,
+                   st.to_store_id, dt.store_name AS to_store_name,
+                   st.requested_by, u.full_name AS requested_by_name,
+                   st.created_at, st.dispatched_at, st.received_at, st.completed_at,
+                   st.declined_at, st.decline_reason,
+                   COALESCE(st.notes, '') AS notes
+            FROM stock_transfers st
+            LEFT JOIN stores sf ON st.from_store_id = sf.id
+            JOIN stores dt ON st.to_store_id = dt.id
+            JOIN users u ON st.requested_by = u.id
+            WHERE st.id = :id
+            LIMIT 1
+        ");
+        $stmt->execute(['id' => $transferId]);
+        $transfer = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$transfer) {
+            auth_json_error(404, 'Transfer not found');
+        }
+
+        // Same branch-level scope check as the detail action
+        if ($identity['role'] === 'store_admin' || $identity['role'] === 'inventory_checker') {
+            $userStore = (int)($identity['store_id'] ?? 0);
+            $fromStore = $transfer['from_store_id'] !== null ? (int)$transfer['from_store_id'] : 0;
+            if ($fromStore !== $userStore && (int)$transfer['to_store_id'] !== $userStore) {
+                auth_json_error(403, 'Unauthorized access to transfer record');
+            }
+        }
+
+        $eventsStmt = $conn->prepare("
+            SELECT id, event, actor_id, actor_name, note, created_at
+            FROM transfer_events
+            WHERE transfer_id = :id
+            ORDER BY id ASC
+        ");
+        $eventsStmt->execute(['id' => $transferId]);
+        $events = $eventsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        echo json_encode([
+            'success' => true,
+            'transfer' => $transfer,
+            'events' => $events
+        ]);
+        exit;
+    }
+
+    if ($action === 'activity') {
+        // "Monitoring" feed for the signed-in account: the newest transfer
+        // events the caller is allowed to see (their requests, their branch,
+        // or - for managers - their portfolio).
+        $limit = (int)($_GET['limit'] ?? 20);
+        if ($limit < 1 || $limit > 50) {
+            $limit = 20;
+        }
+
+        $where = ["1=1"];
+        $params = [];
+
+        $role = $identity['role'];
+        if ($role === 'store_admin' || $role === 'inventory_checker') {
+            $where[] = "(st.from_store_id = :user_store OR st.to_store_id = :user_store OR st.requested_by = :req_by)";
+            $params['user_store'] = (int)($identity['store_id'] ?? 0);
+            $params['req_by'] = (int)$identity['user_id'];
+        } elseif ($role === 'manager') {
+            $where[] = "(st.requested_by = :req_by
+                         OR st.from_store_id IN (SELECT id FROM stores WHERE owner_id = :mgr_id OR manager_id = :mgr_id OR id = :mgr_store)
+                         OR st.to_store_id IN (SELECT id FROM stores WHERE owner_id = :mgr_id OR manager_id = :mgr_id OR id = :mgr_store))";
+            $params['req_by'] = (int)$identity['user_id'];
+            $params['mgr_id'] = (int)$identity['user_id'];
+            $params['mgr_store'] = (int)($identity['store_id'] ?? 0);
+        } elseif ($role === 'store_owner') {
+            $where[] = "(st.requested_by = :req_by OR st.from_store_id IN (SELECT id FROM stores WHERE owner_id = :own_id) OR st.to_store_id IN (SELECT id FROM stores WHERE owner_id = :own_id))";
+            $params['req_by'] = (int)$identity['user_id'];
+            $params['own_id'] = (int)$identity['user_id'];
+        }
+
+        $whereClause = implode(' AND ', $where);
+
+        $stmt = $conn->prepare("
+            SELECT te.id, te.transfer_id, te.event, te.actor_id, te.actor_name, te.note, te.created_at,
+                   st.status AS transfer_status,
+                   st.from_store_id, sf.store_name AS from_store_name,
+                   st.to_store_id, dt.store_name AS to_store_name,
+                   u.full_name AS requested_by_name
+            FROM transfer_events te
+            JOIN stock_transfers st ON st.id = te.transfer_id
+            LEFT JOIN stores sf ON st.from_store_id = sf.id
+            JOIN stores dt ON st.to_store_id = dt.id
+            JOIN users u ON st.requested_by = u.id
+            WHERE $whereClause
+            ORDER BY te.created_at DESC, te.id DESC
+            LIMIT $limit
+        ");
+        $stmt->execute($params);
+        $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        echo json_encode([
+            'success' => true,
+            'events' => $events,
+            'count' => count($events)
+        ]);
         exit;
     }
 
@@ -391,7 +539,6 @@ try {
         $insertStmt = $conn->prepare("
             INSERT INTO stock_transfers (from_store_id, to_store_id, requested_by, status, notes)
             VALUES (:from_id, :to_id, :req_by, 'requested', :notes)
-            RETURNING id
         ");
         $insertStmt->execute([
             'from_id' => $fromStoreId > 0 ? $fromStoreId : null,
@@ -399,7 +546,7 @@ try {
             'req_by' => $identity['user_id'],
             'notes' => $notes
         ]);
-        $transferId = (int)$insertStmt->fetchColumn();
+        $transferId = (int)$conn->lastInsertId();
 
         // Insert stock_transfer_items with the price snapshot for each line
         $itemStmt = $conn->prepare("
@@ -434,6 +581,9 @@ try {
             "Requested " . count($itemLines) . " item line(s), $totalQuantity unit(s): " . implode(', ', $summaryParts) . '.' .
                 ($fromStoreId > 0 ? '' : ' Awaiting manager approval and donor branch selection.')
         ]);
+
+        transfer_log_event($conn, $transferId, 'requested', $identity,
+            "Requested $totalQuantity unit(s): " . implode(', ', $summaryParts) . '.');
 
         $conn->commit();
 
@@ -523,7 +673,6 @@ try {
         $insertStmt = $conn->prepare("
             INSERT INTO stock_transfers (from_store_id, to_store_id, requested_by, status, notes, dispatched_at, received_at, completed_at)
             VALUES (:from_id, :to_id, :req_by, 'completed', :notes, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-            RETURNING id
         ");
         $insertStmt->execute([
             'from_id' => $fromStoreId,
@@ -531,7 +680,7 @@ try {
             'req_by' => $identity['user_id'],
             'notes' => $notes ?: 'Direct quick transfer (rebalance)'
         ]);
-        $transferId = (int)$insertStmt->fetchColumn();
+        $transferId = (int)$conn->lastInsertId();
 
         // 5. Insert transfer item
         $itemStmt = $conn->prepare("
@@ -566,6 +715,11 @@ try {
             "$fromStoreName -> $toStoreName",
             "Directly moved $quantity unit(s) of '{$sourceProduct['product_name']}' from $fromStoreName to $toStoreName."
         ]);
+
+        transfer_log_event($conn, $transferId, 'requested', $identity,
+            "Direct quick transfer of $quantity unit(s) of '{$sourceProduct['product_name']}'.");
+        transfer_log_event($conn, $transferId, 'received', $identity,
+            "Instant transfer: stock left $fromStoreName and arrived at $toStoreName.");
 
         $conn->commit();
 
@@ -714,6 +868,11 @@ try {
             "Manager {$identity['full_name']} approved transfer #$transferId and chose $donorName as the donor branch. Donor inventory deducted and dispatched."
         ]);
 
+        transfer_log_event($conn, $transferId, 'approved', $identity,
+            "Approved by {$identity['full_name']}; donor branch: $donorName.");
+        transfer_log_event($conn, $transferId, 'dispatched', $identity,
+            "Stock left $donorName and is now in transit to Store #$toStoreId.");
+
         $conn->commit();
         echo json_encode(['success' => true, 'message' => "Transfer #$transferId approved. $donorName was chosen as the donor branch and the stock is now in transit."]);
         exit;
@@ -771,6 +930,9 @@ try {
             "Store #{$transfer['to_store_id']}",
             "Transfer #$transferId declined. Reason: " . ($reason !== '' ? $reason : 'No reason provided.')
         ]);
+
+        transfer_log_event($conn, $transferId, 'declined', $identity,
+            "Declined by {$identity['full_name']}. Reason: " . ($reason !== '' ? $reason : 'No reason provided.'));
 
         $conn->commit();
         echo json_encode(['success' => true, 'message' => "Transfer #$transferId declined."]);
@@ -850,6 +1012,9 @@ try {
             "Dispatched transfer #$transferId. Source inventory deducted."
         ]);
 
+        transfer_log_event($conn, $transferId, 'dispatched', $identity,
+            "Dispatched by {$identity['full_name']}; source inventory deducted.");
+
         $conn->commit();
         echo json_encode(['success' => true, 'message' => 'Transfer dispatched into transit. Source inventory updated.']);
         exit;
@@ -918,6 +1083,9 @@ try {
             "Transfer #$transferId marked completed. Destination inventory replenished."
         ]);
 
+        transfer_log_event($conn, $transferId, 'received', $identity,
+            "Stock arrived and was added to inventory at Store #{$transfer['to_store_id']}.");
+
         $conn->commit();
         echo json_encode(['success' => true, 'message' => 'Transfer confirmed and received. Destination inventory updated.']);
         exit;
@@ -985,6 +1153,10 @@ try {
             "Store #" . ($transfer['from_store_id'] !== null ? $transfer['from_store_id'] : $transfer['to_store_id']),
             "Transfer #$transferId cancelled. " . ($transfer['status'] === 'in_transit' ? "Inventory refunded to source." : "")
         ]);
+
+        transfer_log_event($conn, $transferId, 'cancelled', $identity,
+            "Cancelled by {$identity['full_name']}." .
+            ($transfer['status'] === 'in_transit' ? " In-transit stock was refunded to the source branch." : ""));
 
         $conn->commit();
         echo json_encode(['success' => true, 'message' => 'Transfer cancelled successfully.']);

@@ -6,6 +6,7 @@ header("Access-Control-Allow-Methods: GET, POST");
 require_once 'db.php';
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/subscription_helper.php';
+require_once __DIR__ . '/series_helper.php';
 
 $requestedStoreId = isset($_GET['store_id']) ? intval($_GET['store_id']) : 0;
 $identity = auth_require_user($conn);
@@ -49,20 +50,18 @@ try {
     $today_tx_count = (int)($todayRow['today_tx_count'] ?? 0);
 
     // 6. Today's Sales Line Chart (Hourly Timeline of all sales for today)
+    // MySQL: hour spine built in PHP from midnight to the current hour.
+    $hourSeries = series_hours_range_sql(date('Y-m-d') . ' 00:00:00', date('Y-m-d'), date('G') + 1, 'h');
     $stmtHourly = $conn->prepare("
         SELECT 
-            TO_CHAR(h, 'HH24:00') AS label,
+            DATE_FORMAT(s.h, '%H:00') AS label,
             COALESCE(SUM(t.total_amount), 0.0) AS hourly_sales
-        FROM generate_series(
-            date_trunc('day', CURRENT_TIMESTAMP),
-            date_trunc('hour', CURRENT_TIMESTAMP),
-            '1 hour'::interval
-        ) h
-        LEFT JOIN transactions t ON date_trunc('hour', t.created_at) = h
+        FROM $hourSeries s
+        LEFT JOIN transactions t ON DATE_FORMAT(t.created_at, '%Y-%m-%d %H:00:00') = s.h
                                 AND t.store_id = :store_id
                                 AND (t.status IS NULL OR t.status != 'voided')
-        GROUP BY h
-        ORDER BY h ASC
+        GROUP BY s.h, DATE_FORMAT(s.h, '%H:00')
+        ORDER BY s.h ASC
     ");
     $stmtHourly->execute(['store_id' => $store_id]);
     $today_sales_trend = $stmtHourly->fetchAll(PDO::FETCH_ASSOC);
@@ -114,7 +113,7 @@ try {
     $stmt7 = $conn->prepare("
         SELECT st.id, st.status, sf.store_name AS from_store_name,
                COALESCE(SUM(sti.quantity), 0) AS total_quantity,
-               to_char(st.created_at, 'Mon DD, HH24:MI') AS created_at
+               DATE_FORMAT(st.created_at, '%b %d, %H:%i') AS created_at
         FROM stock_transfers st
         JOIN stores sf ON st.from_store_id = sf.id
         LEFT JOIN stock_transfer_items sti ON st.id = sti.transfer_id
@@ -126,18 +125,19 @@ try {
     $stmt7->execute(['store_id' => $store_id]);
     $inbound_transfer = $stmt7->fetch(PDO::FETCH_ASSOC);
 
-    // 11. 7-Day daily sales trend for line chart
+    // 11. 7-Day daily sales trend for line chart (MySQL: spine built in PHP)
+    $dailySeries = series_dates_sql(date('Y-m-d', strtotime('-6 days')), date('Y-m-d'), 'd');
     $stmtDaily = $conn->prepare("
         SELECT 
-            TO_CHAR(d::date, 'YYYY-MM-DD') AS sale_date,
-            TO_CHAR(d::date, 'Dy') AS label,
+            s.d AS sale_date,
+            DATE_FORMAT(s.d, '%a') AS label,
             COALESCE(SUM(t.total_amount), 0.0) AS daily_sales
-        FROM generate_series(CURRENT_DATE - INTERVAL '6 days', CURRENT_DATE, '1 day'::interval) d
-        LEFT JOIN transactions t ON TO_CHAR(t.created_at, 'YYYY-MM-DD') = TO_CHAR(d::date, 'YYYY-MM-DD')
+        FROM $dailySeries s
+        LEFT JOIN transactions t ON DATE(t.created_at) = s.d
                                 AND t.store_id = :store_id
                                 AND (t.status IS NULL OR t.status != 'voided')
-        GROUP BY d::date
-        ORDER BY d::date ASC
+        GROUP BY s.d, DATE_FORMAT(s.d, '%a')
+        ORDER BY s.d ASC
     ");
     $stmtDaily->execute(['store_id' => $store_id]);
     $daily_sales_trend = $stmtDaily->fetchAll(PDO::FETCH_ASSOC);

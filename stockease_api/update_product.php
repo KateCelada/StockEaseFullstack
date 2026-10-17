@@ -52,9 +52,9 @@ try {
         if ($existingCatId) {
             $categoryId = (int)$existingCatId;
         } else {
-            $insCat = $conn->prepare("INSERT INTO categories (store_id, name) VALUES (:sid, :name) RETURNING id");
+            $insCat = $conn->prepare("INSERT INTO categories (store_id, name) VALUES (:sid, :name)");
             $insCat->execute(['sid' => $storeId, 'name' => $categoryName]);
-            $categoryId = (int)$insCat->fetchColumn();
+            $categoryId = (int)$conn->lastInsertId();
         }
     } else {
         $categoryName = $prod['category'];
@@ -76,7 +76,6 @@ try {
             category = :cat,
             category_id = :cat_id
         WHERE id = :id
-        RETURNING id, product_name, price, cost_price, stock, min_stock, category, category_id
     ");
     $upStmt->execute([
         'pname' => $finalName,
@@ -89,7 +88,12 @@ try {
         'id' => $productId
     ]);
 
-    $updatedProduct = $upStmt->fetch(PDO::FETCH_ASSOC);
+    $updatedStmt = $conn->prepare("
+        SELECT id, product_name, price, cost_price, stock, min_stock, category, category_id
+        FROM products WHERE id = :id
+    ");
+    $updatedStmt->execute(['id' => $productId]);
+    $updatedProduct = $updatedStmt->fetch(PDO::FETCH_ASSOC);
 
     echo json_encode([
         "success" => true,

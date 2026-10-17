@@ -51,12 +51,13 @@ try {
     }
 
     // Insert new category
-    $insertStmt = $conn->prepare("INSERT INTO categories (name, store_id) VALUES (:name, :store_id) RETURNING id, name");
+    $insertStmt = $conn->prepare("INSERT INTO categories (name, store_id) VALUES (:name, :store_id)");
     $insertStmt->execute([
         'name' => $name,
         'store_id' => $storeId
     ]);
-    $category = $insertStmt->fetch(PDO::FETCH_ASSOC);
+    $newCategoryId = (int)$conn->lastInsertId();
+    $category = ['id' => $newCategoryId, 'name' => $name];
 
     echo json_encode([
         "success" => true,

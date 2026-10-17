@@ -41,7 +41,7 @@ if ($action === 'fetch') {
                       LEFT JOIN businesses b ON s.business_id = b.id
                       LEFT JOIN users ow ON s.owner_id = ow.id
                       LEFT JOIN users mgr ON s.manager_id = mgr.id
-                      WHERE (s.owner_id = :owner_id OR s.owner_id = :user_id OR s.manager_id = :user_id OR s.id = :store_id) AND s.status ILIKE 'active'
+                      WHERE (s.owner_id = :owner_id OR s.owner_id = :user_id OR s.manager_id = :user_id OR s.id = :store_id) AND LOWER(s.status) = 'active'
                       ORDER BY s.id ASC";
             $stmt = $conn->prepare($query);
             $stmt->execute(['owner_id' => $ownerId, 'user_id' => $userId, 'store_id' => $assignedStoreId]);
@@ -153,7 +153,7 @@ if ($action === 'add') {
                 : 'store_owner';
             $insOwner = $conn->prepare("
                 INSERT INTO users (full_name, username, email, password, role, is_active, must_change_password)
-                VALUES (:fn, :un, :em, :pwd, :ro, true, true) RETURNING id
+                VALUES (:fn, :un, :em, :pwd, :ro, 1, 1)
             ");
             $insOwner->execute([
                 'fn' => trim($data['new_owner_name']),
@@ -162,7 +162,7 @@ if ($action === 'add') {
                 'pwd' => $pwdHash,
                 'ro' => $ownerRole
             ]);
-            $owner_id = (int)$insOwner->fetchColumn();
+            $owner_id = (int)$conn->lastInsertId();
 
             // Each business is its own separate portfolio under the owner.
             // The portfolio takes the branch's real name (never the owner's name);
@@ -175,9 +175,9 @@ if ($action === 'add') {
                 if ($bizName === '') {
                     $bizName = 'New Business Portfolio';
                 }
-                $insBiz = $conn->prepare("INSERT INTO businesses (business_name, owner_id) VALUES (:bn, :oid) RETURNING id");
+                $insBiz = $conn->prepare("INSERT INTO businesses (business_name, owner_id) VALUES (:bn, :oid)");
                 $insBiz->execute(['bn' => $bizName, 'oid' => $owner_id]);
-                $business_id = (int)$insBiz->fetchColumn();
+                $business_id = (int)$conn->lastInsertId();
             }
         }
 
@@ -208,7 +208,7 @@ if ($action === 'add') {
             $pwdHash = password_hash($data['new_manager_password'] ?? 'admin123', PASSWORD_BCRYPT);
             $insMgr = $conn->prepare("
                 INSERT INTO users (full_name, username, email, password, role, is_active, must_change_password)
-                VALUES (:fn, :un, :em, :pwd, 'manager', true, true) RETURNING id
+                VALUES (:fn, :un, :em, :pwd, 'manager', 1, 1)
             ");
             $insMgr->execute([
                 'fn' => trim($data['new_manager_name']),
@@ -216,11 +216,11 @@ if ($action === 'add') {
                 'em' => !empty($data['new_manager_email']) ? trim($data['new_manager_email']) : null,
                 'pwd' => $pwdHash
             ]);
-            $manager_id = (int)$insMgr->fetchColumn();
+            $manager_id = (int)$conn->lastInsertId();
         }
 
         $query = "INSERT INTO stores (store_name, location, description, status, owner_id, manager_id, business_id)
-                  VALUES (:store_name, :location, :description, 'Active', :owner_id, :manager_id, :business_id) RETURNING id";
+                  VALUES (:store_name, :location, :description, 'Active', :owner_id, :manager_id, :business_id)";
         $stmt = $conn->prepare($query);
         $stmt->bindParam(':store_name', $store_name);
         $stmt->bindParam(':location', $location);
@@ -229,7 +229,7 @@ if ($action === 'add') {
         $stmt->bindValue(':manager_id', $manager_id, $manager_id !== null ? PDO::PARAM_INT : PDO::PARAM_NULL);
         $stmt->bindValue(':business_id', $business_id, $business_id !== null ? PDO::PARAM_INT : PDO::PARAM_NULL);
         $stmt->execute();
-        $createdStoreId = (int)$stmt->fetchColumn();
+        $createdStoreId = (int)$conn->lastInsertId();
 
         // Assign store_id to owner / manager if they didn't have one
         if ($owner_id) {

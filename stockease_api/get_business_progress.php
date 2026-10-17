@@ -5,6 +5,7 @@ header("Access-Control-Allow-Methods: GET, POST");
 
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/series_helper.php';
 
 $identity = auth_require_user($conn);
 auth_require_roles($identity, ['super_admin', 'manager', 'store_admin', 'staff']);
@@ -87,65 +88,69 @@ $now = new DateTime();
 $dateCondition = "";
 $chartSeriesSql = "";
 
+// MySQL has no generate_series()/date_trunc(): the chart spines are built in
+// PHP (series_helper.php) and the date filters use plain DATE literals.
 switch ($period) {
     case 'today':
-        $dateCondition = "t.created_at >= CURRENT_DATE AND t.created_at < CURRENT_DATE + INTERVAL '1 day'";
+        $dateCondition = "t.created_at >= CURDATE() AND t.created_at < DATE_ADD(CURDATE(), INTERVAL 1 DAY)";
+        $hourSeries = series_hours_range_sql(date('Y-m-d') . ' 00:00:00', date('Y-m-d'), date('G') + 1, 'h');
         $chartSeriesSql = "
             SELECT 
-                TO_CHAR(h, 'HH24:00') AS label,
+                DATE_FORMAT(s.h, '%H:00') AS label,
                 COALESCE(SUM(t.total_amount), 0.0) AS sales,
                 COUNT(t.id) AS tx_count
-            FROM generate_series(
-                date_trunc('day', CURRENT_TIMESTAMP),
-                date_trunc('hour', CURRENT_TIMESTAMP),
-                '1 hour'::interval
-            ) h
-            LEFT JOIN transactions t ON date_trunc('hour', t.created_at) = h
+            FROM $hourSeries s
+            LEFT JOIN transactions t ON DATE_FORMAT(t.created_at, '%Y-%m-%d %H:00:00') = s.h
                                     AND " . implode(" AND ", $whereClauses) . "
-            GROUP BY h
-            ORDER BY h ASC
+            GROUP BY s.h, DATE_FORMAT(s.h, '%H:00')
+            ORDER BY s.h ASC
         ";
         break;
 
     case 'this_month':
-        $dateCondition = "t.created_at >= date_trunc('month', CURRENT_DATE) AND t.created_at < (date_trunc('month', CURRENT_DATE) + INTERVAL '1 month')";
+        $monthStart = date('Y-m-01');
+        $nextMonthStart = date('Y-m-01', strtotime($monthStart . ' +1 month'));
+        $dateCondition = "t.created_at >= '$monthStart' AND t.created_at < '$nextMonthStart'";
+        // Full calendar month, but not beyond today (same as PG's LEAST(...))
+        $monthSeriesEnd = min(date('Y-m-d'), date('Y-m-t', strtotime($monthStart)));
+        $monthSeries = series_dates_sql($monthStart, $monthSeriesEnd, 'd');
         $chartSeriesSql = "
             SELECT 
-                TO_CHAR(d::date, 'Mon DD') AS label,
+                DATE_FORMAT(s.d, '%b %d') AS label,
                 COALESCE(SUM(t.total_amount), 0.0) AS sales,
                 COUNT(t.id) AS tx_count
-            FROM generate_series(
-                date_trunc('month', CURRENT_DATE),
-                LEAST(CURRENT_DATE, (date_trunc('month', CURRENT_DATE) + INTERVAL '1 month' - INTERVAL '1 day')::date),
-                '1 day'::interval
-            ) d
-            LEFT JOIN transactions t ON TO_CHAR(t.created_at, 'YYYY-MM-DD') = TO_CHAR(d::date, 'YYYY-MM-DD')
+            FROM $monthSeries s
+            LEFT JOIN transactions t ON DATE(t.created_at) = s.d
                                     AND " . implode(" AND ", $whereClauses) . "
-            GROUP BY d::date
-            ORDER BY d::date ASC
+            GROUP BY s.d, DATE_FORMAT(s.d, '%b %d')
+            ORDER BY s.d ASC
         ";
         break;
 
     case 'custom':
-        if (!empty($startDate) && !empty($endDate)) {
+        $dateRegex = '/^\d{4}-\d{2}-\d{2}$/';
+        if (!empty($startDate) && !empty($endDate)
+            && preg_match($dateRegex, $startDate) && preg_match($dateRegex, $endDate)) {
             $dateCondition = "t.created_at >= :start_date AND t.created_at <= :end_date";
             $params['start_date'] = $startDate . " 00:00:00";
             $params['end_date'] = $endDate . " 23:59:59";
-            
+
+            // Cap the spine at ~1 year so a stray range cannot explode the chart
+            $customSeriesEnd = $endDate;
+            if (strtotime($endDate) - strtotime($startDate) > 366 * 86400) {
+                $customSeriesEnd = date('Y-m-d', strtotime($startDate . ' +365 days'));
+            }
+            $customSeries = series_dates_sql($startDate, $customSeriesEnd, 'd');
             $chartSeriesSql = "
                 SELECT 
-                    TO_CHAR(d::date, 'Mon DD') AS label,
+                    DATE_FORMAT(s.d, '%b %d') AS label,
                     COALESCE(SUM(t.total_amount), 0.0) AS sales,
                     COUNT(t.id) AS tx_count
-                FROM generate_series(
-                    :series_start::date,
-                    :series_end::date,
-                    '1 day'::interval
-                ) d
-                LEFT JOIN transactions t ON TO_CHAR(t.created_at, 'YYYY-MM-DD') = TO_CHAR(d::date, 'YYYY-MM-DD')
+                FROM $customSeries s
+                LEFT JOIN transactions t ON DATE(t.created_at) = s.d
                                         AND " . implode(" AND ", $whereClauses) . "
-                GROUP BY d::date
-                ORDER BY d::date ASC
+                GROUP BY s.d, DATE_FORMAT(s.d, '%b %d')
+                ORDER BY s.d ASC
             ";
         } else {
             // Fallback to this_week if custom dates invalid
@@ -156,21 +161,22 @@ switch ($period) {
     case 'this_week':
     default:
         $period = 'this_week';
-        $dateCondition = "t.created_at >= date_trunc('week', CURRENT_DATE) AND t.created_at < (date_trunc('week', CURRENT_DATE) + INTERVAL '7 days')";
+        // Monday-based week, same as PostgreSQL date_trunc('week', ...)
+        $weekStart = date('Y-m-d', strtotime('-' . (date('N') - 1) . ' days'));
+        $weekEnd = date('Y-m-d', strtotime($weekStart . ' +6 days'));
+        $nextWeekStart = date('Y-m-d', strtotime($weekStart . ' +7 days'));
+        $dateCondition = "t.created_at >= '$weekStart' AND t.created_at < '$nextWeekStart'";
+        $weekSeries = series_dates_sql($weekStart, $weekEnd, 'd');
         $chartSeriesSql = "
             SELECT 
-                TO_CHAR(d::date, 'Dy') AS label,
+                DATE_FORMAT(s.d, '%a') AS label,
                 COALESCE(SUM(t.total_amount), 0.0) AS sales,
                 COUNT(t.id) AS tx_count
-            FROM generate_series(
-                date_trunc('week', CURRENT_DATE),
-                date_trunc('week', CURRENT_DATE) + INTERVAL '6 days',
-                '1 day'::interval
-            ) d
-            LEFT JOIN transactions t ON TO_CHAR(t.created_at, 'YYYY-MM-DD') = TO_CHAR(d::date, 'YYYY-MM-DD')
+            FROM $weekSeries s
+            LEFT JOIN transactions t ON DATE(t.created_at) = s.d
                                     AND " . implode(" AND ", $whereClauses) . "
-            GROUP BY d::date
-            ORDER BY d::date ASC
+            GROUP BY s.d, DATE_FORMAT(s.d, '%a')
+            ORDER BY s.d ASC
         ";
         break;
 }
@@ -250,13 +256,9 @@ try {
 
     // 2. Line Chart Progression
     $chartStmt = $conn->prepare($chartSeriesSql);
-    // generate_series already bounds the window, so the series SQL omits the date
-    // filter - only forward the scope parameters it actually references.
+    // The series spine already bounds the window, so the series SQL omits the
+    // date filter - only forward the scope parameters it actually references.
     $chartParams = array_diff_key($params, array_flip(['start_date', 'end_date']));
-    if ($period === 'custom' && !empty($startDate) && !empty($endDate)) {
-        $chartParams['series_start'] = $startDate;
-        $chartParams['series_end'] = $endDate;
-    }
     $chartStmt->execute($chartParams);
     $lineChart = $chartStmt->fetchAll(PDO::FETCH_ASSOC);
 

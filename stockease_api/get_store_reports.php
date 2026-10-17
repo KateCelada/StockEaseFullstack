@@ -114,23 +114,23 @@ try {
     if ($isSingleDay) {
         $dailyStmt = $conn->prepare("
             SELECT 
-                TO_CHAR(t.created_at, 'HH24:00') AS sale_date,
+                DATE_FORMAT(t.created_at, '%H:00') AS sale_date,
                 COALESCE(SUM(t.total_amount), 0.0) AS daily_sales,
                 COUNT(t.id) AS transaction_count
             FROM transactions t
             WHERE $whereSql
-            GROUP BY TO_CHAR(t.created_at, 'HH24:00')
+            GROUP BY DATE_FORMAT(t.created_at, '%H:00')
             ORDER BY sale_date DESC
         ");
     } else {
         $dailyStmt = $conn->prepare("
             SELECT 
-                TO_CHAR(t.created_at, 'YYYY-MM-DD') AS sale_date,
+                DATE(t.created_at) AS sale_date,
                 COALESCE(SUM(t.total_amount), 0.0) AS daily_sales,
                 COUNT(t.id) AS transaction_count
             FROM transactions t
             WHERE $whereSql
-            GROUP BY TO_CHAR(t.created_at, 'YYYY-MM-DD')
+            GROUP BY DATE(t.created_at)
             ORDER BY sale_date DESC
             LIMIT 92
         ");
@@ -147,8 +147,8 @@ try {
     if ($isPremium) {
         $transStmt = $conn->prepare("
             SELECT 
-                COUNT(*) FILTER (WHERE status = 'completed') AS completed_transfers,
-                COUNT(*) FILTER (WHERE status = 'in_transit') AS in_transit_transfers
+                SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) AS completed_transfers,
+                SUM(CASE WHEN status = 'in_transit' THEN 1 ELSE 0 END) AS in_transit_transfers
             FROM stock_transfers
             WHERE from_store_id = :sid OR to_store_id = :sid
         ");

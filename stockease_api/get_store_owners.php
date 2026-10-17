@@ -4,6 +4,7 @@ header("Content-Type: application/json; charset=UTF-8");
 
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/series_helper.php';
 
 $identity = auth_require_user($conn);
 auth_require_roles($identity, ['super_admin', 'manager', 'store_admin', 'store_owner']);
@@ -85,19 +86,20 @@ try {
         $prodCountStmt->execute(['store_id' => $storeId]);
         $pc = $prodCountStmt->fetch(PDO::FETCH_ASSOC);
 
-        // 7-Day sales timeline for this branch
+        // 7-Day sales timeline for this branch (MySQL: spine built in PHP)
+        $trendSeries = series_dates_sql(date('Y-m-d', strtotime('-6 days')), date('Y-m-d'), 'd');
         $trendStmt = $conn->prepare("
             SELECT 
-                TO_CHAR(d::date, 'Mon DD') AS label,
-                TO_CHAR(d::date, 'YYYY-MM-DD') AS date,
+                DATE_FORMAT(s.d, '%b %d') AS label,
+                s.d AS date,
                 COALESCE(SUM(t.total_amount), 0.0) AS sales,
                 COUNT(t.id) AS tx_count
-            FROM generate_series(CURRENT_DATE - INTERVAL '6 days', CURRENT_DATE, '1 day'::interval) d
-            LEFT JOIN transactions t ON TO_CHAR(t.created_at, 'YYYY-MM-DD') = TO_CHAR(d::date, 'YYYY-MM-DD')
+            FROM $trendSeries s
+            LEFT JOIN transactions t ON DATE(t.created_at) = s.d
                                     AND t.store_id = :store_id
                                     AND (t.status IS NULL OR t.status != 'voided')
-            GROUP BY d::date
-            ORDER BY d::date ASC
+            GROUP BY s.d
+            ORDER BY s.d ASC
         ");
         $trendStmt->execute(['store_id' => $storeId]);
         $branchTrend = $trendStmt->fetchAll(PDO::FETCH_ASSOC);

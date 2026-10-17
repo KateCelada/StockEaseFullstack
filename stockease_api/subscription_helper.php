@@ -85,18 +85,18 @@ function subscription_get_current(PDO $conn, ?array $identity = null): array
 
     $stmt = $conn->prepare("
         SELECT id, owner_user_id, plan, billing_period, status,
-               to_char(starts_at, 'YYYY-MM-DD HH24:MI:SS') as starts_at,
-               to_char(expires_at, 'YYYY-MM-DD HH24:MI:SS') as expires_at,
-               to_char(trial_ends_at, 'YYYY-MM-DD HH24:MI:SS') as trial_ends_at,
-               to_char(created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at,
-               to_char(updated_at, 'YYYY-MM-DD HH24:MI:SS') as updated_at,
+               starts_at as starts_at,
+               expires_at as expires_at,
+               trial_ends_at as trial_ends_at,
+               created_at as created_at,
+               updated_at as updated_at,
                CASE 
-                   WHEN expires_at IS NOT NULL AND expires_at < CURRENT_TIMESTAMP THEN true 
-                   ELSE false 
+                   WHEN expires_at IS NOT NULL AND expires_at < CURRENT_TIMESTAMP THEN 1 
+                   ELSE 0 
                END AS is_past_expiration,
                CASE 
-                   WHEN trial_ends_at IS NOT NULL AND trial_ends_at < CURRENT_TIMESTAMP THEN true 
-                   ELSE false 
+                   WHEN trial_ends_at IS NOT NULL AND trial_ends_at < CURRENT_TIMESTAMP THEN 1 
+                   ELSE 0 
                END AS is_past_trial
         FROM subscriptions
         WHERE owner_user_id = :owner_id
@@ -124,8 +124,12 @@ function subscription_get_current(PDO $conn, ?array $identity = null): array
 
     $plan = strtolower($sub['plan'] ?? 'free');
     $status = strtolower($sub['status'] ?? 'active');
-    $isPastExpiration = !empty($sub['is_past_expiration']);
-    $isPastTrial = !empty($sub['is_past_trial']);
+    // MySQL returns 0/1 for the computed CASE columns - expose real booleans
+    // so JSON consumers keep seeing true/false like they did on PostgreSQL.
+    $sub['is_past_expiration'] = !empty($sub['is_past_expiration']);
+    $sub['is_past_trial'] = !empty($sub['is_past_trial']);
+    $isPastExpiration = $sub['is_past_expiration'];
+    $isPastTrial = $sub['is_past_trial'];
 
     $isPremium = false;
 

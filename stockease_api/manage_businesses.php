@@ -19,7 +19,7 @@ if ($action === 'list') {
         if ($identity['role'] === 'super_admin') {
             $stmt = $conn->query("
                 SELECT b.id, b.business_name, b.owner_id, ow.full_name AS owner_name,
-                       COUNT(s.id) FILTER (WHERE s.status ILIKE 'active') AS branch_count
+                       SUM(CASE WHEN LOWER(s.status) = 'active' THEN 1 ELSE 0 END) AS branch_count
                 FROM businesses b
                 LEFT JOIN users ow ON b.owner_id = ow.id
                 LEFT JOIN stores s ON s.business_id = b.id
@@ -29,7 +29,7 @@ if ($action === 'list') {
         } elseif ($identity['role'] === 'store_owner') {
             $stmt = $conn->prepare("
                 SELECT b.id, b.business_name, b.owner_id, ow.full_name AS owner_name,
-                       COUNT(s.id) FILTER (WHERE s.status ILIKE 'active') AS branch_count
+                       SUM(CASE WHEN LOWER(s.status) = 'active' THEN 1 ELSE 0 END) AS branch_count
                 FROM businesses b
                 LEFT JOIN users ow ON b.owner_id = ow.id
                 LEFT JOIN stores s ON s.business_id = b.id
@@ -104,7 +104,7 @@ if ($action === 'add') {
             $pwdHash = password_hash($newOwnerPassword !== '' ? $newOwnerPassword : 'admin123', PASSWORD_BCRYPT);
             $insOwner = $conn->prepare("
                 INSERT INTO users (full_name, username, email, password, role, is_active, must_change_password)
-                VALUES (:fn, :un, :em, :pwd, 'store_owner', true, true) RETURNING id
+                VALUES (:fn, :un, :em, :pwd, 'store_owner', 1, 1)
             ");
             $insOwner->execute([
                 'fn' => $newOwnerName,
@@ -112,7 +112,7 @@ if ($action === 'add') {
                 'em' => $newOwnerEmail !== '' ? $newOwnerEmail : null,
                 'pwd' => $pwdHash
             ]);
-            $ownerId = (int)$insOwner->fetchColumn();
+            $ownerId = (int)$conn->lastInsertId();
         }
 
         if ($ownerId !== null) {
@@ -127,9 +127,9 @@ if ($action === 'add') {
             }
         }
 
-        $stmt = $conn->prepare("INSERT INTO businesses (business_name, owner_id) VALUES (:bn, :oid) RETURNING id");
+        $stmt = $conn->prepare("INSERT INTO businesses (business_name, owner_id) VALUES (:bn, :oid)");
         $stmt->execute(['bn' => $name, 'oid' => $ownerId]);
-        $businessId = (int)$stmt->fetchColumn();
+        $businessId = (int)$conn->lastInsertId();
 
         if ($conn->inTransaction()) {
             $conn->commit();

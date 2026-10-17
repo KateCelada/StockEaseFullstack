@@ -39,7 +39,7 @@ try {
                                   COALESCE(u.full_name, 'Unknown user') AS user_name,
                                   COALESCE(u.username, '') AS cashier_username,
                                   COALESCE(u.role, 'staff') AS cashier_role,
-                                  STRING_AGG(ti.quantity || 'x ' || p.product_name, E'\\n') AS items_summary
+                                  GROUP_CONCAT(CONCAT(ti.quantity, 'x ', p.product_name) SEPARATOR '\n') AS items_summary
                            FROM transactions t
                            JOIN users u ON t.user_id = u.id
                            LEFT JOIN transaction_items ti ON t.id = ti.transaction_id

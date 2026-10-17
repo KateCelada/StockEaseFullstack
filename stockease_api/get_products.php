@@ -48,7 +48,7 @@ $from = "FROM products p
 $params = ['store_id' => $storeId];
 
 if ($search !== '') {
-    $from .= " AND (p.product_name ILIKE :search OR COALESCE(c.name, p.category, 'General') ILIKE :search)";
+    $from .= " AND (p.product_name LIKE :search OR COALESCE(c.name, p.category, 'General') LIKE :search)";
     $params['search'] = "%$search%";
 }
 if ($categoryId > 0) {

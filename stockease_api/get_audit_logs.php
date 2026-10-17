@@ -10,15 +10,15 @@ auth_require_roles($identity, ['super_admin', 'manager', 'store_admin']);
 
 try {
     $conn->exec("CREATE TABLE IF NOT EXISTS audit_logs (
-        id SERIAL PRIMARY KEY,
+        id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
         user_name VARCHAR(100) NOT NULL,
         role VARCHAR(50) NOT NULL,
         action VARCHAR(100) NOT NULL,
         target VARCHAR(100) NOT NULL,
         store_name VARCHAR(100) DEFAULT 'System',
-        details TEXT DEFAULT '',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )");
+        details TEXT NULL,
+        created_at DATETIME NULL DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
     // Seed initial operational logs if empty
     $check = $conn->query("SELECT COUNT(*) AS total FROM audit_logs")->fetch(PDO::FETCH_ASSOC);
@@ -53,11 +53,11 @@ try {
 
     // System super admin is visible ONLY to the System Admin
     if ($identity['role'] !== 'super_admin') {
-        $where[] = "role != 'super_admin' AND user_name NOT ILIKE '%super admin%'";
+        $where[] = "role != 'super_admin' AND user_name NOT LIKE '%super admin%'";
     }
 
     if (!empty($search)) {
-        $where[] = "(user_name ILIKE :search OR target ILIKE :search OR details ILIKE :search OR store_name ILIKE :search)";
+        $where[] = "(user_name LIKE :search OR target LIKE :search OR details LIKE :search OR store_name LIKE :search)";
         $params['search'] = "%$search%";
     }
 
@@ -67,11 +67,14 @@ try {
     }
 
     if ($period === 'today') {
-        $where[] = "created_at >= CURRENT_DATE AND created_at < CURRENT_DATE + INTERVAL '1 day'";
+        $where[] = "created_at >= CURDATE() AND created_at < DATE_ADD(CURDATE(), INTERVAL 1 DAY)";
     } elseif ($period === 'this_week') {
-        $where[] = "created_at >= date_trunc('week', CURRENT_DATE) AND created_at < (date_trunc('week', CURRENT_DATE) + INTERVAL '7 days')";
+        // PostgreSQL date_trunc('week', ...) starts on Monday - WEEKDAY() is Monday-based too
+        $where[] = "created_at >= DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY)
+                    AND created_at < DATE_ADD(DATE_SUB(CURDATE(), INTERVAL WEEKDAY(CURDATE()) DAY), INTERVAL 7 DAY)";
     } elseif ($period === 'this_month') {
-        $where[] = "created_at >= date_trunc('month', CURRENT_DATE) AND created_at < (date_trunc('month', CURRENT_DATE) + INTERVAL '1 month')";
+        $where[] = "created_at >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
+                    AND created_at < DATE_ADD(DATE_FORMAT(CURDATE(), '%Y-%m-01'), INTERVAL 1 MONTH)";
     } elseif ($period === 'custom' && !empty($startDate) && !empty($endDate)) {
         $where[] = "created_at >= :start_date AND created_at <= :end_date";
         $params['start_date'] = $startDate . " 00:00:00";
@@ -85,7 +88,7 @@ try {
     $total = (int)$countStmt->fetchColumn();
 
     $sql = "SELECT id, user_name, role, action, target, store_name, details, 
-                   to_char(created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at 
+                   created_at 
             FROM audit_logs 
             WHERE $whereClause 
             ORDER BY id DESC";

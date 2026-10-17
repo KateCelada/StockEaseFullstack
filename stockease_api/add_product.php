@@ -46,9 +46,9 @@ try {
         if ($existingCatId) {
             $categoryId = (int)$existingCatId;
         } else {
-            $insCat = $conn->prepare("INSERT INTO categories (store_id, name) VALUES (:sid, :name) RETURNING id");
+            $insCat = $conn->prepare("INSERT INTO categories (store_id, name) VALUES (:sid, :name)");
             $insCat->execute(['sid' => $storeId, 'name' => $categoryName]);
-            $categoryId = (int)$insCat->fetchColumn();
+            $categoryId = (int)$conn->lastInsertId();
         }
     } elseif ($categoryId !== null && $categoryName === '') {
         $catNameStmt = $conn->prepare("SELECT name FROM categories WHERE id = :cid");
@@ -69,8 +69,7 @@ try {
 
     $stmt = $conn->prepare("INSERT INTO products
         (store_id, category_id, category, product_name, price, cost_price, stock, min_stock)
-        VALUES (:store_id, :category_id, :category, :product_name, :price, :cost_price, :stock, :min_stock)
-        RETURNING id, store_id, product_name, category, category_id, price, cost_price, stock, min_stock, created_at");
+        VALUES (:store_id, :category_id, :category, :product_name, :price, :cost_price, :stock, :min_stock)");
     $stmt->bindValue(':store_id', $storeId, PDO::PARAM_INT);
     $stmt->bindValue(':category_id', $categoryId, $categoryId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
     $stmt->bindValue(':category', $categoryName !== '' ? $categoryName : 'General', PDO::PARAM_STR);
@@ -80,8 +79,12 @@ try {
     $stmt->bindValue(':stock', $stock, PDO::PARAM_INT);
     $stmt->bindValue(':min_stock', $minStock, PDO::PARAM_INT);
     $stmt->execute();
+    $newProductId = (int)$conn->lastInsertId();
 
-    $newProduct = $stmt->fetch(PDO::FETCH_ASSOC);
+    $fetchStmt = $conn->prepare("SELECT id, store_id, product_name, category, category_id, price, cost_price, stock, min_stock, created_at
+        FROM products WHERE id = :id");
+    $fetchStmt->execute(['id' => $newProductId]);
+    $newProduct = $fetchStmt->fetch(PDO::FETCH_ASSOC);
 
     echo json_encode([
         "success" => true,

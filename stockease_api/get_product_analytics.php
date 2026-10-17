@@ -4,6 +4,7 @@ header("Content-Type: application/json; charset=UTF-8");
 
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/series_helper.php';
 
 $identity = auth_require_user($conn);
 auth_require_roles($identity, ['super_admin', 'store_admin', 'staff', 'manager']);
@@ -59,19 +60,23 @@ try {
     $progressiveNet = (float)($totals['progressive_net'] ?? 0.0);
 
     // 3. 7-Day Progressive Earnings Trajectory (Daily Gross & Net)
+    // MySQL has no generate_series(), so the 7-day spine is built in PHP.
+    $trendStart = date('Y-m-d', strtotime('-6 days'));
+    $trendEnd = date('Y-m-d');
+    $series = series_dates_sql($trendStart, $trendEnd, 'd');
     $trendStmt = $conn->prepare("
         SELECT 
-            TO_CHAR(d::date, 'YYYY-MM-DD') AS sale_date,
-            TO_CHAR(d::date, 'Dy') AS label,
+            s.d AS sale_date,
+            DATE_FORMAT(s.d, '%a') AS label,
             COALESCE(SUM(ti.quantity * ti.unit_price), 0.0) AS daily_gross,
             COALESCE(SUM(ti.quantity * (ti.unit_price - COALESCE(ti.cost_price, :cost_price, 0.0))), 0.0) AS daily_net
-        FROM generate_series(CURRENT_DATE - INTERVAL '6 days', CURRENT_DATE, '1 day'::interval) d
-        LEFT JOIN transactions t ON TO_CHAR(t.created_at, 'YYYY-MM-DD') = TO_CHAR(d::date, 'YYYY-MM-DD')
+        FROM $series s
+        LEFT JOIN transactions t ON DATE(t.created_at) = s.d
                                 AND t.store_id = :store_id
                                 AND (t.status IS NULL OR t.status != 'voided')
         LEFT JOIN transaction_items ti ON ti.transaction_id = t.id AND ti.product_id = :product_id
-        GROUP BY d::date
-        ORDER BY d::date ASC
+        GROUP BY s.d
+        ORDER BY s.d ASC
     ");
     $trendStmt->execute([
         'product_id' => $productId,

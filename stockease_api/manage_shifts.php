@@ -26,8 +26,8 @@ function get_active_shift(PDO $conn, int $userId): ?array
 {
     $stmt = $conn->prepare("
         SELECT ss.id, ss.user_id, ss.store_id, ss.status,
-               to_char(ss.started_at, 'YYYY-MM-DD HH24:MI:SS') AS started_at,
-               to_char(ss.ended_at, 'YYYY-MM-DD HH24:MI:SS') AS ended_at
+               ss.started_at AS started_at,
+               ss.ended_at AS ended_at
         FROM staff_shifts ss
         WHERE ss.user_id = :uid AND ss.status = 'active'
         ORDER BY ss.id DESC
@@ -69,11 +69,15 @@ try {
         $stmt = $conn->prepare("
             INSERT INTO staff_shifts (user_id, store_id, status, started_at)
             VALUES (:uid, :sid, 'active', CURRENT_TIMESTAMP)
-            RETURNING id, user_id, store_id, status,
-                      to_char(started_at, 'YYYY-MM-DD HH24:MI:SS') AS started_at
         ");
         $stmt->execute(['uid' => (int)$identity['user_id'], 'sid' => $storeId]);
-        $shift = $stmt->fetch(PDO::FETCH_ASSOC);
+        $shiftId = (int)$conn->lastInsertId();
+        $shiftStmt = $conn->prepare("
+            SELECT id, user_id, store_id, status, started_at
+            FROM staff_shifts WHERE id = :id
+        ");
+        $shiftStmt->execute(['id' => $shiftId]);
+        $shift = $shiftStmt->fetch(PDO::FETCH_ASSOC);
 
         echo json_encode([
             'success' => true,
@@ -96,11 +100,14 @@ try {
             UPDATE staff_shifts
             SET status = 'ended', ended_at = CURRENT_TIMESTAMP
             WHERE id = :id AND user_id = :uid AND status = 'active'
-            RETURNING id, to_char(started_at, 'YYYY-MM-DD HH24:MI:SS') AS started_at,
-                      to_char(ended_at, 'YYYY-MM-DD HH24:MI:SS') AS ended_at
         ");
         $stmt->execute(['id' => (int)$shift['id'], 'uid' => (int)$identity['user_id']]);
-        $ended = $stmt->fetch(PDO::FETCH_ASSOC);
+        $endedStmt = $conn->prepare("
+            SELECT id, started_at, ended_at
+            FROM staff_shifts WHERE id = :id
+        ");
+        $endedStmt->execute(['id' => (int)$shift['id']]);
+        $ended = $endedStmt->fetch(PDO::FETCH_ASSOC);
 
         echo json_encode([
             'success' => true,
@@ -116,10 +123,10 @@ try {
             // Fall back to the most recent ended shift today
             $recentStmt = $conn->prepare("
                 SELECT ss.id, ss.store_id, ss.status,
-                       to_char(ss.started_at, 'YYYY-MM-DD HH24:MI:SS') AS started_at,
-                       to_char(ss.ended_at, 'YYYY-MM-DD HH24:MI:SS') AS ended_at
+                       ss.started_at AS started_at,
+                       ss.ended_at AS ended_at
                 FROM staff_shifts ss
-                WHERE ss.user_id = :uid AND ss.status = 'ended' AND ss.ended_at::date = CURRENT_DATE
+                WHERE ss.user_id = :uid AND ss.status = 'ended' AND DATE(ss.ended_at) = CURRENT_DATE
                 ORDER BY ss.id DESC
                 LIMIT 1
             ");
