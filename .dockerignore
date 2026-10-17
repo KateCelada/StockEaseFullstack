@@ -1,0 +1,4 @@
+# Keep the image lean: no git internals, no Android app sources, no local backups.
+.git
+StockEase/
+*.bundle
