@@ -33,6 +33,19 @@ if ($uri === '/' || $uri === '' || $uri === '/stockease_admin') {
     return true;
 }
 
+// API folder opened in a browser - friendly hint instead of a scary 404.
+// (Endpoints themselves, e.g. /stockease_api/login.php, execute normally below.)
+if ($uri === '/stockease_api' || $uri === '/stockease_api/') {
+    http_response_code(200);
+    header('Content-Type: application/json');
+    echo json_encode([
+        'success' => true,
+        'message' => 'StockEase API is running. This is a folder of endpoints - open one, e.g. /stockease_api/login.php (POST) or /stockease_api/health.php to check the database.',
+        'panel'   => '/stockease_admin/'
+    ]);
+    return true;
+}
+
 // Directory requests (/stockease_admin/) resolve to their index.php
 if ($target !== false && is_dir($target) && is_file($target . '/index.php')) {
     require $target . '/index.php';
