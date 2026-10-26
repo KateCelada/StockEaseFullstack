@@ -1,8 +1,9 @@
 # StockEase — Device Verification Checklist
 
-The four redesign phases changed ~200 things and **none of it has ever rendered on a
-device**. This is the single biggest remaining risk. Walk this list once on an
-emulator or device before calling the work done.
+The four redesign phases changed ~200 things. The API side is smoke-tested
+end-to-end (locally **and on the live Render deployment**), but the UI redesigns
+still need a real-device pass — that remains the biggest risk. Walk this list
+once on an emulator or device before calling the work done.
 
 **Before you start:** StockEase runs on **MySQL/MariaDB (XAMPP) only** — the old
 PostgreSQL migration scripts (`apply_*.php`) are retired and now print a notice
@@ -18,6 +19,21 @@ C:\xampp\mysql\bin\mysql.exe -u root -e "CREATE DATABASE IF NOT EXISTS stockease
 C:\xampp\mysql\bin\mysql.exe -u root stockease < stockease_api\schema_mysql.sql
 C:\xampp\mysql\bin\mysql.exe -u root stockease < stockease_api\seed_mysql.sql
 ```
+
+**Two environments — same code, same schema:**
+
+| | Local (XAMPP) | Live (cloud) |
+|---|---|---|
+| Panel | `http://localhost/stockease_api/StockEaseFullstack/stockease_admin/` | `https://stockeasefullstack.onrender.com` → `/stockease_admin/` |
+| API (Android emulator) | `http://10.0.2.2/stockease_api/StockEaseFullstack/stockease_api/` | `https://stockeasefullstack.onrender.com/stockease_api/` |
+| Database | XAMPP MariaDB `stockease` (port 3306) | TiDB Serverless MySQL `stockease` (Singapore, TLS via `tidb-ca.pem`) |
+| Runtime | Apache/PHP from XAMPP | Render (Docker, PHP 8.5, `router.php`) |
+
+- Live seed login: `superadmin / admin123` — **change it after the demo**.
+- Render free tier sleeps after ~15 min idle → the first live load takes ~20–40 s
+  (cold start), then it is fast. That is not an outage.
+- `stockease_api/db.php` picks the database from environment variables (Render)
+  with the XAMPP values as local fallback — no code difference between the two.
 
 **Test matrix:** walk steps 1–10 once in **light**, then repeat the marked steps in
 **dark** (step 11). Everything else looks identical in both modes by design.
@@ -54,7 +70,7 @@ Shared sidebar (`view_sidebar.xml` + `SidebarNav.attach(...)`): `POSActivity`,
 - [ ] **Dark mode:** sidebar still reads correctly (this was the `sidebar_bg` ≡
       `text_primary` swap — a no-op in light, the actual fix in dark).
 
-## 3. Profile — load and edit  ⚠️ *depends on the migration*
+## 3. Profile — load and edit
 
 - [ ] Open Profile: fields populate from `get_user_profile.php`, no crash.
 - [ ] Edit phone / address / occupation / sex; Save.
@@ -130,13 +146,51 @@ Switch to dark and re-check:
 ## 13. Roles
 
 - [ ] `super_admin` / `store_admin` / `manager` / `store_owner` reach admin screens.
-- [ ] `cashier` is scoped to staff surfaces and **cannot** reach Settings (bounces to login).
+- [ ] `staff` (displayed as Cashier) and `inventory_checker` are scoped to staff
+      surfaces and **cannot** reach Settings (bounces to login).
+
+---
+
+## 14. Panelist feedback — final verification
+
+Item 1 (MySQL only) is the setup block above; item 2 (sidebar everywhere) is step 2.
+The remaining five:
+
+**Item 3 — POS category creation**
+- [ ] POS → add-category control: create a category **inside POS**; it appears in
+      the category filter without restarting the app.
+- [ ] Picking a category filters the product grid; clearing it shows all products again.
+
+**Item 4 — Other sales report (manual sales)**
+- [ ] Web panel: create a manual sale (non-POS). It is stored with `source = manual`.
+- [ ] Reports: it appears under **Other sales**, separate from POS sales.
+- [ ] Voided/refunded manual sales are still listed there, with their status shown.
+- [ ] App: manual sale entry works and the list shows it after refresh.
+
+**Item 5 — Password strength**
+- [ ] Register / change password with something weak (e.g. `abc`) → blocked with a
+      readable message (min 8 characters, needs a letter **and** a number).
+- [ ] A strong password passes; web and app enforce the **same** rules.
+
+**Item 6 — Store-admin null values**
+- [ ] Log in as `john` (store_admin): dashboards, reports and lists show **no**
+      `null`, `undefined` or `-1` anywhere.
+
+**Item 7 — Transfer status logging**
+- [ ] Create a transfer, then change its status (approve → dispatch → receive, or
+      decline/cancel) → **every change adds a timeline entry** (`transfer_events`).
+- [ ] The **requesting store admin** sees the full history on their account
+      (app timeline + web transfer view).
 
 ---
 
 ## If something fails
 
-There is **no version control** on this working tree — nothing can be rolled back.
+Everything is version-controlled: local `git` + GitHub
+(`KateCelada/StockEaseFullstack`, branch `main`, pushed). To undo a bad change:
+`git log --oneline` → `git revert <commit>` → push. Extra restore points: the SQL
+dump `C:\xampp\htdocs\stockease_api\stockease_backup_*.sql` and the full repo
+bundle `C:\xampp\htdocs\stockease_api\StockEase-full-backup.bundle`.
 Report the exact screen + symptom rather than editing further.
 
 Known and deliberately left as-is (do **not** file these as bugs):
@@ -144,4 +198,4 @@ Known and deliberately left as-is (do **not** file these as bugs):
   left alone to avoid table-cell truncation.
 - "Smart Recommendation" badge wording.
 - `activity_main.xml` / `activity_transactions.xml` are **dead files** — no activity
-  references them. Harmless; not deleted (no VCS to restore from).
+  references them. Harmless; not deleted (git history covers them either way).
