@@ -6,8 +6,8 @@ still need a real-device pass — that remains the biggest risk. Walk this list
 once on an emulator or device before calling the work done.
 
 **Before you start:** StockEase runs on **MySQL/MariaDB (XAMPP) only** — the old
-PostgreSQL migration scripts (`apply_*.php`) are retired and now print a notice
-without touching the database. Schema and seed live in:
+PostgreSQL migration scripts (`apply_*.php`, now in `stockease_api\retired\`) are
+retired and now print a notice without touching the database. Schema and seed live in:
 
 ```
 stockease_api\schema_mysql.sql   (import first)
