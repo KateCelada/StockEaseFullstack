@@ -15,14 +15,14 @@ public final class ApiConfig {
     }
 
     /**
-     * Points at the live repo API (htdocs junction copy), not the stale flat
-     * htdocs\stockease_api directory — that flat copy no longer receives fixes.
+     * Points at the live Render deployment (Docker, PHP) backed by
+     * TiDB Serverless MySQL — the same database the live web panel uses.
      *
-     * - Android Emulator: "http://10.0.2.2/StockEaseFullstack/stockease_api/"
-     * - Local Wi-Fi (Physical Devices): "http://<YOUR_LOCAL_IP>/StockEaseFullstack/stockease_api/"
-     * - Production Server: "https://yourdomain.com/stockease_api/"
+     * - Production (default): "https://stockeasefullstack.onrender.com/stockease_api/"
+     * - Android Emulator + local XAMPP: "http://10.0.2.2/stockease_api/StockEaseFullstack/stockease_api/"
+     * - Local Wi-Fi (physical device, PC running XAMPP): "http://<YOUR_LOCAL_IP>/stockease_api/StockEaseFullstack/stockease_api/"
      */
-    public static final String BASE_URL = "http://10.0.2.2/stockease_api/StockEaseFullstack/stockease_api/";
+    public static final String BASE_URL = "https://stockeasefullstack.onrender.com/stockease_api/";
 
     /**
      * Builds a full URL for the specified endpoint or relative path.
